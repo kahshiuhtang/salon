@@ -1,19 +1,30 @@
 import { useState } from "react";
-import TransactionPage from "./components/pages/TransactionPage";
-import {
-    createBrowserRouter,
-    RouterProvider,
-    Route,
-    Link,
-} from "react-router-dom";
-import { getTranactionData } from "./components/pages/TransactionPage";
-import LoginPage from "./components/pages/LoginPage";
-import HomePage from "./components/pages/HomePage";
-import RootBoundary from "./components/errors/RootBoundary";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
+import { getTranactionData } from "@/components/pages/TransactionPage";
+import LoginPage from "@/components/pages/LoginPage";
+import HomePage from "@/components/pages/HomePage";
+import RootBoundary from "@/components/errors/RootBoundary";
+import SignupPage from "@/components/pages/SignupPage";
+import ServicesPage from "@/components/pages/ServicesPage";
+import SettingsPage from "@/components/pages/SettingsPage";
+import StaffPage from "@/components/pages/StaffPage";
+import ClientsPage from "@/components/pages/ClientsPage";
+import InventoryPage from "@/components/pages/InventoryPage";
+import TransactionPage from "@/components/pages/TransactionPage";
 const router = createBrowserRouter([
     {
         path: "/",
         element: <LoginPage />,
+        errorElement: <RootBoundary />,
+    },
+    {
+        path: "login",
+        element: <LoginPage />,
+        errorElement: <RootBoundary />,
+    },
+    {
+        path: "signup",
+        element: <SignupPage />,
         errorElement: <RootBoundary />,
     },
     {
@@ -26,6 +37,26 @@ const router = createBrowserRouter([
     {
         path: "home",
         element: <HomePage />,
+    },
+    {
+        path: "services",
+        element: <ServicesPage />,
+    },
+    {
+        path: "clients",
+        element: <ClientsPage />,
+    },
+    {
+        path: "staff",
+        element: <StaffPage />,
+    },
+    {
+        path: "inventory",
+        element: <InventoryPage />,
+    },
+    {
+        path: "settings",
+        element: <SettingsPage />,
     },
 ]);
 function App() {

@@ -1,8 +1,33 @@
-import React, { useState } from "react";
-import { Routes, Route } from "react-router-dom";
-import HomePage from "./components/pages/HomePage";
+import { useState } from "react";
+import TransactionPage from "./components/pages/TransactionPage";
+import {
+    createBrowserRouter,
+    RouterProvider,
+    Route,
+    Link,
+} from "react-router-dom";
+import { getTranactionData } from "./components/pages/TransactionPage";
 import LoginPage from "./components/pages/LoginPage";
-import SignupPage from "./components/pages/SignupPage";
+import HomePage from "./components/pages/HomePage";
+import RootBoundary from "./components/errors/RootBoundary";
+const router = createBrowserRouter([
+    {
+        path: "/",
+        element: <LoginPage />,
+        errorElement: <RootBoundary />,
+    },
+    {
+        path: "transactions",
+        loader: async () => {
+            return getTranactionData();
+        },
+        element: <TransactionPage />,
+    },
+    {
+        path: "home",
+        element: <HomePage />,
+    },
+]);
 function App() {
     const [year, setYear] = useState(2024);
     const [month, setMonth] = useState(7);
@@ -64,15 +89,7 @@ function App() {
     //     <Calendar year={year} month={month} tasks={tasks} />
     //   </>
     // );
-    return (
-        <>
-            <Routes>
-                <Route path="/" element={<LoginPage />} />
-                <Route path="/home" element={<HomePage />} />
-                <Route path="/signup" element={<SignupPage />} />
-            </Routes>
-        </>
-    );
+    return <RouterProvider router={router} />;
 }
 
 export default App;

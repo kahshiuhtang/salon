@@ -21,17 +21,24 @@ import {
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { Textarea } from "../ui/textarea";
 
-export default function LoginForm() {
+export default function CreateCustomerForm() {
     const formSchema = z.object({
-        email: z.string().min(2).max(50),
-        password: z.string().min(6).max(50),
+        email: z.string().min(0).max(50),
+        firstName: z.string(),
+        lastName: z.string(),
+        notes: z.string(),
+        phoneNumber: z.string(),
     });
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             email: "",
-            password: "",
+            firstName: "",
+            lastName: "",
+            notes: "",
+            phoneNumber: "",
         },
     });
 
@@ -42,19 +49,42 @@ export default function LoginForm() {
         console.log(values);
     }
     return (
-        <Card className="w-[350px]">
+        <Card className="w-96">
             <CardHeader>
-                <CardTitle>Sign In</CardTitle>
-                <CardDescription>
-                    Enter your credentials to access your account
-                </CardDescription>
+                <CardTitle>Add Client</CardTitle>
             </CardHeader>
             <CardContent>
                 <Form {...form}>
                     <form
                         onSubmit={form.handleSubmit(onSubmit)}
-                        className="space-y-8"
+                        className="space-y-2"
                     >
+                        <div className="flex">
+                            <FormField
+                                control={form.control}
+                                name="firstName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>First Name</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="lastName"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Last Name</FormLabel>
+                                        <FormControl>
+                                            <Input {...field} />
+                                        </FormControl>
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                         <FormField
                             control={form.control}
                             name="email"
@@ -69,12 +99,28 @@ export default function LoginForm() {
                         />
                         <FormField
                             control={form.control}
-                            name="password"
+                            name="phoneNumber"
                             render={({ field }) => (
                                 <FormItem>
-                                    <FormLabel>Password</FormLabel>
+                                    <FormLabel>Phone Number</FormLabel>
                                     <FormControl>
                                         <Input {...field} />
+                                    </FormControl>
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="notes"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Description</FormLabel>
+                                    <FormControl>
+                                        <Textarea
+                                            placeholder="additional notes for client"
+                                            className="resize-none"
+                                            {...field}
+                                        />
                                     </FormControl>
                                 </FormItem>
                             )}

@@ -7,31 +7,28 @@ ERM for Nail Salons
 1. Golang 1.20+
 2. pnpm
 3. React
+4. Maven, Java 22
 
 ### To Run
 
 1. Frontend
 
 ```bash
-
 cd salon-frontend
 
 pnpm install
 
 pnpm run
-
 ```
 
 2. Backend
 
 ```bash
-
 cd salon-backend
 
 ./scripts/install-services.sh
 
 make all
-
 ```
 
 ### To Do

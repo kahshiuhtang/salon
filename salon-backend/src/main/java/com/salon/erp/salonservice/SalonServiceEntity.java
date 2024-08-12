@@ -1,7 +1,9 @@
 package com.salon.erp.salonservice;
 
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
+@Document(collection = "salon_service")
 public class SalonServiceEntity {
     @Id
     private String id;

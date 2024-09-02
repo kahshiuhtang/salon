@@ -10,7 +10,6 @@ import SignInPage from "./pages/signinPage";
 import SignUpPage from "./pages/signupPage";
 import CreateProfilePage from "./pages/createProfilePage";
 import MessagesPage from "./pages/messagesPage";
-import ChatPage from "./pages/activeUsers"; // Added import
 
 const router = createBrowserRouter([
     {
@@ -24,7 +23,6 @@ const router = createBrowserRouter([
             { path: "/settings", element: <SettingsPage /> },
             { path: "/sign-in/*", element: <SignInPage /> },
             { path: "/sign-up/*", element: <SignUpPage /> },
-            { path: "users", element: <ChatPage /> },
         ],
     },
 ]);

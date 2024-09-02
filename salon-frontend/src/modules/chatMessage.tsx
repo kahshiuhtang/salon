@@ -16,13 +16,13 @@ export default function ChatMessage({
                 <p>{message}</p>
             </div>
             <div className="ml-2">
-                <p>{date}</p>
+                <p>Now</p>
             </div>
         </div>
     ) : (
         <div className="flex mb-4">
             <div className="mr-2">
-                <p>{date}</p>
+                <p>Now</p>
             </div>
             <div className="bg-blue-200 rounded p-2">
                 <p>{message}</p>

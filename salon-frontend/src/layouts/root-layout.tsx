@@ -16,9 +16,6 @@ var SUPABASE_API_KEY = import.meta.env.SUPABASE_API_KEY;
 if (!SUPABASE_API_KEY) {
     SUPABASE_API_KEY = process.env.SUPABASE_API_KEY;
 }
-if (!SUPABASE_API_KEY) {
-    throw new Error("Missing Supabase API Key");
-}
 
 export default function RootLayout() {
     const navigate = useNavigate();

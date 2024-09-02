@@ -11,10 +11,10 @@ if (!PUBLISHABLE_KEY) {
 if (!PUBLISHABLE_KEY) {
     throw new Error("Missing Publishable Key");
 }
-var SUPABASE_API_KEY = import.meta.env.SUPABASE_API_KEY;
+var SUPABASE_API_KEY = import.meta.env.VITE_SUPABASE_API_KEY;
 
 if (!SUPABASE_API_KEY) {
-    SUPABASE_API_KEY = process.env.SUPABASE_API_KEY;
+    SUPABASE_API_KEY = process.env.VITE_SUPABASE_API_KEY;
 }
 
 export default function RootLayout() {

@@ -42,7 +42,7 @@ export default function CreateProfilePage() {
     });
     function onSubmit(values: z.infer<typeof formSchema>) {
         console.log(values);
-        navigate("/items");
+        navigate("/");
     }
     return (
         <div>

@@ -1,11 +1,7 @@
 import Navbar from "@/modules/navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import ChatProfileTab from "@/modules/chatProfileTab";
-import { useState } from "react";
 
 export default function MessagesPage() {
-    const [conversations, _] = useState<any[]>([]);
-
     return (
         <div>
             <Navbar />
@@ -16,20 +12,7 @@ export default function MessagesPage() {
                             <h1 className="text-black">Messages</h1>
                         </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                        <div>
-                            {conversations.map((conv) => (
-                                <ChatProfileTab
-                                    key={conv.id}
-                                    username={conv.participants.join(", ")}
-                                    lastMessage={conv.lastMessage}
-                                    lastMessageTime={conv.lastMessageTimestamp
-                                        .toDate()
-                                        .toLocaleString()}
-                                />
-                            ))}
-                        </div>
-                    </CardContent>
+                    <CardContent></CardContent>
                 </Card>
             </div>
         </div>

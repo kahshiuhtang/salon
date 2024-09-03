@@ -30,7 +30,8 @@ const formSchema = z.object({
     location: z.string().min(2).max(50),
     college: z.string(),
 });
-
+import dayjs from "dayjs";
+const format = "HH:mm";
 export default function BookAppointmentForm() {
     const user = useUser();
     if (user) {
@@ -149,8 +150,16 @@ export default function BookAppointmentForm() {
                                     </FormItem>
                                 )}
                             />
-                            <DayPicker />
-                            <TimePicker />
+                            <div className="flex">
+                                <DayPicker />
+                                <TimePicker
+                                    defaultValue={dayjs("12:00", format)}
+                                    use12Hours
+                                    format={format}
+                                    minuteStep={5}
+                                    className="h-10 mt-0 flex-1 ml-2"
+                                />
+                            </div>
                             <Button type="submit">Submit</Button>
                         </form>
                     </Form>

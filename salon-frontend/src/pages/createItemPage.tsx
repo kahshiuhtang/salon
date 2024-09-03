@@ -1,11 +1,11 @@
 import Navbar from "@/modules/navbar";
-import NewItemForm from "@/modules/forms/newItemForm";
+import BookAppointmentForm from "@/modules/forms/bookAppointmentForm";
 
 export default function CreateItemPage() {
     return (
         <>
             <Navbar />
-            <NewItemForm />
+            <BookAppointmentForm />
         </>
     );
 }

@@ -1,15 +1,6 @@
-import { UserButton, useUser } from "@clerk/clerk-react";
+import { UserButton } from "@clerk/clerk-react";
 import { Link } from "react-router-dom";
 export default function Navbar() {
-    const { isSignedIn, user, isLoaded } = useUser();
-
-    if (!isLoaded || !isSignedIn) {
-        return <>Loading...</>;
-    }
-    if (!user || !user["id"]) {
-        return <>Error, no logged in user, please fresh and try again.</>;
-    }
-
     return (
         <nav className="bg-blue-600 p-4">
             <div className="container mx-auto flex justify-between items-center">
@@ -18,7 +9,7 @@ export default function Navbar() {
                     <Link to="/calendar">
                         <p className="text-white hover:text-gray-300">Home</p>
                     </Link>
-                    <Link to="/create">
+                    <Link to="/book">
                         <p className="text-white hover:text-gray-300">Book</p>
                     </Link>
                     <Link to="/messages">

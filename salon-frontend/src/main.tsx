@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import RootLayout from "./layouts/root-layout";
-import CreateItemPage from "./pages/createItemPage";
+import BookAppointmentPage from "./pages/bookAppointmentPage";
 import CalendarPage from "./pages/calendarPage";
 import SettingsPage from "./pages/settingsPage";
 import SignInPage from "./pages/signinPage";
@@ -17,7 +17,7 @@ const router = createBrowserRouter([
         children: [
             { path: "/", element: <CalendarPage /> },
             { path: "/messages", element: <MessagesPage /> },
-            { path: "/create", element: <CreateItemPage /> },
+            { path: "/book", element: <BookAppointmentPage /> },
             { path: "/create-profile", element: <CreateProfilePage /> },
             { path: "/calendar", element: <CalendarPage /> },
             { path: "/settings", element: <SettingsPage /> },

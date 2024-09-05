@@ -50,6 +50,7 @@ import {
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
+import { SelectValue } from "@radix-ui/react-select";
 const timeFormat = "HH:mm";
 
 export default function BookAppointmentForm() {
@@ -106,8 +107,17 @@ export default function BookAppointmentForm() {
                                                             field.value
                                                         }
                                                     >
-                                                        <SelectTrigger className="w-full"></SelectTrigger>
-                                                        <SelectContent></SelectContent>
+                                                        <SelectTrigger className="w-full">
+                                                            <SelectValue></SelectValue>
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            <SelectItem value="gel-mani">
+                                                                Gel Manicure
+                                                            </SelectItem>
+                                                            <SelectItem value="gel-pedi">
+                                                                Gel Pedicure
+                                                            </SelectItem>
+                                                        </SelectContent>
                                                     </Select>
                                                 </FormControl>
                                                 <FormMessage />
@@ -118,7 +128,7 @@ export default function BookAppointmentForm() {
                                         control={form.control}
                                         name={"tech1"}
                                         render={({ field }) => (
-                                            <FormItem className="ml-2">
+                                            <FormItem className="ml-2 flex-1">
                                                 <FormLabel>Employee</FormLabel>
                                                 <FormControl>
                                                     <Select
@@ -129,7 +139,9 @@ export default function BookAppointmentForm() {
                                                             field.value
                                                         }
                                                     >
-                                                        <SelectTrigger className="w-[180px]"></SelectTrigger>
+                                                        <SelectTrigger className="w-[180px]">
+                                                            <SelectValue></SelectValue>
+                                                        </SelectTrigger>
                                                         <SelectContent>
                                                             <SelectItem value="lee">
                                                                 Lee

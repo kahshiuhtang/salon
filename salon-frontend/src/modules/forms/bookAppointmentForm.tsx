@@ -26,9 +26,7 @@ import {
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 const formSchema = z.object({
-    time: z.date({
-        required_error: "Date of appointment is required",
-    }),
+    time: z.date(),
     date: z.date(),
     service1: z.string().min(2).max(50),
     tech1: z.string().min(2).max(50),
@@ -68,16 +66,14 @@ export default function BookAppointmentForm() {
         },
     });
     const { addAppointment } = useAddAppointment();
-    async function handleSubmitClick(e: any) {
-        console.log(e);
-    }
     async function onSubmit(values: z.infer<typeof formSchema>) {
         addAppointment(values);
     }
+    
 
     return (
         <div className="flex justify-center items-center mt-24">
-            <Card className="w-1/4">
+            <Card className="w-3/4 sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3 2xl:w-1/4 3xl:w-1/5">
                 <CardHeader className="pl-8 pt-8 pb-0 mb-2">
                     <CardTitle>Book an appointment</CardTitle>
                     <CardDescription>
@@ -164,12 +160,12 @@ export default function BookAppointmentForm() {
                                     />
                                 </div>
                             </div>
-                            <div className="flex">
+                            <div className="flex justify-start">
                                 <FormField
                                     control={form.control}
                                     name="date"
                                     render={({ field }) => (
-                                        <FormItem className="flex flex-col">
+                                        <FormItem className="flex flex-col mr-2">
                                             <FormLabel>Date</FormLabel>
                                             <Popover>
                                                 <PopoverTrigger asChild>
@@ -197,7 +193,7 @@ export default function BookAppointmentForm() {
                                                     </FormControl>
                                                 </PopoverTrigger>
                                                 <PopoverContent
-                                                    className="w-auto p-0"
+                                                    className="w-auto p-0 opacity-100 bg-white"
                                                     align="start"
                                                 >
                                                     <Calendar
@@ -229,11 +225,11 @@ export default function BookAppointmentForm() {
                                     control={form.control}
                                     name={"time"}
                                     render={({ field }) => (
-                                        <FormItem className="space-y-0">
-                                            <FormLabel>Time</FormLabel>
+                                        <FormItem className="space-y-0 w-[120px] flex flex-col">
+                                            <FormLabel className="mb-2">Time</FormLabel>
                                             <FormControl>
                                                 <TimePicker
-                                                    onChange={field.onChange}
+                                                    onChange={(time) => field.onChange(time?.toDate())}
                                                     value={dayjs(field.value)}
                                                     defaultValue={dayjs(
                                                         "12:00",
@@ -242,7 +238,7 @@ export default function BookAppointmentForm() {
                                                     use12Hours
                                                     format={timeFormat}
                                                     minuteStep={5}
-                                                    className="h-10  flex-1"
+                                                    className="h-10"
                                                 />
                                             </FormControl>
                                             <FormMessage />
@@ -250,7 +246,7 @@ export default function BookAppointmentForm() {
                                     )}
                                 />
                             </div>
-                            <Button type="submit" onClick={handleSubmitClick}>
+                            <Button type="submit">
                                 Submit
                             </Button>
                         </form>

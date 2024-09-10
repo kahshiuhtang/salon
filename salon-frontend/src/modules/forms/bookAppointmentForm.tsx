@@ -50,9 +50,12 @@ import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { SelectValue } from "@radix-ui/react-select";
 import { useRef } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { Toaster } from "@/components/ui/toaster";
 const timeFormat = "HH:mm";
 
 export default function BookAppointmentForm() {
+  const { toast } = useToast();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -68,7 +71,10 @@ export default function BookAppointmentForm() {
   });
   const { addAppointment } = useAddAppointment();
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    addAppointment(values);
+    await addAppointment(values);
+    toast({
+      description: "Your message has been sent.",
+    });
   }
   const serviceRefs = useRef<(HTMLDivElement | null)[]>([]);
   const showMore = () => {
@@ -91,6 +97,7 @@ export default function BookAppointmentForm() {
   };
   return (
     <div className="flex justify-center items-center mt-24">
+      <Toaster />
       <Card className="w-3/4 sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3 2xl:w-1/4 3xl:w-1/5">
         <CardHeader className="pl-8 pt-8 pb-0 mb-2">
           <CardTitle>Book an appointment</CardTitle>

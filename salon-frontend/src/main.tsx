@@ -3,13 +3,13 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import RootLayout from "./layouts/root-layout";
-import BookAppointmentPage from "./pages/bookAppointmentPage";
-import CalendarPage from "./pages/calendarPage";
-import SettingsPage from "./pages/settingsPage";
-import SignInPage from "./pages/signinPage";
-import SignUpPage from "./pages/signupPage";
-import CreateProfilePage from "./pages/createProfilePage";
-import MessagesPage from "./pages/messagesPage";
+import BookAppointmentPage from "./pages/BookAppointment/bookAppointmentPage";
+import CalendarPage from "./pages/Calendar/calendarPage";
+import SettingsPage from "./pages/Settings/settingsPage";
+import SignInPage from "./pages/Landing/signinPage";
+import SignUpPage from "./pages/Landing/signupPage";
+import CreateProfilePage from "./pages/CreateProfile/createProfilePage";
+import MessagesPage from "./pages/Messages/messagesPage";
 // Import the functions you need from the SDKs you need
 const router = createBrowserRouter([
     {

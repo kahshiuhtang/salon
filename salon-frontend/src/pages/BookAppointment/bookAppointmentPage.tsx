@@ -1,5 +1,5 @@
-import Navbar from "@/modules/navbar";
-import BookAppointmentForm from "@/modules/forms/bookAppointmentForm";
+import Navbar from "@/pages/Navbar/navbar";
+import BookAppointmentForm from "@/pages/BookAppointment/bookAppointmentForm";
 
 // max four items
 // provider --> Lee, Kim, Kimberly, Marie --> maybe do one for each, and then split it

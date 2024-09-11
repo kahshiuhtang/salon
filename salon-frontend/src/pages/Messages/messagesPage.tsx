@@ -1,4 +1,4 @@
-import Navbar from "@/modules/navbar";
+import Navbar from "@/pages/Navbar/navbar";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function MessagesPage() {

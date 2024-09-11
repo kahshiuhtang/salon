@@ -1,5 +1,5 @@
-import Navbar from "@/modules/navbar";
-import UserInfoForm from "@/modules/forms/userInfoForm";
+import Navbar from "@/pages/Navbar/navbar";
+import UserInfoForm from "@/pages/CreateProfile/userInfoForm";
 
 export default function SettingsPage() {
     return (

@@ -1,4 +1,4 @@
-import UnlockedNavbar from "@/modules/unlockedNavbar";
+import UnlockedNavbar from "@/pages/Navbar/unlockedNavbar";
 import { SignUp } from "@clerk/clerk-react";
 
 export default function SignUpPage() {

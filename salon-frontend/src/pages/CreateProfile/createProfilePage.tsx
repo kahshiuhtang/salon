@@ -1,5 +1,5 @@
-import UnlockedNavbar from "@/modules/unlockedNavbar";
-import UserInfoForm from "@/modules/forms/userInfoForm";
+import UnlockedNavbar from "@/pages/Navbar/unlockedNavbar";
+import UserInfoForm from "./userInfoForm";
 export default function CreateProfilePage() {
     return (
         <div>

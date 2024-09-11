@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
-import UnlockedNavbar from "@/modules/unlockedNavbar";
+import UnlockedNavbar from "@/pages/Navbar/unlockedNavbar";
 
 export default function LandingPage() {
   return (

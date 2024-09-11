@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/carousel";
 import { MessageCircleMore } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import ChatBox from "@/modules/chatBox";
+import ChatBox from "@/pages/Messages/Chat/chatBox";
 
 export interface ItemCardProps {
     title: string;

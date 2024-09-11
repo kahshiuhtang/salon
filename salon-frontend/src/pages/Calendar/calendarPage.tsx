@@ -1,5 +1,5 @@
-import CalendarScheduler from "@/modules/calendarSchedule";
-import Navbar from "@/modules/navbar";
+import CalendarScheduler from "@/pages/Calendar/calendarSchedule";
+import Navbar from "@/pages/Navbar/navbar";
 
 export default function CalendarPage() {
     return (

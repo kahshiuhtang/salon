@@ -17,12 +17,12 @@ interface UseAddAppointmentReturn {
     addAppointment: (appointmentProps: AddAppointmentProps) => Promise<void>;
   }
 export const useAddAppointment = (): UseAddAppointmentReturn => {
-  const transactionCollectionRef = collection(firebaseDb, "appointments");
+  const appCollectionRef = collection(firebaseDb, "appointments");
   const { user } = useUser();
   var userId = "";
   if(user != null && user["id"] != null) userId = user["id"]
   const addAppointment = async (appointmentProps: AddAppointmentProps) => {
-    await addDoc(transactionCollectionRef, {
+    await addDoc(appCollectionRef, {
       user: userId,
       ...appointmentProps
     });

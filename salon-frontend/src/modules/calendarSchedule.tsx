@@ -4,9 +4,33 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { INITIAL_EVENTS, createEventId } from "../lib/event";
+import { useGetAllAppointments } from "@/lib/hooks/getAllAppointments";
+import { useUser } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
+import { useVerifyUserProfile } from "@/lib/hooks/verifyUserProfile";
 
 export default function CalendarScheduler() {
     const [currentEvents, setCurrentEvents] = useState([]);
+    const navigate = useNavigate();
+    const { user } = useUser();
+    if (!user || !user["id"]) {
+        navigate("/sign-in");
+        return;
+    }
+    const userId = user.id;
+    const fetchEvents = async () => {
+        try {
+            const { verifyUser } = useVerifyUserProfile();
+            const isVerified = await verifyUser({ userId });
+            if (!isVerified) navigate("/create-profile");
+            const { getAppointments } = useGetAllAppointments();
+            const apps = await getAppointments({ userId });
+            console.log(apps);
+        } catch (e) {
+            console.log(e);
+        }
+    };
+    fetchEvents();
     if (currentEvents) {
     }
     function handleDateSelect(selectInfo: any) {

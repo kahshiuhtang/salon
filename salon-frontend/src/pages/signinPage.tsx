@@ -1,9 +1,13 @@
+import UnlockedNavbar from "@/modules/unlockedNavbar";
 import { SignIn } from "@clerk/clerk-react";
 
 export default function SignInPage() {
     return (
-        <div className="flex justify-center items-center min-h-screen">
-            <SignIn path="/sign-in" />
+        <div className="flex flex-col">
+            <UnlockedNavbar/>
+            <div className="flex justify-center items-center min-h-screen">
+                <SignIn path="/sign-in" />
+            </div>
         </div>
     );
 }

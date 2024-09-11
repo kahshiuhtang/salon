@@ -20,10 +20,13 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
+import { useUserProfile } from "@/lib/hooks/createProfile";
+import { useNavigate } from "react-router-dom";
+import { useUser } from "@clerk/clerk-react";
 
 const formSchema = z.object({
-    firstName: z.string().min(5).max(50),
-    lastName: z.string().min(5).max(50),
+    firstName: z.string().min(2).max(50),
+    lastName: z.string().min(2).max(50),
     phoneNumber: z.string().min(5).max(50),
     email: z.string().min(2).max(50),
     comments: z.string(),
@@ -39,13 +42,24 @@ export default function UserInfoForm() {
             comments: "",
         },
     });
-    function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values);
+    const navigate = useNavigate();
+    const { user } = useUser();
+    async function onSubmit(values: z.infer<typeof formSchema>) {
+        try {
+            var userId = "";
+            if (user && user["id"]) userId = user.id;
+            if (userId == "") return;
+            const { createProfile } = useUserProfile();
+            await createProfile({ ...values, role: "USER", userId });
+            navigate("/");
+        } catch (e) {
+            console.log(e);
+        }
     }
     return (
         <>
             <div className="flex justify-center items-center mt-28 w-full">
-                <Card className="w-1/4 ">
+                <Card className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 2xl:w-1/5 ">
                     <CardHeader className="pl-8 pt-8 pb-0 mb-2">
                         <CardTitle>User Profile</CardTitle>
                         <CardDescription>

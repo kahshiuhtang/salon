@@ -8,8 +8,19 @@ import { useGetAllAppointments } from "@/lib/hooks/getAllAppointments";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useVerifyUserProfile } from "@/lib/hooks/verifyUserProfile";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { DialogTitle } from "@radix-ui/react-dialog";
+import { Button } from "@/components/ui/button";
+import ScheduleForm from "./scheduleForm";
 
 export default function CalendarScheduler() {
+    const [isDialogOpen, setIsDialogOpen] = useState(false); 
     const [currentEvents, setCurrentEvents] = useState([]);
     const navigate = useNavigate();
     const { user } = useUser();
@@ -97,6 +108,28 @@ export default function CalendarScheduler() {
           eventRemove={function(){}}
           */
                 />
+                <div className="w-full mt-2 flex justify-end">
+                    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                        <DialogTrigger asChild>
+                            <Button>Schedule</Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle className="">
+                                    Create New Appointment
+                                </DialogTitle>
+                                <DialogDescription>
+                                    Schedule an appointment in an available
+                                    slot. A staff member will confirm your
+                                    appointment at a later time.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="">
+                                <ScheduleForm setIsDialogOpen={setIsDialogOpen}/>
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+                </div>
             </div>
         </div>
     );

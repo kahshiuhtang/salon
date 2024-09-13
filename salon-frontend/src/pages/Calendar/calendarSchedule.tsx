@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
-import { INITIAL_EVENTS, createEventId } from "../../lib/event";
-import { useGetAllAppointments } from "@/lib/hooks/getAllAppointments";
+import {
+    FullCalendarAppointment,
+    useGetAllAppointments,
+} from "@/lib/hooks/getAllAppointments";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useVerifyUserProfile } from "@/lib/hooks/verifyUserProfile";
@@ -17,11 +19,13 @@ import {
 } from "@/components/ui/dialog";
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
-import ScheduleForm from "./scheduleForm";
+import ScheduleForm from "@/pages/Calendar/scheduleForm";
 
 export default function CalendarScheduler() {
-    const [isDialogOpen, setIsDialogOpen] = useState(false); 
-    const [currentEvents, setCurrentEvents] = useState([]);
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [currentEvents, setCurrentEvents] = useState<
+        FullCalendarAppointment[]
+    >([]);
     const navigate = useNavigate();
     const { user } = useUser();
     if (!user || !user["id"]) {
@@ -34,31 +38,23 @@ export default function CalendarScheduler() {
             const { verifyUser } = useVerifyUserProfile();
             const isVerified = await verifyUser({ userId });
             if (!isVerified) navigate("/create-profile");
-            const { getAppointments } = useGetAllAppointments();
+            const { getAppointments, formatAppointments } =
+                useGetAllAppointments();
             const apps = await getAppointments({ userId });
-            console.log(apps);
+            setCurrentEvents(formatAppointments(apps));
         } catch (e) {
             console.log(e);
         }
     };
     fetchEvents();
-    if (currentEvents) {
-    }
+    console.log("LLL")
     function handleDateSelect(selectInfo: any) {
+        // Probably here can add an onclick
         let title = prompt("Please enter a new title for your event");
         let calendarApi = selectInfo.view.calendar;
-
+        if (title) console.log("Title selected");
+        console.log(selectInfo);
         calendarApi.unselect(); // clear date selection
-
-        if (title) {
-            calendarApi.addEvent({
-                id: createEventId(),
-                title,
-                start: selectInfo.startStr,
-                end: selectInfo.endStr,
-                allDay: selectInfo.allDay,
-            });
-        }
     }
 
     function handleEventClick(clickInfo: any) {
@@ -91,7 +87,7 @@ export default function CalendarScheduler() {
                     selectMirror={true}
                     dayMaxEvents={true}
                     weekends={true}
-                    initialEvents={INITIAL_EVENTS} // alternatively, use the `events` setting to fetch from a feed
+                    initialEvents={currentEvents} // alternatively, use the `events` setting to fetch from a feed
                     select={handleDateSelect}
                     eventContent={renderEventContent} // custom render function
                     eventClick={handleEventClick}
@@ -125,7 +121,9 @@ export default function CalendarScheduler() {
                                 </DialogDescription>
                             </DialogHeader>
                             <div className="">
-                                <ScheduleForm setIsDialogOpen={setIsDialogOpen}/>
+                                <ScheduleForm
+                                    setIsDialogOpen={setIsDialogOpen}
+                                />
                             </div>
                         </DialogContent>
                     </Dialog>

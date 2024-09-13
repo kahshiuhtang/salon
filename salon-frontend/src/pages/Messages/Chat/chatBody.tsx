@@ -1,4 +1,4 @@
-import ChatMessage from "./chatMessage";
+import ChatMessage from "@/pages/Messages/Chat/chatMessage";
 
 interface ChatMessages {
     messageContent: string;

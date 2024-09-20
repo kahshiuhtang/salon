@@ -71,7 +71,8 @@ export default function BookAppointmentForm() {
     });
     const { addAppointment } = useAddAppointment();
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        await addAppointment(values);
+        console.log(values)
+        await addAppointment({...values, time:values.time.toLocaleTimeString()});
         toast({
             title: "Appointment received",
             description:

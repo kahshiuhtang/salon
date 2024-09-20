@@ -66,7 +66,7 @@ export default function ScheduleForm({setIsDialogOpen}: ScheduleFormProps) {
     });
     const { addAppointment } = useAddAppointment();
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        await addAppointment(values);
+        await addAppointment({...values, time:values.time.toISOString()});
         toast({
             title: "Appointment received",
             description: "Check your email for confirmation from staff.",
@@ -166,10 +166,6 @@ export default function ScheduleForm({setIsDialogOpen}: ScheduleFormProps) {
                                                 field.onChange(time?.toDate())
                                             }
                                             value={dayjs(field.value)}
-                                            defaultValue={dayjs(
-                                                "12:00",
-                                                timeFormat
-                                            )}
                                             use12Hours
                                             format={timeFormat}
                                             minuteStep={5}

@@ -1,8 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
-import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import timeGridPlugin from "@fullcalendar/timegrid";
 import {
     FullCalendarAppointment,
     useGetAllAppointments,
@@ -28,49 +28,56 @@ export default function CalendarScheduler() {
     >([]);
     const navigate = useNavigate();
     const { user } = useUser();
-    if (!user || !user["id"]) {
-        navigate("/sign-in");
-        return;
-    }
-    const userId = user.id;
-    const fetchEvents = async () => {
+    const { verifyUser } = useVerifyUserProfile();
+    const { getAppointments, formatAppointments } = useGetAllAppointments();
+
+    // Fetch appointments, only when userId is available
+    const fetchAppointments = async () => {
         try {
-            const { verifyUser } = useVerifyUserProfile();
+            console.log("fetching data...");
+            if (user == null || user == undefined || user["id"] == null) {
+                console.log("No user id");
+                return;
+            }
+            const userId = user["id"];
             const isVerified = await verifyUser({ userId });
-            if (!isVerified) navigate("/create-profile");
-            const { getAppointments, formatAppointments } =
-                useGetAllAppointments();
-            const apps = await getAppointments({ userId });
-            setCurrentEvents(formatAppointments(apps));
-        } catch (e) {
-            console.log(e);
+            if (!isVerified) {
+                navigate("/create-profile");
+                return;
+            }
+            const appointments = await getAppointments({ userId });
+            const formattedApps = formatAppointments(appointments);
+            setCurrentEvents(formattedApps);
+        } catch (error) {
+            console.error("Error fetching appointments:", error);
         }
     };
-    fetchEvents();
-    console.log("LLL")
+    const hasFetched = useRef(false);
+    useEffect(() => {
+        if (!hasFetched.current && user) {
+            fetchAppointments();
+            hasFetched.current = true;
+        }
+    }, [user]);
+
     function handleDateSelect(selectInfo: any) {
-        // Probably here can add an onclick
-        let title = prompt("Please enter a new title for your event");
-        let calendarApi = selectInfo.view.calendar;
-        if (title) console.log("Title selected");
-        console.log(selectInfo);
-        calendarApi.unselect(); // clear date selection
+        const title = prompt("Please enter a new title for your event");
+        const calendarApi = selectInfo.view.calendar;
+        if (title) {
+            console.log("Event Title:", title);
+        }
+        calendarApi.unselect();
     }
 
     function handleEventClick(clickInfo: any) {
         if (
             confirm(
-                `Are you sure you want to delete the event '${clickInfo.event.title}'`
+                `Are you sure you want to delete the event '${clickInfo.event.title}'?`
             )
         ) {
             clickInfo.event.remove();
         }
     }
-
-    function handleEvents(events: any) {
-        setCurrentEvents(events);
-    }
-
     return (
         <div className="w-full flex justify-center mt-8">
             <div className="w-3/4">
@@ -82,27 +89,21 @@ export default function CalendarScheduler() {
                         right: "dayGridMonth,timeGridWeek,timeGridDay",
                     }}
                     initialView="dayGridMonth"
-                    editable={true}
-                    selectable={true}
-                    selectMirror={true}
-                    dayMaxEvents={true}
-                    weekends={true}
-                    initialEvents={currentEvents} // alternatively, use the `events` setting to fetch from a feed
+                    editable
+                    selectable
+                    selectMirror
+                    dayMaxEvents
+                    weekends
+                    events={currentEvents}
                     select={handleDateSelect}
-                    eventContent={renderEventContent} // custom render function
+                    eventContent={renderEventContent}
                     eventClick={handleEventClick}
-                    eventsSet={handleEvents} // called after events are initialized/added/changed/removed
                     businessHours={{
-                        startTime: "7:30", // a start time (10am in this example)
-                        endTime: "21:30", // an end time (6pm in this example)
+                        startTime: "9:30",
+                        endTime: "21:30",
                     }}
-                    slotMinTime={"7:00"}
-                    slotMaxTime={"22:00"}
-                    /* you can update a remote database when these fire:
-          eventAdd={function(){}}
-          eventChange={function(){}}
-          eventRemove={function(){}}
-          */
+                    slotMinTime="7:00"
+                    slotMaxTime="22:00"
                 />
                 <div className="w-full mt-2 flex justify-end">
                     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -111,7 +112,7 @@ export default function CalendarScheduler() {
                         </DialogTrigger>
                         <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
-                                <DialogTitle className="">
+                                <DialogTitle>
                                     Create New Appointment
                                 </DialogTitle>
                                 <DialogDescription>
@@ -120,11 +121,7 @@ export default function CalendarScheduler() {
                                     appointment at a later time.
                                 </DialogDescription>
                             </DialogHeader>
-                            <div className="">
-                                <ScheduleForm
-                                    setIsDialogOpen={setIsDialogOpen}
-                                />
-                            </div>
+                            <ScheduleForm setIsDialogOpen={setIsDialogOpen} />
                         </DialogContent>
                     </Dialog>
                 </div>
@@ -133,6 +130,7 @@ export default function CalendarScheduler() {
     );
 }
 
+// Custom event content renderer
 function renderEventContent(eventInfo: any) {
     return (
         <>

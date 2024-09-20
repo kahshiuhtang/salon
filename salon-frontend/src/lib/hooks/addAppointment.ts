@@ -3,7 +3,7 @@ import { firebaseDb } from "@/lib/firebase";
 import { useUser } from "@clerk/clerk-react";
 interface AddAppointmentProps{
     date: Date
-    time: Date
+    time: string
     service1: string
     tech1: string
     service2?: string

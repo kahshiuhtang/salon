@@ -24,6 +24,10 @@ import { useUserProfile } from "@/lib/hooks/createProfile";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 
+interface UserInfoFormProps {
+    center: boolean;
+}
+
 const formSchema = z.object({
     firstName: z.string().min(2).max(50),
     lastName: z.string().min(2).max(50),
@@ -31,7 +35,7 @@ const formSchema = z.object({
     email: z.string().min(2).max(50),
     comments: z.string(),
 });
-export default function UserInfoForm() {
+export default function UserInfoForm({ center }: UserInfoFormProps) {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -58,8 +62,8 @@ export default function UserInfoForm() {
     }
     return (
         <>
-            <div className="flex justify-center items-center mt-28 w-full">
-                <Card className="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 2xl:w-1/5 ">
+            <div className= {center ?"flex justify-center items-center mt-28 w-full" : "w-1/4"}>
+                <Card className={center ? "w-full md:w-1/2 lg:w-1/3 xl:w-1/4 2xl:w-1/5" : ""}>
                     <CardHeader className="pl-8 pt-8 pb-0 mb-2">
                         <CardTitle>User Profile</CardTitle>
                         <CardDescription>

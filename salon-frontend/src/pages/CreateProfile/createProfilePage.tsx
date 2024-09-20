@@ -5,7 +5,7 @@ export default function CreateProfilePage() {
         <div>
             <UnlockedNavbar />
             <div className="flex justify-center items-center min-h-screen">
-                <UserInfoForm />
+                <UserInfoForm center={true}/>
             </div>
         </div>
     );

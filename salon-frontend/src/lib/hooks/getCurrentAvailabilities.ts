@@ -22,10 +22,10 @@ export interface FormattedAvailability {
     start: Date;
     end: Date;
 }
-interface UseGetAllAppointmentsReturn {
+interface UseGetAvailabilityReturn {
     getAvailability: (props: GetAvailabilityProps) => Promise<FormattedAvailability[]>;
 }
-export const useGetAllAppointments = (): UseGetAllAppointmentsReturn => {
+export const useGetAvailability = (): UseGetAvailabilityReturn => {
     const getAvailability = async (
         appProps: GetAvailabilityProps
     ): Promise<FormattedAvailability[]> => {

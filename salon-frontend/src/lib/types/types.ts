@@ -1,0 +1,1 @@
+export type SalonRole = "USER" | "ADMIN" | "MOD";

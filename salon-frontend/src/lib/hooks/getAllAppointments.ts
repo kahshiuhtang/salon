@@ -11,7 +11,8 @@ import { firebaseDb } from "@/lib/firebase";
 interface GetAllAppointmentsProps {
     userId: string;
 }
-interface Appointment {
+export type AppointmentState = "REQUESTED" | "COUNTERED-SALON" | "COUNTERED-USER" | "CONFIRMED" | "MISSED" | "RESCHEDULED" | "FINISHED";
+export interface Appointment {
     id: string;
     time: Date;
     length: Date;
@@ -24,6 +25,7 @@ interface Appointment {
     tech3: string;
     service4: string;
     tech4: string;
+    state: AppointmentState;
 }
 export interface FullCalendarAppointment {
     id: string;

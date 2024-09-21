@@ -12,9 +12,9 @@ export default function Navbar() {
                     <Link to="/book">
                         <p className="text-white hover:text-gray-300">Book</p>
                     </Link>
-                    <Link to="/messages">
+                    <Link to="/requests">
                         <p className="text-white hover:text-gray-300">
-                            Messages
+                            Requests
                         </p>
                     </Link>
                     <Link to="/settings">

@@ -71,12 +71,14 @@ export default function BookAppointmentForm() {
     });
     const { addAppointment } = useAddAppointment();
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        console.log(values)
-        await addAppointment({...values, time:values.time.toLocaleTimeString()});
+        await addAppointment({
+            ...values,
+            time: values.time.toLocaleTimeString(),
+            state: "REQUESTED",
+        });
         toast({
             title: "Appointment received",
-            description:
-                "Check your email for confirmation from staff.",
+            description: "Check your email for confirmation from staff.",
         });
     }
     const serviceRefs = useRef<(HTMLDivElement | null)[]>([]);

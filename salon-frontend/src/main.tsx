@@ -9,14 +9,14 @@ import SettingsPage from "@/pages/Settings/settingsPage";
 import SignInPage from "@/pages/Landing/signinPage";
 import SignUpPage from "@/pages/Landing/signupPage";
 import CreateProfilePage from "@/pages/CreateProfile/createProfilePage";
-import MessagesPage from "@/pages/Messages/messagesPage";
+import RequestsPage from "@/pages/Requests/requestsPage";
 // Import the functions you need from the SDKs you need
 const router = createBrowserRouter([
     {
         element: <RootLayout />,
         children: [
             { path: "/", element: <CalendarPage /> },
-            { path: "/messages", element: <MessagesPage /> },
+            { path: "/requests", element: <RequestsPage /> },
             { path: "/book", element: <BookAppointmentPage /> },
             { path: "/create-profile", element: <CreateProfilePage /> },
             { path: "/calendar", element: <CalendarPage /> },

@@ -46,10 +46,10 @@ import { useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 const timeFormat = "HH:mm";
-interface ScheduleFormProps{
-    setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>
+interface ScheduleFormProps {
+    setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
-export default function ScheduleForm({setIsDialogOpen}: ScheduleFormProps) {
+export default function ScheduleForm({ setIsDialogOpen }: ScheduleFormProps) {
     const { toast } = useToast();
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
@@ -66,7 +66,11 @@ export default function ScheduleForm({setIsDialogOpen}: ScheduleFormProps) {
     });
     const { addAppointment } = useAddAppointment();
     async function onSubmit(values: z.infer<typeof formSchema>) {
-        await addAppointment({...values, time:values.time.toISOString()});
+        await addAppointment({
+            ...values,
+            time: values.time.toISOString(),
+            state: "REQUESTED",
+        });
         toast({
             title: "Appointment received",
             description: "Check your email for confirmation from staff.",

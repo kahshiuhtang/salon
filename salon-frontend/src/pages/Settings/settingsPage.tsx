@@ -1,7 +1,7 @@
 import Navbar from "@/pages/Navbar/navbar";
 import UserInfoForm from "@/pages/CreateProfile/userInfoForm";
-import AvailablityCalendarAST from "@/pages/Settings/availabilityCalendar";
-import AvailabilityForm from "@/pages/Settings/availabilityForm";
+import AvailablityCalendar from "@/pages/Settings/availabilityCalendar";
+import AvailabilityCard from "@/pages/Settings/availabilityCard";
 
 export default function SettingsPage() {
     return (
@@ -9,11 +9,11 @@ export default function SettingsPage() {
             <Navbar />
             <div className="flex m-4">
                 <div className="w-3/4 mr-2">
-                    <AvailablityCalendarAST />
+                    <AvailablityCalendar />
                 </div>
                 <div>
                     <UserInfoForm center={false} />
-                    <AvailabilityForm />
+                    <AvailabilityCard />
                 </div>
             </div>
         </>

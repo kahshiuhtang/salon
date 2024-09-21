@@ -1,4 +1,4 @@
-import {useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -6,7 +6,10 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import { useUser } from "@clerk/clerk-react";
 import { useVerifyUserProfile } from "@/lib/hooks/verifyUserProfile";
 import { useNavigate } from "react-router-dom";
-import { FormattedAvailability, useGetAvailability } from "@/lib/hooks/getCurrentAvailabilities";
+import {
+    FormattedAvailability,
+    useGetAvailability,
+} from "@/lib/hooks/getCurrentAvailabilities";
 
 export default function AvailablityCalendarAST() {
     const [currentAvailabilities, setCurrentAvailabilities] = useState<
@@ -14,7 +17,7 @@ export default function AvailablityCalendarAST() {
     >([]);
     const navigate = useNavigate();
     const { user } = useUser();
-    const {getAvailability} = useGetAvailability();
+    const { getAvailability } = useGetAvailability();
     const { verifyUser } = useVerifyUserProfile();
     const fetchUserAvailability = async () => {
         try {
@@ -29,7 +32,7 @@ export default function AvailablityCalendarAST() {
                 navigate("/create-profile");
                 return;
             }
-            const avails = await getAvailability({userId});
+            const avails = await getAvailability({ userId });
             setCurrentAvailabilities(avails);
         } catch (error) {
             console.error("Error fetching appointments:", error);

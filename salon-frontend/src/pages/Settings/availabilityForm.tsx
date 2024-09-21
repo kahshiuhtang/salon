@@ -14,6 +14,13 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { z } from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,8 +40,10 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 const formSchema = z.object({
     date: z.date(),
-    startTime: z.string(),
-    endTime: z.string(),
+    startTime: z.date(),
+    endTime: z.date(),
+    repeatWeekly: z.string().optional(),
+    repeatDaily: z.string().optional(),
 });
 const timeFormat = "HH:mm";
 export default function AvailabilityForm() {
@@ -61,7 +70,8 @@ export default function AvailabilityForm() {
                 <CardHeader className="pl-8 pt-8 pb-0 mb-2">
                     <CardTitle>Create Availability Block</CardTitle>
                     <CardDescription>
-                        Enter a block of time where you are usually free for future scheduling and appointments.
+                        Enter a block of time where you are free for
+                        future scheduling and appointments.
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -77,7 +87,7 @@ export default function AvailabilityForm() {
                                     render={({ field }) => (
                                         <FormItem className="space-y-0 w-1/2  flex flex-col">
                                             <FormLabel className="mb-2">
-                                                Time
+                                                Start
                                             </FormLabel>
                                             <FormControl>
                                                 <TimePicker
@@ -107,7 +117,7 @@ export default function AvailabilityForm() {
                                     render={({ field }) => (
                                         <FormItem className="space-y-0 w-1/2 flex flex-col">
                                             <FormLabel className="mb-2">
-                                                Time
+                                                End
                                             </FormLabel>
                                             <FormControl>
                                                 <TimePicker
@@ -132,71 +142,143 @@ export default function AvailabilityForm() {
                                     )}
                                 />
                             </div>
+                            <FormField
+                                control={form.control}
+                                name="date"
+                                render={({ field }) => (
+                                    <FormItem className="flex flex-col mr-2 w-full">
+                                        <FormLabel>Date</FormLabel>
+                                        <Popover>
+                                            <PopoverTrigger asChild>
+                                                <FormControl>
+                                                    <Button
+                                                        variant={"outline"}
+                                                        className={cn(
+                                                            "w-[240px] pl-3 text-left font-normal",
+                                                            !field.value &&
+                                                                "text-muted-foreground"
+                                                        )}
+                                                    >
+                                                        {field.value ? (
+                                                            format(
+                                                                field.value,
+                                                                "PPP"
+                                                            )
+                                                        ) : (
+                                                            <span>
+                                                                Pick a date
+                                                            </span>
+                                                        )}
+                                                        <CalendarIcon className="ml-auto h-4 w-4 " />
+                                                    </Button>
+                                                </FormControl>
+                                            </PopoverTrigger>
+                                            <PopoverContent
+                                                className="w-auto p-0 opacity-100 bg-white"
+                                                align="start"
+                                            >
+                                                <Calendar
+                                                    mode="single"
+                                                    selected={field.value}
+                                                    onSelect={field.onChange}
+                                                    disabled={(date) => {
+                                                        const yesterday =
+                                                            new Date();
+                                                        yesterday.setDate(
+                                                            yesterday.getDate() -
+                                                                1
+                                                        );
+                                                        return date < yesterday;
+                                                    }}
+                                                    initialFocus
+                                                />
+                                            </PopoverContent>
+                                        </Popover>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                             <div className="flex">
                                 <FormField
                                     control={form.control}
-                                    name="date"
-                                    render={({ field }) => (
-                                        <FormItem className="flex flex-col mr-2">
-                                            <FormLabel>Date</FormLabel>
-                                            <Popover>
-                                                <PopoverTrigger asChild>
-                                                    <FormControl>
-                                                        <Button
-                                                            variant={"outline"}
-                                                            className={cn(
-                                                                "w-[240px] pl-3 text-left font-normal",
-                                                                !field.value &&
-                                                                    "text-muted-foreground"
-                                                            )}
-                                                        >
-                                                            {field.value ? (
-                                                                format(
-                                                                    field.value,
-                                                                    "PPP"
-                                                                )
-                                                            ) : (
-                                                                <span>
-                                                                    Pick a date
-                                                                </span>
-                                                            )}
-                                                            <CalendarIcon className="ml-auto h-4 w-4 " />
-                                                        </Button>
-                                                    </FormControl>
-                                                </PopoverTrigger>
-                                                <PopoverContent
-                                                    className="w-auto p-0 opacity-100 bg-white"
-                                                    align="start"
+                                    name="repeatDaily"
+                                    render={({ field }) => {
+                                        return (
+                                            <FormItem className="w-1/2 mr-2">
+                                                <FormLabel>Repeated Event</FormLabel>
+                                                <Select
+                                                    onValueChange={
+                                                        field.onChange
+                                                    }
+                                                    defaultValue={field.value}
+                                                    {...field}
                                                 >
-                                                    <Calendar
-                                                        mode="single"
-                                                        selected={field.value}
-                                                        onSelect={
-                                                            field.onChange
-                                                        }
-                                                        disabled={(date) => {
-                                                            const yesterday =
-                                                                new Date();
-                                                            yesterday.setDate(
-                                                                yesterday.getDate() -
-                                                                    1
-                                                            );
-                                                            return (
-                                                                date < yesterday
-                                                            );
-                                                        }}
-                                                        initialFocus
-                                                    />
-                                                </PopoverContent>
-                                            </Popover>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select (day to day)" />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value="ODD-WEEKDAYS">
+                                                            Odd Weekdays
+                                                        </SelectItem>
+                                                        <SelectItem value="EVEN-WEEKDAYS">
+                                                            Even Weekdays
+                                                        </SelectItem>
+                                                        <SelectItem value="ODD-ALLDAYS">
+                                                            Odd Alldays
+                                                        </SelectItem>
+                                                        <SelectItem value="EVEN-ALLDAYS">
+                                                            Even Alldays
+                                                        </SelectItem>
+                                                        <SelectItem value="WEEKEND">
+                                                            Weekend
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        );
+                                    }}
                                 />
-                                <div className="mt-5">
-                                    <Button type="submit">Submit</Button>
-                                </div>
+                                <FormField
+                                    control={form.control}
+                                    name="repeatWeekly"
+                                    render={({ field }) => {
+                                        return (
+                                            <FormItem className="w-1/2">
+                                                <FormLabel>Repeated Event (Weekly)</FormLabel>
+                                                <Select
+                                                    onValueChange={
+                                                        field.onChange
+                                                    }
+                                                    defaultValue={field.value}
+                                                    {...field}
+                                                >
+                                                    <FormControl>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select (week to week)" />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value="WEEKLY">
+                                                            Weekly
+                                                        </SelectItem>
+                                                        <SelectItem value="BIWEEKLY">
+                                                            Biweekly
+                                                        </SelectItem>
+                                                        <SelectItem value="MONTHLY">
+                                                            Monthly
+                                                        </SelectItem>
+                                                    </SelectContent>
+                                                </Select>
+                                                <FormMessage />
+                                            </FormItem>
+                                        );
+                                    }}
+                                />
                             </div>
+                            <Button type="submit">Submit</Button>
                         </form>
                     </Form>
                 </CardContent>

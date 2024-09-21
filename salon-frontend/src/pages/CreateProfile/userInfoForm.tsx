@@ -62,7 +62,7 @@ export default function UserInfoForm({ center }: UserInfoFormProps) {
     }
     return (
         <>
-            <div className= {center ?"flex justify-center items-center mt-28 w-full" : "w-1/4"}>
+            <div className= {center ?"flex justify-center items-center mt-28 w-full" : "w-full"}>
                 <Card className={center ? "w-full md:w-1/2 lg:w-1/3 xl:w-1/4 2xl:w-1/5" : ""}>
                     <CardHeader className="pl-8 pt-8 pb-0 mb-2">
                         <CardTitle>User Profile</CardTitle>

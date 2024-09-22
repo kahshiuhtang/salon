@@ -40,18 +40,18 @@ export default function RequestsPage() {
         <div>
             <Navbar />
             {currRole === "ADMIN" && (
-                <div className="grid grid-cols-1 lg:grid-cols-2 2xl:grid-cols-3 m-8">
-                    {requests.map((appointment: Appointment, index: number) => {
-                        return (
-                            <div className="w-full max-w-[600px]" key={index}>
-                                <RequestCard
-                                    userRole={currRole}
-                                    appointment={appointment}
-                                />
-                            </div>
-                        );
-                    })}
-                </div>
+               <div className="flex flex-wrap justify-between m-8">
+               {requests.map((appointment: Appointment, index: number) => {
+                   return (
+                       <div key={index} className="w-full xl:w-[32%] mb-2">
+                           <RequestCard
+                               userRole={currRole}
+                               appointment={appointment}
+                           />
+                       </div>
+                   );
+               })}
+           </div>
             )}
             {currRole === "MOD" && <div>MOD</div>}
             {currRole === "USER" && <div>USER</div>}

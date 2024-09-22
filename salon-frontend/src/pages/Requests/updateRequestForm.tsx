@@ -43,7 +43,7 @@ import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { SelectValue } from "@radix-ui/react-select";
 import { useRef } from "react";
-const timeFormat = "HH:mm";
+const timeFormat = "hh:mm a";
 import { Appointment } from "@/lib/hooks/getAllAppointments";
 
 interface UpdateRequestFormProps {

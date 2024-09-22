@@ -14,6 +14,7 @@ interface AddAppointmentProps {
     service4?: string;
     tech4?: string;
     state: AppointmentState;
+    ownerId: string;
 }
 interface UseAddAppointmentReturn {
     addAppointment: (appointmentProps: AddAppointmentProps) => Promise<void>;

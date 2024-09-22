@@ -35,6 +35,7 @@ export interface Appointment {
     service4: string;
     tech4: string;
     state: AppointmentState;
+    ownerId: string;
 }
 export interface FullCalendarAppointment {
     id: string;

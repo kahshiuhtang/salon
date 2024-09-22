@@ -11,7 +11,16 @@ import { firebaseDb } from "@/lib/firebase";
 interface GetAllAppointmentsProps {
     userId: string;
 }
-export type AppointmentState = "REQUESTED" | "COUNTERED-SALON" | "COUNTERED-USER" | "CONFIRMED" | "MISSED" | "RESCHEDULED" | "FINISHED";
+export type AppointmentState =
+    | "REQUESTED"
+    | "COUNTERED-SALON"
+    | "COUNTERED-USER"
+    | "CONFIRMED"
+    | "MISSED"
+    | "RESCHEDULED"
+    | "MODIFIED-USER"
+    | "MODIFIED-SALON"
+    | "FINISHED";
 export interface Appointment {
     id: string;
     time: Date;
@@ -62,15 +71,15 @@ export const useGetAllAppointments = (): UseGetAllAppointmentsReturn => {
         const userRole = userSnapshot.data().role;
 
         if (userRole === "ADMIN") {
-            const collectionRef = collection(
-                firebaseDb,
-                "appointments"
-            );
+            const collectionRef = collection(firebaseDb, "appointments");
             const querySnapshot = await getDocs(collectionRef);
-            return querySnapshot.docs.map((doc) => ({
-                id: doc.id, // The document ID
-                ...doc.data(), // The document data
-            } as Appointment));
+            return querySnapshot.docs.map(
+                (doc) =>
+                    ({
+                        id: doc.id, // The document ID
+                        ...doc.data(), // The document data
+                    } as Appointment)
+            );
         } else if (userRole === "MOD") {
             var appointmentsQuery = query(
                 collection(firebaseDb, "appointments"),
@@ -101,7 +110,6 @@ export const useGetAllAppointments = (): UseGetAllAppointmentsReturn => {
             });
             return appointments;
         }
-
     };
 
     const formatAppointments = (appointments: Appointment[]) => {
@@ -112,8 +120,10 @@ export const useGetAllAppointments = (): UseGetAllAppointmentsReturn => {
                 console.log("no date found");
                 continue;
             }
-            const appDateObject = new Date((currApp.date as unknown as Timestamp).seconds * 1000);
-            const dateString = appDateObject.toISOString().split('T')[0];
+            const appDateObject = new Date(
+                (currApp.date as unknown as Timestamp).seconds * 1000
+            );
+            const dateString = appDateObject.toISOString().split("T")[0];
             const dateTimeString = `${dateString} ${currApp.time}`;
             const startDateObject = new Date(dateTimeString);
             const endDateObject = new Date(dateTimeString);

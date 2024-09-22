@@ -45,6 +45,7 @@ import { SelectValue } from "@radix-ui/react-select";
 import { useRef } from "react";
 const timeFormat = "hh:mm a";
 import { Appointment } from "@/lib/hooks/getAllAppointments";
+import { useUser } from "@clerk/clerk-react";
 
 interface UpdateRequestFormProps {
     appointment: Appointment;
@@ -53,6 +54,11 @@ interface UpdateRequestFormProps {
 export default function UpdateRequestForm({
     appointment,
 }: UpdateRequestFormProps) {
+    const {user }= useUser();
+    if(!user || !user.id){
+        return;
+    }
+    const userId = user.id;
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -72,6 +78,7 @@ export default function UpdateRequestForm({
             ...values,
             time: values.time.toLocaleTimeString(),
             state: "REQUESTED",
+            ownerId: userId
         });
     }
     const serviceRefs = useRef<(HTMLDivElement | null)[]>([]);

@@ -45,12 +45,18 @@ import { SelectValue } from "@radix-ui/react-select";
 import { useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-const timeFormat = "HH:mm";
+import { useUser } from "@clerk/clerk-react";
+const timeFormat = "hh:mm a";
 interface ScheduleFormProps {
     setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 export default function ScheduleForm({ setIsDialogOpen }: ScheduleFormProps) {
     const { toast } = useToast();
+    const { user } = useUser();
+    if (!user || !user.id) {
+        return;
+    }
+    const userId = user.id;
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -70,6 +76,7 @@ export default function ScheduleForm({ setIsDialogOpen }: ScheduleFormProps) {
             ...values,
             time: values.time.toISOString(),
             state: "REQUESTED",
+            ownerId: userId,
         });
         toast({
             title: "Appointment received",

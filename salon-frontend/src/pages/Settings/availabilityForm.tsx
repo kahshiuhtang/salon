@@ -38,7 +38,7 @@ const formSchema = z.object({
     repeatWeekly: z.string().optional(),
     repeatDaily: z.string().optional(),
 });
-const timeFormat = "HH:mm";
+const timeFormat = "hh:mm a";
 export default function AvailabilityForm() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),

@@ -52,13 +52,20 @@ import { SelectValue } from "@radix-ui/react-select";
 import { useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
-const timeFormat = "HH:mm";
+import { useUser } from "@clerk/clerk-react";
+const timeFormat = "hh:mm a";
 
 export default function BookAppointmentForm() {
     const { toast } = useToast();
+    const {user }= useUser();
+    if(!user || !user.id){
+        return;
+    }
+    const userId = user.id;
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
+            time: new Date(),
             service1: "",
             tech1: "",
             service2: "",
@@ -75,6 +82,7 @@ export default function BookAppointmentForm() {
             ...values,
             time: values.time.toLocaleTimeString(),
             state: "REQUESTED",
+            ownerId: userId
         });
         toast({
             title: "Appointment received",
@@ -129,7 +137,7 @@ export default function BookAppointmentForm() {
                                                         <Button
                                                             variant={"outline"}
                                                             className={cn(
-                                                                "w-[240px] pl-3 text-left font-normal",
+                                                                "w-[200px] pl-3 text-left font-normal",
                                                                 !field.value &&
                                                                     "text-muted-foreground"
                                                             )}
@@ -197,7 +205,7 @@ export default function BookAppointmentForm() {
                                                         "12:00",
                                                         timeFormat
                                                     )}
-                                                    use12Hours
+                                                    use12Hours={true}
                                                     format={timeFormat}
                                                     minuteStep={5}
                                                     className="h-10"

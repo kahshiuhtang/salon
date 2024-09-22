@@ -41,20 +41,15 @@ export default function RequestCard({
     const dateTimeString = `${dateString} ${appointment.time}`;
     const appDate = new Date(dateTimeString);
     const [date, setDate] = useState<Date>(appDate);
-    if(!date){
+    if (!date) {
         setDate(date);
     }
     return (
-        <Card className="w-3/4 sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3 2xl:w-1/4 3xl:w-1/5">
+        <Card className="w-2/3">
             <CardHeader className="pl-8 pt-8 pb-0 mb-2">
                 <CardTitle>Appointment Id:</CardTitle>
                 <CardDescription>
                     <div>Id: {appointment.id}</div>
-                    <div>
-                        Status:{" "}
-                        {appointment.state.charAt(0) +
-                            appointment.state.substring(1).toLowerCase()}
-                    </div>
                 </CardDescription>
             </CardHeader>
             <CardContent>
@@ -150,6 +145,16 @@ export default function RequestCard({
                         index={4}
                     />
                 )}
+                <div className="w-1/2">
+                    <Label>Current Status</Label>
+                    <Input
+                        value={
+                            appointment.state.charAt(0) +
+                            appointment.state.substring(1).toLowerCase()
+                        }
+                        disabled
+                    />
+                </div>
                 {(userRole === "ADMIN" || userRole === "MOD") && (
                     <div className="mt-2">
                         <Button className="mr-1" variant="secondary">

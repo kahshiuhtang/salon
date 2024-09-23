@@ -10,12 +10,15 @@ import SignInPage from "@/pages/Landing/signinPage";
 import SignUpPage from "@/pages/Landing/signupPage";
 import CreateProfilePage from "@/pages/CreateProfile/createProfilePage";
 import RequestsPage from "@/pages/Requests/requestsPage";
+import HomePage from "@/pages/Home/homePage";
+import UsersPage from "@/pages/Users/usersPage";
 // Import the functions you need from the SDKs you need
 const router = createBrowserRouter([
     {
         element: <RootLayout />,
         children: [
-            { path: "/", element: <CalendarPage /> },
+            { path: "/", element: <HomePage /> },
+            { path: "/users", element: <UsersPage /> },
             { path: "/requests", element: <RequestsPage /> },
             { path: "/book", element: <BookAppointmentPage /> },
             { path: "/create-profile", element: <CreateProfilePage /> },

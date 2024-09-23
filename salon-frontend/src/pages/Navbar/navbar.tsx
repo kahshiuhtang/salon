@@ -1,30 +1,52 @@
-import { UserButton } from "@clerk/clerk-react";
+import { Book, FileText, Home, Paintbrush, Settings, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 export default function Navbar() {
     return (
-        <nav className="bg-blue-600 p-4">
+        <nav className="bg-primary text-primary-foreground p-4">
             <div className="container mx-auto flex justify-between items-center">
-                <h2 className="text-white text-2xl font-bold">Salon</h2>
-                <div className="space-x-4 flex">
-                    <Link to="/calendar">
-                        <p className="text-white hover:text-gray-300">Home</p>
+                <Link
+                    to="/"
+                    className="text-2xl font-bold flex items-center"
+                >
+                    <Paintbrush className="mr-2 h-6 w-6" />
+                    Nail Salon CRM
+                </Link>
+                <div className="flex items-center space-x-4">
+                    <Link
+                        to="/"
+                        className="flex items-center hover:text-primary-foreground/80"
+                    >
+                        <Home className="mr-1 h-4 w-4" />
+                        Home
                     </Link>
-                    <Link to="/book">
-                        <p className="text-white hover:text-gray-300">Book</p>
+                    <Link
+                        to="/book"
+                        className="flex items-center hover:text-primary-foreground/80"
+                    >
+                        <Book className="mr-1 h-4 w-4" />
+                        Book
                     </Link>
-                    <Link to="/requests">
-                        <p className="text-white hover:text-gray-300">
-                            Requests
-                        </p>
+                    <Link
+                        to="/users"
+                        className="flex items-center hover:text-primary-foreground/80"
+                    >
+                        <Users className="mr-1 h-4 w-4" />
+                        Users
                     </Link>
-                    <Link to="/settings">
-                        <p className="text-white hover:text-gray-300">
-                            Settings
-                        </p>
+                    <Link
+                        to="/requests"
+                        className="flex items-center hover:text-primary-foreground/80"
+                    >
+                        <FileText className="mr-1 h-4 w-4" />
+                        Requests
                     </Link>
-                    <div>
-                        <UserButton />
-                    </div>
+                    <Link
+                        to="/settings"
+                        className="flex items-center hover:text-primary-foreground/80"
+                    >
+                        <Settings className="mr-1 h-4 w-4" />
+                        Settings
+                    </Link>
                 </div>
             </div>
         </nav>

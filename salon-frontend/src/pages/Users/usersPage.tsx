@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
@@ -25,6 +25,8 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Search, Edit, ChevronUp, ChevronDown } from "lucide-react";
 import { SalonUser } from "@/lib/hooks/createProfile";
+import { useGetUserInfo } from "@/lib/hooks/getUserInfo";
+import { useUser } from "@clerk/clerk-react";
 
 const userSchema = z.object({
     firstName: z.string().min(1, "First name is required"),
@@ -38,88 +40,29 @@ const userSchema = z.object({
 
 type SalonUserForm = z.infer<typeof userSchema>;
 
-const sampleUsers: SalonUser[] = [
-    {
-        userId: "1",
-        firstName: "John",
-        lastName: "Doe",
-        email: "john@example.com",
-        phoneNumber: "1234567890",
-        comments: "Regular customer",
-        role: "USER",
-    },
-    {
-        userId: "2",
-        firstName: "Jane",
-        lastName: "Smith",
-        email: "jane@example.com",
-        phoneNumber: "2345678901",
-        comments: "Prefers evening appointments",
-        role: "USER",
-    },
-    {
-        userId: "3",
-        firstName: "Alice",
-        lastName: "Johnson",
-        email: "alice@example.com",
-        phoneNumber: "3456789012",
-        comments: "Allergic to certain products",
-        role: "USER",
-    },
-    {
-        userId: "4",
-        firstName: "Bob",
-        lastName: "Brown",
-        email: "bob@example.com",
-        phoneNumber: "4567890123",
-        comments: "VIP customer",
-        role: "USER",
-    },
-    {
-        userId: "5",
-        firstName: "Emma",
-        lastName: "Davis",
-        email: "emma@example.com",
-        phoneNumber: "5678901234",
-        comments: "New client",
-        role: "USER",
-    },
-    {
-        userId: "6",
-        firstName: "Michael",
-        lastName: "Wilson",
-        email: "michael@example.com",
-        phoneNumber: "6789012345",
-        comments: "Prefers male stylists",
-        role: "MOD",
-    },
-    {
-        userId: "7",
-        firstName: "Olivia",
-        lastName: "Taylor",
-        email: "olivia@example.com",
-        phoneNumber: "7890123456",
-        comments: "Frequent buyer of products",
-        role: "USER",
-    },
-    {
-        userId: "8",
-        firstName: "David",
-        lastName: "Anderson",
-        email: "david@example.com",
-        phoneNumber: "8901234567",
-        comments: "Owner",
-        role: "ADMIN",
-    },
-];
-
 export default function UsersPage() {
-    const [users, setUsers] = useState<SalonUser[]>(sampleUsers);
+    const [users, setUsers] = useState<SalonUser[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [editingUser, setEditingUser] = useState<SalonUserForm | null>(null);
     const [isAddUserOpen, setIsAddUserOpen] = useState(false);
     const [isEditUserOpen, setIsEditUserOpen] = useState(false);
 
+    const { fetchAllUsers } = useGetUserInfo();
+    const { user } = useUser();
+    const fetchUsers = async function () {
+        try {
+            var userId = "";
+            if (user && user["id"]) userId = user.id;
+            if (userId == "") return;
+            const fetchedUsers = await fetchAllUsers({userId});
+            setUsers(fetchedUsers.users);
+        } catch (e) {
+            console.log("fetchUsers(): " + e);
+        }
+    };
+    useEffect(() => {
+        fetchUsers();
+    }, []);
     const { register, handleSubmit, control, reset, setValue } =
         useForm<SalonUserForm>({
             resolver: zodResolver(userSchema),
@@ -149,7 +92,10 @@ export default function UsersPage() {
     const handleEdit = (user: SalonUserForm) => {
         setEditingUser(user);
         Object.keys(user).forEach((key) => {
-            setValue(key as keyof SalonUserForm, user[key as keyof SalonUserForm]);
+            setValue(
+                key as keyof SalonUserForm,
+                user[key as keyof SalonUserForm]
+            );
         });
         setIsEditUserOpen(true);
     };
@@ -261,9 +207,8 @@ export default function UsersPage() {
 
     return (
         <div className="container mx-auto p-4">
-            <h1 className="text-2xl font-bold mb-4">Salon User Management</h1>
-
-            <Card>
+            <h1 className="text-2xl font-bold mb-4">User Management</h1>
+            <Card className="border-black">
                 <CardHeader>
                     <div className="flex justify-between items-center">
                         <CardTitle>User List</CardTitle>

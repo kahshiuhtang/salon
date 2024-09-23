@@ -26,7 +26,6 @@ export const useAddAppointment = (): UseAddAppointmentReturn => {
     if (user != null && user["id"] != null) userId = user["id"];
     const addAppointment = async (appointmentProps: AddAppointmentProps) => {
         await addDoc(appCollectionRef, {
-            user: userId,
             ...appointmentProps,
         });
     };

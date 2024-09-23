@@ -58,9 +58,9 @@ const timeFormat = "hh:mm a";
 
 export default function BookAppointmentForm() {
     const { toast } = useToast();
-    const {user }= useUser();
+    const { user } = useUser();
     const navigate = useNavigate();
-    if(!user || !user.id){
+    if (!user || !user.id) {
         navigate("/sign-in");
     }
     const userId = user?.id || "";
@@ -84,7 +84,7 @@ export default function BookAppointmentForm() {
             ...values,
             time: values.time.toLocaleTimeString(),
             state: "REQUESTED",
-            ownerId: userId
+            ownerId: userId,
         });
         toast({
             title: "Appointment received",

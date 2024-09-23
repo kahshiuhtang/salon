@@ -28,7 +28,7 @@ import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Timestamp, deleteDoc, doc } from "firebase/firestore";
 import { TimePicker } from "antd";
@@ -38,6 +38,9 @@ import { useUpdateAppointmentStatus } from "@/lib/hooks/updateAppointmentStatus"
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { firebaseDb } from "@/lib/firebase";
+import { useGetUserInfo } from "@/lib/hooks/getUserInfo";
+import { useUser } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
 
 interface RequestCardProps {
     appointment: Appointment;
@@ -50,6 +53,7 @@ export default function RequestCard({
 }: RequestCardProps) {
     const [currentAppState, setCurrentAppState] =
         useState<Appointment>(appointment);
+    const [name, setName] = useState("");
     const appDateObject = new Date(
         (appointment.date as unknown as Timestamp).seconds * 1000
     );
@@ -59,6 +63,18 @@ export default function RequestCard({
     const [date, setDate] = useState<Date>(appDate);
     const { updateAppointmentStatus } = useUpdateAppointmentStatus();
     const { toast } = useToast();
+    const { getNameFromId } = useGetUserInfo();
+    const getName = async function(){
+        try{
+            const { firstName, lastName } = await getNameFromId({ userId: appointment.ownerId });
+            setName(firstName + " " + lastName);
+        }catch(e){
+            console.log(e);
+        }
+    }
+    useEffect(()=>{
+        getName();
+    }, [])
     const handleApprove = async function () {
         try {
             if (appointment.state == "CONFIRMED") {
@@ -121,7 +137,7 @@ export default function RequestCard({
                             <Label htmlFor="name">Name</Label>
                             <Input
                                 id="name"
-                                value={currentAppState.tech1}
+                                value={name}
                                 placeholder="Name of client"
                                 disabled
                             />

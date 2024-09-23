@@ -1,4 +1,4 @@
-import { doc, getDoc } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs } from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
 import { SalonUser } from "@/lib/hooks/createProfile";
 import { SalonRole } from "@/lib/types/types";
@@ -19,6 +19,13 @@ interface GetEmployeeFromUserIdReturn {
     lastName: string;
     role: SalonRole;
 }
+
+interface FetchAllUsersProps {
+    userId: string;
+}
+interface FetchAllUsersReturn {
+    users: SalonUser[];
+}
 export interface SalonEmployee {
     id: string;
     firstName: string;
@@ -33,6 +40,7 @@ interface GetUserInfoReturn {
     getEmployeeFromId: (
         props: GetEmployeeFromUserIdProps
     ) => Promise<GetEmployeeFromUserIdReturn>;
+    fetchAllUsers: (props: FetchAllUsersProps) => Promise<FetchAllUsersReturn>;
 }
 export const useGetUserInfo = (): GetUserInfoReturn => {
     const getNameFromId = async (props: GetNameFromUserIdProps) => {
@@ -63,5 +71,19 @@ export const useGetUserInfo = (): GetUserInfoReturn => {
             role: data.role,
         };
     };
-    return { getNameFromId, getEmployeeFromId };
+    const fetchAllUsers = async (props: FetchAllUsersProps) => {
+        const documents: SalonUser[] = [];
+        if (!props.userId) {
+            console.log("no user signed in...");
+        }
+        const querySnapshot = await getDocs(collection(firebaseDb, "users"));
+        querySnapshot.forEach((doc) => {
+            documents.push({
+                id: doc.id,
+                ...doc.data(),
+            } as unknown as SalonUser);
+        });
+        return { users: documents };
+    };
+    return { getNameFromId, getEmployeeFromId, fetchAllUsers };
 };

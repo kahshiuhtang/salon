@@ -39,8 +39,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { firebaseDb } from "@/lib/firebase";
 import { useGetUserInfo } from "@/lib/hooks/getUserInfo";
-import { useUser } from "@clerk/clerk-react";
-import { useNavigate } from "react-router-dom";
 
 interface RequestCardProps {
     appointment: Appointment;

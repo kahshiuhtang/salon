@@ -53,15 +53,17 @@ import { useRef } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { useUser } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
 const timeFormat = "hh:mm a";
 
 export default function BookAppointmentForm() {
     const { toast } = useToast();
     const {user }= useUser();
+    const navigate = useNavigate();
     if(!user || !user.id){
-        return;
+        navigate("/sign-in");
     }
-    const userId = user.id;
+    const userId = user?.id || "";
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {

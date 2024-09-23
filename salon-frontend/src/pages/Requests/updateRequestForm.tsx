@@ -46,6 +46,7 @@ import { useRef } from "react";
 const timeFormat = "hh:mm a";
 import { Appointment } from "@/lib/hooks/getAllAppointments";
 import { useUser } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
 
 interface UpdateRequestFormProps {
     appointment: Appointment;
@@ -55,10 +56,11 @@ export default function UpdateRequestForm({
     appointment,
 }: UpdateRequestFormProps) {
     const {user }= useUser();
+    const navigate = useNavigate();
     if(!user || !user.id){
-        return;
+        navigate("/sign-in");
     }
-    const userId = user.id;
+    const userId = user?.id || "";
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {

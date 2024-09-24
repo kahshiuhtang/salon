@@ -1,6 +1,5 @@
 import { addDoc, collection } from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
-import { useUser } from "@clerk/clerk-react";
 import { AppointmentState } from "@/lib/hooks/getAllAppointments";
 interface AddAppointmentProps {
     date: Date;
@@ -21,9 +20,6 @@ interface UseAddAppointmentReturn {
 }
 export const useAddAppointment = (): UseAddAppointmentReturn => {
     const appCollectionRef = collection(firebaseDb, "appointments");
-    const { user } = useUser();
-    var userId = "";
-    if (user != null && user["id"] != null) userId = user["id"];
     const addAppointment = async (appointmentProps: AddAppointmentProps) => {
         await addDoc(appCollectionRef, {
             ...appointmentProps,

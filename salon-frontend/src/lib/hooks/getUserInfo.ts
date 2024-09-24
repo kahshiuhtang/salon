@@ -1,4 +1,4 @@
-import { collection, doc, getDoc, getDocs } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
 import { SalonUser } from "@/lib/hooks/createProfile";
 import { SalonRole } from "@/lib/types/types";
@@ -26,6 +26,10 @@ interface FetchAllUsersProps {
 interface FetchAllUsersReturn {
     users: SalonUser[];
 }
+interface FetchFromPhoneOrEmailProps {
+    phoneNumber: string;
+    email: string;
+}
 export interface SalonEmployee {
     id: string;
     firstName: string;
@@ -41,6 +45,7 @@ interface GetUserInfoReturn {
         props: GetEmployeeFromUserIdProps
     ) => Promise<GetEmployeeFromUserIdReturn>;
     fetchAllUsers: (props: FetchAllUsersProps) => Promise<FetchAllUsersReturn>;
+    fetchUserInfoFromEmailAndPhone: (props: FetchFromPhoneOrEmailProps) => Promise<SalonUser[]>;
 }
 export const useGetUserInfo = (): GetUserInfoReturn => {
     const getNameFromId = async (props: GetNameFromUserIdProps) => {
@@ -85,5 +90,31 @@ export const useGetUserInfo = (): GetUserInfoReturn => {
         });
         return { users: documents };
     };
-    return { getNameFromId, getEmployeeFromId, fetchAllUsers };
+    const fetchUserInfoFromEmailAndPhone = async (props: FetchFromPhoneOrEmailProps) => {
+        const phoneQuery = query(
+            collection(firebaseDb, "your-collection-name"),
+            where("phoneNumber", "==", props.phoneNumber)
+          );
+          const emailQuery = query(
+            collection(firebaseDb, "your-collection-name"),
+            where("email", "==", props.email)
+          );
+          const [phoneSnapshot, emailSnapshot] = await Promise.all([
+            getDocs(phoneQuery),
+            getDocs(emailQuery),
+          ]);
+          const phoneResults = phoneSnapshot.docs.map(doc => ({
+            ...doc.data()
+          } as unknown as SalonUser));
+          const emailResults = emailSnapshot.docs.map(doc => ({
+            ...doc.data()
+          } as unknown as SalonUser));
+          // Combine the two arrays, filtering out duplicate documents if both queries match the same doc
+          const combinedResults = [...phoneResults, ...emailResults].filter(
+            (doc, index, self) =>
+              index === self.findIndex((d) => d.userId === doc.userId)
+          );
+          return combinedResults;
+    }
+    return { getNameFromId, getEmployeeFromId, fetchAllUsers, fetchUserInfoFromEmailAndPhone };
 };

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -10,18 +10,30 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarDays, Clock, Paintbrush, User } from "lucide-react";
 import Navbar from "@/pages/Navbar/navbar";
-
-// Mock data for appointments
-const appointments = [
+import { useUser } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
+import { useGetUserInfo } from "@/lib/hooks/getUserInfo";
+export interface AppointmentCardAppProps {
+    id: string | number;
+    date: string;
+    time: string;
+    client: string;
+    services: ACPService[];
+}
+export interface ACPService {
+    name: string;
+    duration: number;
+    technician: string;
+}
+const appointments: AppointmentCardAppProps[] = [
     {
         id: 1,
         date: "2023-09-25",
         time: "14:00",
         client: "Alice Johnson",
-        stylist: "John Doe",
         services: [
-            { name: "Haircut", duration: 30 },
-            { name: "Color", duration: 60 },
+            { name: "Haircut", duration: 30, technician: "Le" },
+            { name: "Color", duration: 60, technician: "Le" },
         ],
     },
     {
@@ -29,10 +41,9 @@ const appointments = [
         date: "2023-09-26",
         time: "10:30",
         client: "Bob Smith",
-        stylist: "Jane Smith",
         services: [
-            { name: "Beard Trim", duration: 15 },
-            { name: "Shave", duration: 30 },
+            { name: "Beard Trim", duration: 15, technician: "Kim" },
+            { name: "Shave", duration: 30, technician: "Kimberly" },
         ],
     },
     {
@@ -40,10 +51,9 @@ const appointments = [
         date: "2023-09-27",
         time: "11:00",
         client: "Charlie Brown",
-        stylist: "Alice Johnson",
         services: [
-            { name: "Manicure", duration: 45 },
-            { name: "Pedicure", duration: 45 },
+            { name: "Manicure", duration: 45, technician: "Kim" },
+            { name: "Pedicure", duration: 45, technician: "Kim" },
         ],
     },
     {
@@ -51,26 +61,27 @@ const appointments = [
         date: "2023-09-20",
         time: "15:00",
         client: "David Wilson",
-        stylist: "John Doe",
-        services: [{ name: "Haircut", duration: 30 }],
+        services: [{ name: "Haircut", duration: 30, technician: "Marie" }],
     },
     {
         id: 5,
         date: "2023-09-18",
         time: "13:30",
         client: "Eva Martinez",
-        stylist: "Jane Smith",
         services: [
-            { name: "Hair Styling", duration: 45 },
-            { name: "Makeup", duration: 30 },
+            { name: "Hair Styling", duration: 45, technician: "Marie" },
+            { name: "Makeup", duration: 30, technician: "Marie" },
         ],
     },
 ];
-
-export default function Component() {
+interface AppointmentCardProps {
+    appointment: AppointmentCardAppProps;
+    isPast: boolean | undefined;
+}
+export default function HomePage() {
     const [userType, setUserType] = useState("customer");
     const [selectedDate, setSelectedDate] = useState("2023-09-25");
-
+    const [firstName, setFirstName] = useState("");
     const currentDate = new Date();
     const upcomingAppointments = appointments.filter(
         (a) => new Date(a.date) >= currentDate
@@ -78,8 +89,29 @@ export default function Component() {
     const pastAppointments = appointments.filter(
         (a) => new Date(a.date) < currentDate
     );
+    const { user } = useUser();
+    const navigate = useNavigate();
+    if (!user || !user.id) {
+        navigate("/sign-in");
+    }
+    const userId = user?.id || "";
 
-    const AppointmentCard = ({ appointment, isPast = false }) => (
+    const { getNameFromId } = useGetUserInfo();
+    const fetchName = async function(){
+        try{
+            const name = await getNameFromId({userId});
+            setFirstName(name.firstName);
+        }catch(e){
+            console.log("fetchName(): " + e);
+        }
+    }
+    useEffect(()=>{
+        fetchName();
+    })
+    const AppointmentCard = ({
+        appointment,
+        isPast = false,
+    }: AppointmentCardProps) => (
         <Card className="mb-4">
             <CardContent className="flex flex-col p-4">
                 <div className="flex justify-between items-start mb-2">
@@ -107,12 +139,7 @@ export default function Component() {
                         </Button>
                     )}
                 </div>
-                {userType === "customer" ? (
-                    <div className="flex items-center text-sm text-gray-500">
-                        <User className="mr-2 h-4 w-4" />
-                        {appointment.stylist}
-                    </div>
-                ) : (
+                {userType !== "customer" && (
                     <div className="flex items-center text-sm text-gray-500">
                         <User className="mr-2 h-4 w-4" />
                         {appointment.client}
@@ -123,7 +150,8 @@ export default function Component() {
                     <ul className="list-disc list-inside text-sm text-gray-600">
                         {appointment.services.map((service, index) => (
                             <li key={index}>
-                                {service.name} ({service.duration} min)
+                                {service.name} with {service.technician} (
+                                {service.duration} min)
                             </li>
                         ))}
                     </ul>
@@ -131,8 +159,10 @@ export default function Component() {
             </CardContent>
         </Card>
     );
-
-    const DailyCalendar = ({ date }) => {
+    interface DailyCalendarProps {
+        date: string;
+    }
+    const DailyCalendar = ({ date }: DailyCalendarProps) => {
         const dayAppointments = appointments.filter((a) => a.date === date);
         const hours = Array.from({ length: 12 }, (_, i) => i + 8); // 8 AM to 7 PM
 
@@ -195,10 +225,7 @@ export default function Component() {
                 <Card className="mb-6">
                     <CardHeader>
                         <CardTitle>
-                            Welcome,{" "}
-                            {userType === "customer"
-                                ? "Valued Customer"
-                                : "Nail Technician"}
+                            Welcome, {firstName}
                         </CardTitle>
                         <CardDescription>
                             {userType === "customer"
@@ -224,6 +251,7 @@ export default function Component() {
                                     <AppointmentCard
                                         key={appointment.id}
                                         appointment={appointment}
+                                        isPast={false} //TODO: fix this what should it be
                                     />
                                 ))}
                             </div>
@@ -282,6 +310,7 @@ export default function Component() {
                                     <AppointmentCard
                                         key={appointment.id}
                                         appointment={appointment}
+                                        isPast={false} //TODO: fix this what should it be
                                     />
                                 ))}
                             </div>

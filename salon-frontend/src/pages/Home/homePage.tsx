@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
     Card,
@@ -8,11 +8,15 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { CalendarDays, Clock, Paintbrush, User } from "lucide-react";
+import {  Paintbrush } from "lucide-react";
 import Navbar from "@/pages/Navbar/navbar";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useGetUserInfo } from "@/lib/hooks/getUserInfo";
+import { useGetRole } from "@/lib/hooks/getRole";
+import { SalonRole } from "@/lib/types/types";
+import DailyCalendar from "@/pages/Home/dailyCalendar";
+import AppointmentCard from "@/pages/Home/appointmentCard";
 export interface AppointmentCardAppProps {
     id: string | number;
     date: string;
@@ -74,12 +78,8 @@ const appointments: AppointmentCardAppProps[] = [
         ],
     },
 ];
-interface AppointmentCardProps {
-    appointment: AppointmentCardAppProps;
-    isPast: boolean | undefined;
-}
 export default function HomePage() {
-    const [userType, setUserType] = useState("customer");
+    const [userType, setUserType] = useState<SalonRole>("USER");
     const [selectedDate, setSelectedDate] = useState("2023-09-25");
     const [firstName, setFirstName] = useState("");
     const currentDate = new Date();
@@ -97,110 +97,20 @@ export default function HomePage() {
     const userId = user?.id || "";
 
     const { getNameFromId } = useGetUserInfo();
-    const fetchName = async function(){
-        try{
-            const name = await getNameFromId({userId});
+    const { getRole } = useGetRole();
+    const fetchNameAndRole = async function () {
+        try {
+            const name = await getNameFromId({ userId });
+            const role = await getRole({ userId });
             setFirstName(name.firstName);
-        }catch(e){
+            setUserType(role);
+        } catch (e) {
             console.log("fetchName(): " + e);
         }
-    }
-    useEffect(()=>{
-        fetchName();
-    })
-    const AppointmentCard = ({
-        appointment,
-        isPast = false,
-    }: AppointmentCardProps) => (
-        <Card className="mb-4">
-            <CardContent className="flex flex-col p-4">
-                <div className="flex justify-between items-start mb-2">
-                    <div>
-                        <p className="font-semibold">
-                            {appointment.services.map((s) => s.name).join(", ")}
-                        </p>
-                        <div className="flex items-center text-sm text-gray-500">
-                            <CalendarDays className="mr-2 h-4 w-4" />
-                            {appointment.date}
-                        </div>
-                        <div className="flex items-center text-sm text-gray-500">
-                            <Clock className="mr-2 h-4 w-4" />
-                            {appointment.time}
-                        </div>
-                    </div>
-                    {!isPast && userType === "customer" && (
-                        <Button variant="outline" size="sm">
-                            Reschedule
-                        </Button>
-                    )}
-                    {userType === "employee" && (
-                        <Button variant="outline" size="sm">
-                            View Details
-                        </Button>
-                    )}
-                </div>
-                {userType !== "customer" && (
-                    <div className="flex items-center text-sm text-gray-500">
-                        <User className="mr-2 h-4 w-4" />
-                        {appointment.client}
-                    </div>
-                )}
-                <div className="mt-2">
-                    <p className="text-sm font-semibold">Services:</p>
-                    <ul className="list-disc list-inside text-sm text-gray-600">
-                        {appointment.services.map((service, index) => (
-                            <li key={index}>
-                                {service.name} with {service.technician} (
-                                {service.duration} min)
-                            </li>
-                        ))}
-                    </ul>
-                </div>
-            </CardContent>
-        </Card>
-    );
-    interface DailyCalendarProps {
-        date: string;
-    }
-    const DailyCalendar = ({ date }: DailyCalendarProps) => {
-        const dayAppointments = appointments.filter((a) => a.date === date);
-        const hours = Array.from({ length: 12 }, (_, i) => i + 8); // 8 AM to 7 PM
-
-        return (
-            <div className="mt-4">
-                <h2 className="text-xl font-semibold mb-2">
-                    Daily Schedule - {date}
-                </h2>
-                <div className="grid grid-cols-[auto,1fr] gap-2">
-                    {hours.map((hour) => (
-                        <React.Fragment key={hour}>
-                            <div className="text-right pr-2">{hour}:00</div>
-                            <div className="border-l pl-2 min-h-[60px]">
-                                {dayAppointments
-                                    .filter(
-                                        (a) =>
-                                            parseInt(a.time.split(":")[0]) ===
-                                            hour
-                                    )
-                                    .map((appointment) => (
-                                        <div
-                                            key={appointment.id}
-                                            className="bg-black text-white p-1 text-sm mb-1 rounded"
-                                        >
-                                            {appointment.time} -{" "}
-                                            {appointment.client}:{" "}
-                                            {appointment.services
-                                                .map((s) => s.name)
-                                                .join(", ")}
-                                        </div>
-                                    ))}
-                            </div>
-                        </React.Fragment>
-                    ))}
-                </div>
-            </div>
-        );
     };
+    useEffect(() => {
+        fetchNameAndRole();
+    });
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -210,32 +120,26 @@ export default function HomePage() {
                     <h1 className="text-3xl font-bold">Dashboard</h1>
                     <Button
                         onClick={() =>
-                            setUserType(
-                                userType === "customer"
-                                    ? "employee"
-                                    : "customer"
-                            )
+                            setUserType(userType !== "USER" ? "USER" : "MOD")
                         }
                     >
                         Switch to{" "}
-                        {userType === "customer" ? "Employee" : "Customer"} View
+                        {userType !== "USER" ? "Employee" : "Customer"} View
                     </Button>
                 </div>
 
                 <Card className="mb-6">
                     <CardHeader>
-                        <CardTitle>
-                            Welcome, {firstName}
-                        </CardTitle>
+                        <CardTitle>Welcome, {firstName}</CardTitle>
                         <CardDescription>
-                            {userType === "customer"
+                            {userType === "USER"
                                 ? "Here's an overview of your appointments"
                                 : "Here's your schedule and upcoming appointments"}
                         </CardDescription>
                     </CardHeader>
                 </Card>
 
-                {userType === "customer" ? (
+                {userType === "USER" ? (
                     <Tabs defaultValue="upcoming" className="w-full">
                         <TabsList>
                             <TabsTrigger value="upcoming">
@@ -251,6 +155,7 @@ export default function HomePage() {
                                     <AppointmentCard
                                         key={appointment.id}
                                         appointment={appointment}
+                                        userType={userType}
                                         isPast={false} //TODO: fix this what should it be
                                     />
                                 ))}
@@ -262,6 +167,7 @@ export default function HomePage() {
                                     <AppointmentCard
                                         key={appointment.id}
                                         appointment={appointment}
+                                        userType={userType}
                                         isPast={true}
                                     />
                                 ))}
@@ -302,7 +208,10 @@ export default function HomePage() {
                                     Sep 27
                                 </Button>
                             </div>
-                            <DailyCalendar date={selectedDate} />
+                            <DailyCalendar
+                                appointments={appointments}
+                                date={selectedDate}
+                            />
                         </TabsContent>
                         <TabsContent value="list">
                             <div className="grid gap-4 md:grid-cols-2">
@@ -310,6 +219,7 @@ export default function HomePage() {
                                     <AppointmentCard
                                         key={appointment.id}
                                         appointment={appointment}
+                                        userType={userType}
                                         isPast={false} //TODO: fix this what should it be
                                     />
                                 ))}
@@ -318,7 +228,7 @@ export default function HomePage() {
                     </Tabs>
                 )}
 
-                {userType === "customer" && (
+                {userType === "USER" && (
                     <Card className="mt-6">
                         <CardHeader>
                             <CardTitle>Book a New Appointment</CardTitle>
@@ -335,7 +245,7 @@ export default function HomePage() {
                     </Card>
                 )}
 
-                {userType === "employee" && (
+                {userType === "USER" && (
                     <Card className="mt-6">
                         <CardHeader>
                             <CardTitle>Daily Summary</CardTitle>

@@ -12,12 +12,14 @@ import CreateProfilePage from "@/pages/CreateProfile/createProfilePage";
 import RequestsPage from "@/pages/Requests/requestsPage";
 import HomePage from "@/pages/Home/homePage";
 import UsersPage from "@/pages/Users/usersPage";
+import LandingPage from "@/pages/Landing/landingPage";
 // Import the functions you need from the SDKs you need
 const router = createBrowserRouter([
     {
         element: <RootLayout />,
         children: [
-            { path: "/", element: <HomePage /> },
+            { path: "/", element: <LandingPage /> },
+            { path: "/home", element: <HomePage /> },
             { path: "/users", element: <UsersPage /> },
             { path: "/requests", element: <RequestsPage /> },
             { path: "/book", element: <BookAppointmentPage /> },

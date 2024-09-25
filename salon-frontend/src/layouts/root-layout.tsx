@@ -23,7 +23,7 @@ export default function RootLayout() {
                     <SignedOut>
                         {window.location.href.includes("sign-up") == false &&
                             window.location.href.includes("sign-in") ==
-                                false && <LandingPage></LandingPage>}
+                                false}
                     </SignedOut>
                 </div>
             </header>

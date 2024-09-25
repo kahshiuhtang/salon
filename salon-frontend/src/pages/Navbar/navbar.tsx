@@ -9,7 +9,7 @@ export default function Navbar() {
                     className="text-2xl font-bold flex items-center"
                 >
                     <Paintbrush className="mr-2 h-6 w-6" />
-                    Nail Salon CRM
+                    S&S Nails
                 </Link>
                 <div className="flex items-center space-x-4">
                     <Link

@@ -10,15 +10,6 @@ interface ProfileProps {
     role: "ADMIN" | "USER" | "MOD";
     userId: string;
 }
-export interface SalonUser {
-    firstName: string;
-    lastName: string;
-    email: string;
-    phoneNumber: string;
-    comments: string;
-    role: "ADMIN" | "USER" | "MOD";
-    userId: string;
-}
 interface VerifyProfileProps {
     userId: string;
 }

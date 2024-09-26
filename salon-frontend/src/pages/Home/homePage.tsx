@@ -14,22 +14,10 @@ import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useUsers } from "@/lib/hooks/useUsers";
 import { useRole } from "@/lib/hooks/useRole";
-import { SalonRole } from "@/lib/types/types";
+import { SalonRole, DailyCalendarAppointment } from "@/lib/types/types";
 import DailyCalendar from "@/pages/Home/dailyCalendar";
 import AppointmentCard from "@/pages/Home/appointmentCard";
-export interface AppointmentCardAppProps {
-  id: string | number;
-  date: string;
-  time: string;
-  client: string;
-  services: ACPService[];
-}
-export interface ACPService {
-  name: string;
-  duration: number;
-  technician: string;
-}
-const appointments: AppointmentCardAppProps[] = [
+const appointments: DailyCalendarAppointment[] = [
   {
     id: 1,
     date: "2023-09-25",

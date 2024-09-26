@@ -44,7 +44,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { SelectValue } from "@radix-ui/react-select";
 import { useRef } from "react";
 const timeFormat = "hh:mm a";
-import { Appointment } from "@/lib/hooks/useAppointment";
+import { Appointment } from "@/lib/types/types";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 

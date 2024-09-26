@@ -8,6 +8,7 @@ import {
 } from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
 import { RepeatTypeWeek, RepeatTypeDay } from "@/lib/types/types";
+import { Availability, FormattedAvailability } from "@/lib/types/types";
 
 interface GetAvailabilityProps {
     userId: string;
@@ -22,26 +23,13 @@ interface DeleteAvailability {
     userId: string;
     availabilityId: string;
 }
-export interface AvailabilityProp {
+interface AvailabilityProp {
     date: Date;
     startTime: string;
     endTime: string;
     repeat: boolean;
     repeatTypeWeekly?: RepeatTypeWeek;
     repeatTypeDaily?: RepeatTypeDay;
-}
-export interface Availability {
-    id: string;
-    date: Date;
-    startTime: string;
-    endTime: string;
-    repeat: boolean;
-    repeatTypeWeekly?: RepeatTypeWeek;
-    repeatTypeDaily?: RepeatTypeDay;
-}
-export interface FormattedAvailability {
-    start: Date;
-    end: Date;
 }
 interface UseAvailabilityReturn {
     getAvailability: (

@@ -4,9 +4,22 @@ import * as z from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { SalonUser } from "@/lib/hooks/useUserProfile";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { SalonUser } from "@/lib/types/types";
 
 const userSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -23,16 +36,19 @@ type UserFormProps = {
   initialData?: SalonUser | null;
 };
 
-export default function UserForm({ onSubmit, initialData = null }: UserFormProps) {
+export default function UserForm({
+  onSubmit,
+  initialData = null,
+}: UserFormProps) {
   const form = useForm<SalonUser>({
     resolver: zodResolver(userSchema),
     defaultValues: initialData || {
-      firstName: '',
-      lastName: '',
-      email: '',
-      phoneNumber: '',
-      comments: '',
-      role: 'USER',
+      firstName: "",
+      lastName: "",
+      email: "",
+      phoneNumber: "",
+      comments: "",
+      role: "USER",
     },
   });
 

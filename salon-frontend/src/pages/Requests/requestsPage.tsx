@@ -1,4 +1,5 @@
-import { Appointment, useAppointment } from "@/lib/hooks/useAppointment";
+import { useAppointment } from "@/lib/hooks/useAppointment";
+import { Appointment } from "@/lib/types/types";
 import { useRole } from "@/lib/hooks/useRole";
 import { SalonRole } from "@/lib/types/types";
 import Navbar from "@/pages/Navbar/navbar";

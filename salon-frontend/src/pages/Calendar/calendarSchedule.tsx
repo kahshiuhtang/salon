@@ -3,10 +3,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
-import {
-  FullCalendarAppointment,
-  useAppointment,
-} from "@/lib/hooks/useAppointment";
+import { useAppointment } from "@/lib/hooks/useAppointment";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useUserProfile } from "@/lib/hooks/useUserProfile";
@@ -20,6 +17,7 @@ import {
 import { DialogTitle } from "@radix-ui/react-dialog";
 import { Button } from "@/components/ui/button";
 import ScheduleForm from "@/pages/Calendar/scheduleForm";
+import { FullCalendarAppointment } from "@/lib/types/types";
 
 export default function CalendarScheduler() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);

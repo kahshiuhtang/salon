@@ -23,7 +23,7 @@ import {
 } from "@radix-ui/react-popover";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Appointment } from "@/lib/hooks/useAppointment";
+import { Appointment } from "@/lib/types/types";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";

@@ -9,6 +9,7 @@ import {
     addDoc,
     updateDoc,
 } from "firebase/firestore";
+import { Appointment, AppointmentState, FullCalendarAppointment } from "@/lib/types/types";
 import { firebaseDb } from "@/lib/firebase";
 interface GetAllAppointmentsProps {
     userId: string;
@@ -17,32 +18,7 @@ interface UpdateAppointmentStatusProps {
     id: string;
     newStatus: AppointmentState;
 }
-export type AppointmentState =
-    | "REQUESTED"
-    | "COUNTERED-SALON"
-    | "COUNTERED-USER"
-    | "CONFIRMED"
-    | "MISSED"
-    | "RESCHEDULED"
-    | "MODIFIED-USER"
-    | "MODIFIED-SALON"
-    | "FINISHED";
-export interface Appointment {
-    id: string;
-    time: Date;
-    length: Date;
-    date: Date;
-    service1: string;
-    tech1: string;
-    service2: string;
-    tech2: string;
-    service3: string;
-    tech3: string;
-    service4: string;
-    tech4: string;
-    state: AppointmentState;
-    ownerId: string;
-}
+
 interface AddAppointmentProps {
     date: Date;
     time: string;
@@ -56,14 +32,6 @@ interface AddAppointmentProps {
     tech4?: string;
     state: AppointmentState;
     ownerId: string;
-}
-export interface FullCalendarAppointment {
-    id: string;
-    title: string;
-    start: string | Date; //  (required)
-    end?: string | Date; //  (optional)
-    allDay?: boolean; //  (optional)
-    backgroundColor?: string; //  (optional)
 }
 interface UseAppointmentReturn {
     addAppointment: (appointmentProps: AddAppointmentProps) => Promise<void>;

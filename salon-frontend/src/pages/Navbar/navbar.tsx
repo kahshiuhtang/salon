@@ -1,19 +1,24 @@
-import { Book, FileText, Home, Paintbrush, Settings, Users } from "lucide-react";
+import { UserButton } from "@clerk/clerk-react";
+import {
+    Book,
+    FileText,
+    Home,
+    Paintbrush,
+    Settings,
+    Users,
+} from "lucide-react";
 import { Link } from "react-router-dom";
 export default function Navbar() {
     return (
         <nav className="bg-primary text-primary-foreground p-4">
             <div className="container mx-auto flex justify-between items-center">
-                <Link
-                    to="/"
-                    className="text-2xl font-bold flex items-center"
-                >
+                <Link to="/" className="text-2xl font-bold flex items-center">
                     <Paintbrush className="mr-2 h-6 w-6" />
                     S&S Nails
                 </Link>
                 <div className="flex items-center space-x-4">
                     <Link
-                        to="/"
+                        to="/home"
                         className="flex items-center hover:text-primary-foreground/80"
                     >
                         <Home className="mr-1 h-4 w-4" />
@@ -47,6 +52,7 @@ export default function Navbar() {
                         <Settings className="mr-1 h-4 w-4" />
                         Settings
                     </Link>
+                    <UserButton />
                 </div>
             </div>
         </nav>

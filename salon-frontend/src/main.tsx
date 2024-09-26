@@ -7,12 +7,13 @@ import BookAppointmentPage from "@/pages/BookAppointment/bookAppointmentPage";
 import CalendarPage from "@/pages/Calendar/calendarPage";
 import SettingsPage from "@/pages/Settings/settingsPage";
 import SignInPage from "@/pages/Landing/signinPage";
-import SignUpPage from "@/pages/Landing/signupPage";
+import RegisterPage from "@/pages/Landing/registerPage";
 import CreateProfilePage from "@/pages/CreateProfile/createProfilePage";
 import RequestsPage from "@/pages/Requests/requestsPage";
 import HomePage from "@/pages/Home/homePage";
 import UsersPage from "@/pages/Users/usersPage";
 import LandingPage from "@/pages/Landing/landingPage";
+import ServicesPage from "@/pages/Services/servicesPage";
 // Import the functions you need from the SDKs you need
 const router = createBrowserRouter([
     {
@@ -27,7 +28,8 @@ const router = createBrowserRouter([
             { path: "/calendar", element: <CalendarPage /> },
             { path: "/settings", element: <SettingsPage /> },
             { path: "/sign-in/*", element: <SignInPage /> },
-            { path: "/sign-up/*", element: <SignUpPage /> },
+            { path: "/register/*", element: <RegisterPage /> },
+            { path: "/services", element: <ServicesPage /> },
         ],
     },
 ]);

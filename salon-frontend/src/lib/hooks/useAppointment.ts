@@ -6,6 +6,7 @@ import {
     where,
     getDocs,
     Timestamp,
+    addDoc,
 } from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
 interface GetAllAppointmentsProps {
@@ -37,6 +38,20 @@ export interface Appointment {
     state: AppointmentState;
     ownerId: string;
 }
+interface AddAppointmentProps {
+    date: Date;
+    time: string;
+    service1: string;
+    tech1: string;
+    service2?: string;
+    tech2?: string;
+    service3?: string;
+    tech3?: string;
+    service4?: string;
+    tech4?: string;
+    state: AppointmentState;
+    ownerId: string;
+}
 export interface FullCalendarAppointment {
     id: string;
     title: string;
@@ -45,7 +60,8 @@ export interface FullCalendarAppointment {
     allDay?: boolean; //  (optional)
     backgroundColor?: string; //  (optional)
 }
-interface UseGetAllAppointmentsReturn {
+interface UseAppointmentReturn {
+    addAppointment: (appointmentProps: AddAppointmentProps) => Promise<void>;
     getAppointments: (
         appointmentProps: GetAllAppointmentsProps
     ) => Promise<Appointment[]>;
@@ -53,7 +69,13 @@ interface UseGetAllAppointmentsReturn {
         appointments: Appointment[]
     ) => FullCalendarAppointment[];
 }
-export const useGetAllAppointments = (): UseGetAllAppointmentsReturn => {
+export const useAppointment = (): UseAppointmentReturn => {
+    const appCollectionRef = collection(firebaseDb, "appointments");
+    const addAppointment = async (appointmentProps: AddAppointmentProps) => {
+        await addDoc(appCollectionRef, {
+            ...appointmentProps,
+        });
+    };
     const getAppointments = async (
         appProps: GetAllAppointmentsProps
     ): Promise<Appointment[]> => {
@@ -140,5 +162,5 @@ export const useGetAllAppointments = (): UseGetAllAppointmentsReturn => {
         }
         return ans;
     };
-    return { getAppointments, formatAppointments };
+    return { addAppointment, getAppointments, formatAppointments };
 };

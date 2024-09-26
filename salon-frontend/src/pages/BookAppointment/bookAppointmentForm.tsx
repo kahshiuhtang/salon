@@ -39,7 +39,7 @@ const formSchema = z.object({
 });
 import dayjs from "dayjs";
 import { z } from "zod";
-import { useAddAppointment } from "@/lib/hooks/addAppointment";
+import { useAppointment } from "@/lib/hooks/useAppointment";
 import {
     Popover,
     PopoverContent,
@@ -78,7 +78,7 @@ export default function BookAppointmentForm() {
             tech4: "",
         },
     });
-    const { addAppointment } = useAddAppointment();
+    const { addAppointment } = useAppointment();
     async function onSubmit(values: z.infer<typeof formSchema>) {
         await addAppointment({
             ...values,

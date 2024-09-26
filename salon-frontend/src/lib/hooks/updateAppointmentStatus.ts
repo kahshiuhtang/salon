@@ -1,6 +1,6 @@
 import { doc, updateDoc } from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
-import { AppointmentState } from "@/lib/hooks/getAllAppointments";
+import { AppointmentState } from "@/lib/hooks/useAppointment";
 interface UpdateAppointmentStatusProps {
     id: string;
     newStatus: AppointmentState;

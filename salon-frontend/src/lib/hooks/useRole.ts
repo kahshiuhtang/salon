@@ -4,10 +4,10 @@ import { SalonRole } from "@/lib/types/types";
 interface GetRoleProps {
     userId: string;
 }
-interface GetRoleReturn {
+interface UseRoleReturn {
     getRole: (props: GetRoleProps) => Promise<SalonRole>;
 }
-export const useGetRole = (): GetRoleReturn => {
+export const useRole = (): UseRoleReturn => {
     const getRole = async (props: GetRoleProps) => {
         if (!props || !props.userId) {
             throw new Error("arguments invalid");

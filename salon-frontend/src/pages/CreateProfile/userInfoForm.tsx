@@ -20,7 +20,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Textarea } from "@/components/ui/textarea";
-import { useUserProfile } from "@/lib/hooks/createProfile";
+import { useUserProfile } from "@/lib/hooks/useUserProfile";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 

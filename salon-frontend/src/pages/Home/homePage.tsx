@@ -13,7 +13,7 @@ import Navbar from "@/pages/Navbar/navbar";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useGetUserInfo } from "@/lib/hooks/getUserInfo";
-import { useGetRole } from "@/lib/hooks/getRole";
+import { useRole } from "@/lib/hooks/useRole";
 import { SalonRole } from "@/lib/types/types";
 import DailyCalendar from "@/pages/Home/dailyCalendar";
 import AppointmentCard from "@/pages/Home/appointmentCard";
@@ -97,7 +97,7 @@ export default function HomePage() {
     const userId = user?.id || "";
 
     const { getNameFromId } = useGetUserInfo();
-    const { getRole } = useGetRole();
+    const { getRole } = useRole();
     const fetchNameAndRole = async function () {
         try {
             const name = await getNameFromId({ userId });

@@ -97,7 +97,7 @@ export const useAvailability = (): UseAvailabilityReturn => {
         props: AddAvailabilityProps
     ): Promise<string> => {
         try {
-            if(!props || !props.availability){
+            if (!props || !props.availability) {
                 console.log("invalid arguments passed");
                 return "";
             }
@@ -116,7 +116,7 @@ export const useAvailability = (): UseAvailabilityReturn => {
         props: DeleteAvailability
     ): Promise<void> => {
         try {
-            if(!props || !props.availabilityId){
+            if (!props || !props.availabilityId) {
                 console.log("invalid arguments passed");
                 return;
             }

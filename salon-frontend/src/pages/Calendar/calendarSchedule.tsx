@@ -9,7 +9,7 @@ import {
 } from "@/lib/hooks/getAllAppointments";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
-import { useVerifyUserProfile } from "@/lib/hooks/verifyUserProfile";
+import { useUserProfile } from "@/lib/hooks/useUserProfile";
 import {
     Dialog,
     DialogContent,
@@ -28,7 +28,7 @@ export default function CalendarScheduler() {
     >([]);
     const navigate = useNavigate();
     const { user } = useUser();
-    const { verifyUser } = useVerifyUserProfile();
+    const { verifyProfile } = useUserProfile();
     const { getAppointments, formatAppointments } = useGetAllAppointments();
 
     // Fetch appointments, only when userId is available
@@ -40,7 +40,7 @@ export default function CalendarScheduler() {
                 return;
             }
             const userId = user["id"];
-            const isVerified = await verifyUser({ userId });
+            const isVerified = await verifyProfile({ userId });
             if (!isVerified) {
                 navigate("/create-profile");
                 return;

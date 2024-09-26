@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { SalonUser } from "@/lib/hooks/createProfile";
+import { SalonUser } from "@/lib/hooks/useUserProfile";
 
 const userSchema = z.object({
   firstName: z.string().min(1, "First name is required"),

@@ -1,5 +1,6 @@
 import { doc, getDoc, setDoc } from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
+
 interface ProfileProps {
     firstName: string;
     lastName: string;
@@ -18,7 +19,11 @@ export interface SalonUser {
     role: "ADMIN" | "USER" | "MOD";
     userId: string;
 }
-interface UseProfileReturn {
+interface VerifyProfileProps {
+    userId: string;
+}
+interface UseUserProfileReturn {
+    verifyProfile: (appointmentProps: VerifyProfileProps) => Promise<boolean>;
     createProfile: (profileProps: ProfileProps) => Promise<void>;
     editProfile: (
         userId: string,
@@ -26,7 +31,16 @@ interface UseProfileReturn {
         profile: ProfileProps
     ) => Promise<void>;
 }
-export const useUserProfile = (): UseProfileReturn => {
+export const useUserProfile = (): UseUserProfileReturn => {
+    const verifyProfile = async (appProps: VerifyProfileProps) => {
+        if (!appProps || !appProps.userId) {
+            throw new Error("arguments invalid");
+        }
+        const userId = appProps.userId;
+        const userDoc = doc(firebaseDb, "users", userId);
+        const userSnapshot = await getDoc(userDoc);
+        return userSnapshot.exists();
+    };
     const createProfile = async (profileProps: ProfileProps) => {
         try {
             await setDoc(doc(firebaseDb, "users", profileProps.userId), {
@@ -57,6 +71,5 @@ export const useUserProfile = (): UseProfileReturn => {
             ...profile,
         });
     };
-
-    return { createProfile, editProfile };
+    return { verifyProfile, createProfile, editProfile };
 };

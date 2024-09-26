@@ -1,6 +1,6 @@
 import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
-import { SalonUser } from "@/lib/hooks/createProfile";
+import { SalonUser } from "@/lib/hooks/useUserProfile";
 import { SalonRole } from "@/lib/types/types";
 
 interface GetNameFromUserIdProps {

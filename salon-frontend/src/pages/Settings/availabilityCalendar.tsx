@@ -12,7 +12,7 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import { useUser } from "@clerk/clerk-react";
-import { useVerifyUserProfile } from "@/lib/hooks/verifyUserProfile";
+import { useUserProfile } from "@/lib/hooks/useUserProfile";
 import { useNavigate } from "react-router-dom";
 import {
     FormattedAvailability,
@@ -34,7 +34,7 @@ export default function AvailablityCalendar() {
     const navigate = useNavigate();
     const { user } = useUser();
     const { getAvailability } = useAvailability();
-    const { verifyUser } = useVerifyUserProfile();
+    const { verifyProfile } = useUserProfile();
     const fetchUserAvailability = async () => {
         try {
             console.log("fetching data...");
@@ -43,7 +43,7 @@ export default function AvailablityCalendar() {
                 return;
             }
             const userId = user["id"];
-            const isVerified = await verifyUser({ userId });
+            const isVerified = await verifyProfile({ userId });
             if (!isVerified) {
                 navigate("/create-profile");
                 return;

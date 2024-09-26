@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Plus, Search, Edit, ChevronUp, ChevronDown } from "lucide-react";
-import { SalonUser, useUserProfile } from "@/lib/hooks/createProfile";
+import { SalonUser, useUserProfile } from "@/lib/hooks/useUserProfile";
 import { useGetUserInfo } from "@/lib/hooks/getUserInfo";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";

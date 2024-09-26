@@ -2,7 +2,7 @@ import {
     Appointment,
     useGetAllAppointments,
 } from "@/lib/hooks/getAllAppointments";
-import { useGetRole } from "@/lib/hooks/getRole";
+import { useRole } from "@/lib/hooks/useRole";
 import { SalonRole } from "@/lib/types/types";
 import Navbar from "@/pages/Navbar/navbar";
 import { useUser } from "@clerk/clerk-react";
@@ -15,7 +15,7 @@ export default function RequestsPage() {
     const [requests, setRequests] = useState<Appointment[]>([]);
     const { user } = useUser();
     const navigate = useNavigate();
-    const { getRole } = useGetRole();
+    const { getRole } = useRole();
     const { getAppointments } = useGetAllAppointments();
     useEffect(() => {
         if (!user || !user.id) {

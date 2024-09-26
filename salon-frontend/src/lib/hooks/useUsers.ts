@@ -37,7 +37,7 @@ export interface SalonEmployee {
     role: SalonRole;
 }
 
-interface GetUserInfoReturn {
+interface UseUserReturn {
     getNameFromId: (
         props: GetNameFromUserIdProps
     ) => Promise<GetNameFromUserIdReturn>;
@@ -47,7 +47,7 @@ interface GetUserInfoReturn {
     fetchAllUsers: (props: FetchAllUsersProps) => Promise<FetchAllUsersReturn>;
     fetchUserInfoFromEmailAndPhone: (props: FetchFromPhoneOrEmailProps) => Promise<SalonUser[]>;
 }
-export const useGetUserInfo = (): GetUserInfoReturn => {
+export const useUsers = (): UseUserReturn => {
     const getNameFromId = async (props: GetNameFromUserIdProps) => {
         if (!props || !props.userId) {
             throw new Error("arguments invalid");

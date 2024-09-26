@@ -7,10 +7,15 @@ import {
     getDocs,
     Timestamp,
     addDoc,
+    updateDoc,
 } from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
 interface GetAllAppointmentsProps {
     userId: string;
+}
+interface UpdateAppointmentStatusProps {
+    id: string;
+    newStatus: AppointmentState;
 }
 export type AppointmentState =
     | "REQUESTED"
@@ -68,6 +73,9 @@ interface UseAppointmentReturn {
     formatAppointments: (
         appointments: Appointment[]
     ) => FullCalendarAppointment[];
+    updateAppointmentStatus: (
+        statusProps: UpdateAppointmentStatusProps
+    ) => Promise<void>;
 }
 export const useAppointment = (): UseAppointmentReturn => {
     const appCollectionRef = collection(firebaseDb, "appointments");
@@ -162,5 +170,17 @@ export const useAppointment = (): UseAppointmentReturn => {
         }
         return ans;
     };
-    return { addAppointment, getAppointments, formatAppointments };
+    const updateAppointmentStatus = async (
+            statusProps: UpdateAppointmentStatusProps
+        ) => {
+            try {
+                const docRef = doc(firebaseDb, "appointments", statusProps.id);
+                await updateDoc(docRef, {
+                    state: statusProps.newStatus,
+                });
+            } catch (e) {
+                console.log(e);
+            }
+        };
+    return { addAppointment, getAppointments, formatAppointments,updateAppointmentStatus };
 };

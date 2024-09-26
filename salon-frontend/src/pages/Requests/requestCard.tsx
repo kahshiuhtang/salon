@@ -34,11 +34,11 @@ import { Timestamp, deleteDoc, doc } from "firebase/firestore";
 import { TimePicker } from "antd";
 import dayjs from "dayjs";
 import RequestField from "./requestField";
-import { useUpdateAppointmentStatus } from "@/lib/hooks/updateAppointmentStatus";
+import { useAppointment } from "@/lib/hooks/useAppointment";
 import { Toaster } from "@/components/ui/toaster";
 import { useToast } from "@/hooks/use-toast";
 import { firebaseDb } from "@/lib/firebase";
-import { useGetUserInfo } from "@/lib/hooks/getUserInfo";
+import { useUsers } from "@/lib/hooks/useUsers";
 
 interface RequestCardProps {
   appointment: Appointment;
@@ -59,9 +59,9 @@ export default function RequestCard({
   const dateTimeString = `${dateString} ${appointment.time}`;
   const appDate = new Date(dateTimeString);
   const [date, setDate] = useState<Date>(appDate);
-  const { updateAppointmentStatus } = useUpdateAppointmentStatus();
+  const { updateAppointmentStatus } = useAppointment();
   const { toast } = useToast();
-  const { getNameFromId } = useGetUserInfo();
+  const { getNameFromId } = useUsers();
   const getName = async function () {
     try {
       const { firstName, lastName } = await getNameFromId({

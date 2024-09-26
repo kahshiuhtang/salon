@@ -1,4 +1,7 @@
 import {
+    addDoc,
+    collection,
+    deleteDoc,
     doc,
     getDoc,
     Timestamp,
@@ -8,6 +11,24 @@ import { RepeatTypeWeek, RepeatTypeDay } from "@/lib/types/types";
 
 interface GetAvailabilityProps {
     userId: string;
+}
+
+interface AddAvailabilityProps {
+    userId: string;
+    availability: AvailabilityProp;
+}
+
+interface DeleteAvailability {
+    userId: string;
+    availabilityId: string;
+}
+export interface AvailabilityProp {
+    date: Date;
+    startTime: string;
+    endTime: string;
+    repeat: boolean;
+    repeatTypeWeekly?: RepeatTypeWeek;
+    repeatTypeDaily?: RepeatTypeDay;
 }
 export interface Availability {
     id: string;
@@ -22,10 +43,14 @@ export interface FormattedAvailability {
     start: Date;
     end: Date;
 }
-interface UseGetAvailabilityReturn {
-    getAvailability: (props: GetAvailabilityProps) => Promise<FormattedAvailability[]>;
+interface UseAvailabilityReturn {
+    getAvailability: (
+        props: GetAvailabilityProps
+    ) => Promise<FormattedAvailability[]>;
+    addAvailability: (props: AddAvailabilityProps) => Promise<string>;
+    deleteAvailability: (props: DeleteAvailability) => Promise<void>;
 }
-export const useGetAvailability = (): UseGetAvailabilityReturn => {
+export const useAvailability = (): UseAvailabilityReturn => {
     const getAvailability = async (
         appProps: GetAvailabilityProps
     ): Promise<FormattedAvailability[]> => {
@@ -49,7 +74,7 @@ export const useGetAvailability = (): UseGetAvailabilityReturn => {
             if (!docSnapshot.exists()) {
                 console.log("document doesnt exist");
                 throw new Error("document for availability does not exist");
-            } 
+            }
             docSnapshot.data().forEach((doc: Availability) => {
                 const appDateObject = new Date(
                     (doc.date as unknown as Timestamp).seconds * 1000
@@ -68,5 +93,40 @@ export const useGetAvailability = (): UseGetAvailabilityReturn => {
         }
         return availability;
     };
-    return { getAvailability };
+    const addAvailability = async (
+        props: AddAvailabilityProps
+    ): Promise<string> => {
+        try {
+            if(!props || !props.availability){
+                console.log("invalid arguments passed");
+                return "";
+            }
+            const docRef = await addDoc(
+                collection(firebaseDb, "availability"),
+                props.availability
+            );
+            console.log("Appointment added with ID: ", docRef.id);
+            return docRef.id;
+        } catch (e) {
+            console.error("Error adding appointment: ", e);
+        }
+        return "";
+    };
+    const deleteAvailability = async (
+        props: DeleteAvailability
+    ): Promise<void> => {
+        try {
+            if(!props || !props.availabilityId){
+                console.log("invalid arguments passed");
+                return;
+            }
+            await deleteDoc(
+                doc(firebaseDb, "availability", props.availabilityId)
+            );
+            console.log("Availability successfully deleted!");
+        } catch (e) {
+            console.error("Error deleting availability: ", e);
+        }
+    };
+    return { getAvailability, addAvailability, deleteAvailability };
 };

@@ -126,7 +126,7 @@ export default function RequestCard({
                 <CardHeader className="pl-8 pt-8 pb-0 mb-2">
                     <CardTitle>Appointment</CardTitle>
                     <CardDescription>
-                        <div>Id: {appointment.id}</div>
+                        Id: {appointment.id}
                     </CardDescription>
                 </CardHeader>
                 <CardContent>

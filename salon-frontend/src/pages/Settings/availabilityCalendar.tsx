@@ -16,8 +16,8 @@ import { useVerifyUserProfile } from "@/lib/hooks/verifyUserProfile";
 import { useNavigate } from "react-router-dom";
 import {
     FormattedAvailability,
-    useGetAvailability,
-} from "@/lib/hooks/getCurrentAvailabilities";
+    useAvailability,
+} from "@/lib/hooks/useAvailability";
 import { DateSelectArg } from "@fullcalendar/core/index.js";
 import AvailabilityForm from "./availabilityForm";
 export default function AvailablityCalendar() {
@@ -33,7 +33,7 @@ export default function AvailablityCalendar() {
     }
     const navigate = useNavigate();
     const { user } = useUser();
-    const { getAvailability } = useGetAvailability();
+    const { getAvailability } = useAvailability();
     const { verifyUser } = useVerifyUserProfile();
     const fetchUserAvailability = async () => {
         try {

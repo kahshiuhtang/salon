@@ -89,4 +89,5 @@ export interface SalonGood{
     id: string;
     name: string;
     price: number;
+    time? : number;
 }

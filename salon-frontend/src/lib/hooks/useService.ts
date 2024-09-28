@@ -24,8 +24,7 @@ interface UseServiceReturn {
     removeService: (props: DefaultServiceProp) => Promise<void>;
     removeGood: (props: DefaultGoodProp) => Promise<void>;
 }
-export const useRole = (): UseServiceReturn => {
-    // Fetch all services for a given user
+export const useService = (): UseServiceReturn => {
     const getServices = async (): Promise<SalonService[]> => {
         const servicesRef = collection(firebaseDb,  "services");
         const servicesSnapshot = await getDocs(servicesRef);
@@ -33,7 +32,6 @@ export const useRole = (): UseServiceReturn => {
         return servicesList;
     };
 
-    // Fetch all goods for a given user
     const getGoods = async (): Promise<SalonGood[]> => {
         const goodsRef = collection(firebaseDb,"goods");
         const goodsSnapshot = await getDocs(goodsRef);
@@ -41,33 +39,26 @@ export const useRole = (): UseServiceReturn => {
         return goodsList;
     };
 
-    // Add or update a service
     const modifyService = async ({ serviceId, service }: DefaultServiceProp): Promise<void> => {
         if (serviceId) {
-            // Update existing service
             const serviceDocRef = doc(firebaseDb,  "services", serviceId);
             await updateDoc(serviceDocRef, { ...service });
         } else {
-            // Add a new service
             const servicesRef = collection(firebaseDb,  "services");
             await setDoc(doc(servicesRef), { ...service });
         }
     };
 
-    // Add or update a good
     const modifyGood = async ({ goodId, good }: DefaultGoodProp): Promise<void> => {
         if (goodId) {
-            // Update existing good
             const goodDocRef = doc(firebaseDb, "goods", goodId);
             await updateDoc(goodDocRef, { ...good });
         } else {
-            // Add a new good
             const goodsRef = collection(firebaseDb, "goods");
             await setDoc(doc(goodsRef), { ...good });
         }
     };
 
-    // Remove a service
     const removeService = async ({ serviceId }: DefaultServiceProp): Promise<void> => {
         if (serviceId) {
             const serviceDocRef = doc(firebaseDb, "services", serviceId);
@@ -75,7 +66,6 @@ export const useRole = (): UseServiceReturn => {
         }
     };
 
-    // Remove a good
     const removeGood = async ({  goodId }: DefaultGoodProp): Promise<void> => {
         if (goodId) {
             const goodDocRef = doc(firebaseDb, "goods", goodId);

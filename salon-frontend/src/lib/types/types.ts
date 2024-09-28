@@ -77,3 +77,16 @@ export interface DailyCalendarAppointment {
   client: string;
   services: ACPService[];
 }
+export type SalonServiceType = "MANICURE" | "TIP SET" | "WAXING" | "PEDICURE" | "MISC";
+export interface SalonService {
+    id: string;
+    name: string;
+    type: SalonServiceType;
+    price: number;
+    time: number
+}
+export interface SalonGood{
+    id: string;
+    name: string;
+    price: number;
+}

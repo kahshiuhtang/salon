@@ -1,10 +1,14 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useRole } from "@/lib/hooks/useRole";
 import { useService } from "@/lib/hooks/useService";
 import { SalonGood, SalonService } from "@/lib/types/types";
 import UnlockedNavbar from "@/pages/Navbar/unlockedNavbar";
+import { useUser } from "@clerk/clerk-react";
 import { useEffect } from "react";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import ServiceForm from "@/pages/Services/serviceForm";
 
 interface ServicePageGroups {
   groupName: string;
@@ -15,7 +19,17 @@ export default function ServicesPage() {
   const [services, setServices] = useState<SalonService[]>([]);
   const [goods, setGoods] = useState<SalonGood[]>([]);
   const [itemsToDisplay, setItemsToDisplay] = useState<ServicePageGroups[]>([]);
+  const [role, setRole] = useState("USER");
   const { getServices, getGoods } = useService();
+  const { getRole } = useRole();
+  const { user } = useUser();
+  const navigate = useNavigate();
+  var userId = "";
+  if (user && user.id) {
+    userId = user.id;
+  } else {
+    navigate("/sign-in");
+  }
   const processServicesAndGoods = () => {
     const items: ServicePageGroups[] = [];
     const itemMap = new Map<String, ServicePageGroups>();
@@ -49,8 +63,13 @@ export default function ServicesPage() {
     const processedItems = processServicesAndGoods();
     setItemsToDisplay(processedItems);
   };
+  const fetchRole = async () => {
+    const tempRole = await getRole({ userId });
+    setRole(tempRole);
+  };
   useEffect(() => {
     fetchServicesAndGoods();
+    fetchRole();
   }, []);
   // const services = [
   //     {
@@ -120,7 +139,11 @@ export default function ServicesPage() {
             </Card>
           ))}
         </div>
-
+        {role !== "USER" && (
+          <>
+            <ServiceForm></ServiceForm>
+          </>
+        )}
         <div className="mt-12 text-center">
           <Button size="lg">Book an Appointment</Button>
         </div>

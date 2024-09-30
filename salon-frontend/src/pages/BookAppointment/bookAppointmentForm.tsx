@@ -229,8 +229,8 @@ export default function BookAppointmentForm() {
                                 />
                             </div>
                             {fields.map((field, index) => (
-                                <div>
-                                    <div key={field.id} className="flex w-full">
+                                <div key={field.id}>
+                                    <div className="flex w-full">
                                         <FormField
                                             control={form.control}
                                             name={`services.${index}.service`}
@@ -302,7 +302,7 @@ export default function BookAppointmentForm() {
                                             )}
                                         />
                                     </div>
-                                    {index == fields.length -1 && (
+                                    {(index !== 0 && index == fields.length -1) && (
                                         <div className="w-full flex justify-end mt-2">
                                             <Button
                                                 type="button"

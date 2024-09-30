@@ -18,14 +18,7 @@ export interface Appointment {
     time: Date;
     length: Date;
     date: Date;
-    service1: string;
-    tech1: string;
-    service2: string;
-    tech2: string;
-    service3: string;
-    tech3: string;
-    service4: string;
-    tech4: string;
+    services: ServiceRequest[];
     state: AppointmentState;
     ownerId: string;
 }

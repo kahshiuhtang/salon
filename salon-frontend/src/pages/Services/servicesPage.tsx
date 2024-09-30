@@ -86,7 +86,7 @@ export default function ServicesPage() {
                     {itemsToDisplay.map((category) => (
                         <Card key={category.groupName}>
                             <CardHeader>
-                                <CardTitle>{category.groupName}</CardTitle>
+                                <CardTitle>{category.groupName.charAt(0).toUpperCase() +category.groupName.slice(1).toLowerCase()}</CardTitle>
                             </CardHeader>
                             <CardContent>
                                 <ul className="space-y-2">
@@ -117,7 +117,9 @@ export default function ServicesPage() {
                     </>
                 )}
                 <div className="mt-12 text-center">
-                    <Button size="lg" variant={"default"}>Book an Appointment</Button>
+                    <Button size="lg" variant={"default"}>
+                        Book an Appointment
+                    </Button>
                 </div>
             </div>
         </>

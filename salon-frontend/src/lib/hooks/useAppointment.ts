@@ -14,6 +14,7 @@ import {
     AppointmentState,
     FullCalendarAppointment,
     SalonRole,
+    ServiceRequest,
 } from "@/lib/types/types";
 import { firebaseDb } from "@/lib/firebase";
 interface GetAllAppointmentsProps {
@@ -36,18 +37,10 @@ interface UpdateAppointmentStatusProps {
     id: string;
     newStatus: AppointmentState;
 }
-
 interface AddAppointmentProps {
     date: Date;
     time: string;
-    service1: string;
-    tech1: string;
-    service2?: string;
-    tech2?: string;
-    service3?: string;
-    tech3?: string;
-    service4?: string;
-    tech4?: string;
+    services: ServiceRequest[];
     state: AppointmentState;
     ownerId: string;
 }

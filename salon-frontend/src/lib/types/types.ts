@@ -91,3 +91,7 @@ export interface SalonGood{
     price: number;
     time? : number;
 }
+export interface ServiceRequest {
+    service: string;
+    tech: string;
+}

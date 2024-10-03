@@ -5,7 +5,6 @@ import { deleteDoc } from "firebase/firestore";
 import { collection } from "firebase/firestore";
 import { getDocs } from "firebase/firestore";
 import { updateDoc } from "firebase/firestore";
-import { setDoc } from "firebase/firestore";
 interface DefaultServiceProp {
     userId: string;
     serviceId?: string;
@@ -58,9 +57,6 @@ export const useService = (): UseServiceReturn => {
         if (serviceId) {
             const serviceDocRef = doc(firebaseDb, "services", serviceId);
             await updateDoc(serviceDocRef, { ...service });
-        } else {
-            const servicesRef = collection(firebaseDb, "services");
-            await setDoc(doc(servicesRef), { ...service });
         }
     };
 
@@ -71,9 +67,6 @@ export const useService = (): UseServiceReturn => {
         if (goodId) {
             const goodDocRef = doc(firebaseDb, "goods", goodId);
             await updateDoc(goodDocRef, { ...good });
-        } else {
-            const goodsRef = collection(firebaseDb, "goods");
-            await setDoc(doc(goodsRef), { ...good });
         }
     };
 

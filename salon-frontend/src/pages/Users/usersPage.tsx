@@ -70,7 +70,7 @@ export default function UsersPage() {
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     const [selectedUserCalendar, setSelectedUserCalendar] =
         useState<SalonUser | null>(null);
-
+    if (!selectedUserCalendar) console.log("...error with useState"); //TODO: figure out how to make this more discreete
     const form = useForm<z.infer<typeof userSchema>>({
         resolver: zodResolver(userSchema),
         defaultValues: {

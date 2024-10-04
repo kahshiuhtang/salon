@@ -53,7 +53,7 @@ Here, administrators can search through users, and see their preferences and the
 
 Here, employees can change and verify appointments so see what status each appointment is on. An employee can filter by things such as name and date. A user can also view their appointments here, but it is mainly to see if any of their requests for an appointment have been confirmed.
 
-![Alt text](images/users.png "Users Page")
+![Alt text](images/appointments.png "Appointments Page")
 
 
 ### Dependencies

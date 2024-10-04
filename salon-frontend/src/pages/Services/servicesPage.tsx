@@ -88,7 +88,7 @@ export default function ServicesPage() {
         const tempRole = await getRole({ userId });
         setRole(tempRole);
     };
-
+    
     useEffect(() => {
         fetchServicesAndGoods();
         fetchRole();

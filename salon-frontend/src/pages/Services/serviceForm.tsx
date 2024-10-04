@@ -52,7 +52,19 @@ const salonGoodSchema = z.object({
     price: z.number().min(0, "Price must be positive"),
 });
 
-export default function ServiceForm() {
+interface ServiceFormProps {
+    setServices: React.Dispatch<React.SetStateAction<SalonService[]>>;
+    setGoods: React.Dispatch<React.SetStateAction<SalonGood[]>>;
+    services: SalonService[];
+    goods: SalonGood[];
+}
+
+export default function ServiceForm({
+    setServices,
+    setGoods,
+    services,
+    goods,
+}: ServiceFormProps) {
     const [activeTab, setActiveTab] = useState<"service" | "good">("service");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -92,6 +104,11 @@ export default function ServiceForm() {
             });
             setIsDialogOpen(false);
             activeTab === "service" ? serviceForm.reset() : goodForm.reset();
+            if (activeTab === "service") {
+                setServices([...services, data as SalonService]);
+            } else {
+                setGoods([...goods, data as SalonGood]);
+            }
         } catch (error) {
             toast({
                 title: "Error",

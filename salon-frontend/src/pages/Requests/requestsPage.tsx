@@ -136,14 +136,29 @@ export default function RequestsPage() {
                                         <SelectItem value="ALL">
                                             All Statuses
                                         </SelectItem>
-                                        <SelectItem value="PENDING">
-                                            Pending
+                                        <SelectItem value="REQUESTED">
+                                            Requested
                                         </SelectItem>
                                         <SelectItem value="CONFIRMED">
                                             Confirmed
                                         </SelectItem>
+                                        <SelectItem value="CONFIRMED">
+                                            Changed By User
+                                        </SelectItem>
+                                        <SelectItem value="CONFIRMED">
+                                            Changed By Salon
+                                        </SelectItem>
                                         <SelectItem value="CANCELLED">
                                             Cancelled
+                                        </SelectItem>
+                                        <SelectItem value="MISSED">
+                                            Missed
+                                        </SelectItem>
+                                        <SelectItem value="RESCHEDULED">
+                                            Rescheduled
+                                        </SelectItem>
+                                        <SelectItem value="FINISHED">
+                                            Finished
                                         </SelectItem>
                                     </SelectContent>
                                 </Select>

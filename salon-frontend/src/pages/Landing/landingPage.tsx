@@ -101,19 +101,19 @@ export default function LandingPage() {
               <CardContent className="space-y-4">
                 <div className="flex items-center space-x-2">
                   <MapPin className="h-4 w-4" />
-                  <span>123 Main St, Staten Island, NY 10314</span>
+                  <span>1602 Richmond Road, Staten Island, NY 10304</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Phone className="h-4 w-4" />
-                  <span>(123) 456-7890</span>
+                  <span>(718) 524-8554</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Mail className="h-4 w-4" />
-                  <span>info@ssnails.com</span>
+                  <span>snsnailsny1602@gmail.com</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Clock className="h-4 w-4" />
-                  <span>Mon-Sat: 9am-7pm, Sun: 10am-5pm</span>
+                  <span>Mon: Closed, Tues-Sat: 9am-7:30pm, Sun: 9am-5pm</span>
                 </div>
               </CardContent>
             </Card>

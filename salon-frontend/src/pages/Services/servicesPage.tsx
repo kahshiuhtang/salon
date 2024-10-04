@@ -95,7 +95,7 @@ export default function ServicesPage() {
     }, []);
 
     const handleUpdate = async (updatedItem: SalonGood | SalonService) => {
-        if ("time" in updatedItem) {
+        if ("type" in updatedItem) {
             await modifyService({
                 userId: userId,
                 serviceId: updatedItem.id,
@@ -114,8 +114,7 @@ export default function ServicesPage() {
     };
 
     const handleDelete = async (item: SalonGood | SalonService) => {
-        console.log(item);
-        if ("time" in item) {
+        if ("type" in item) {
             await removeService({
                 userId: userId,
                 serviceId: item.id,

@@ -1,4 +1,11 @@
-import { collection, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import {
+    collection,
+    doc,
+    getDoc,
+    getDocs,
+    query,
+    where,
+} from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
 import { SalonRole, SalonUser } from "@/lib/types/types";
 
@@ -38,7 +45,10 @@ interface UseUserReturn {
         props: GetEmployeeFromUserIdProps
     ) => Promise<GetEmployeeFromUserIdReturn>;
     fetchAllUsers: (props: FetchAllUsersProps) => Promise<FetchAllUsersReturn>;
-    fetchUserInfoFromEmailAndPhone: (props: FetchFromPhoneOrEmailProps) => Promise<SalonUser[]>;
+    fetchUserInfoFromEmailAndPhone: (
+        props: FetchFromPhoneOrEmailProps
+    ) => Promise<SalonUser[]>;
+    getAllEmployees: () => Promise<SalonUser[]>;
 }
 export const useUsers = (): UseUserReturn => {
     const getNameFromId = async (props: GetNameFromUserIdProps) => {
@@ -83,31 +93,75 @@ export const useUsers = (): UseUserReturn => {
         });
         return { users: documents };
     };
-    const fetchUserInfoFromEmailAndPhone = async (props: FetchFromPhoneOrEmailProps) => {
+    const fetchUserInfoFromEmailAndPhone = async (
+        props: FetchFromPhoneOrEmailProps
+    ) => {
         const phoneQuery = query(
             collection(firebaseDb, "your-collection-name"),
             where("phoneNumber", "==", props.phoneNumber)
-          );
-          const emailQuery = query(
+        );
+        const emailQuery = query(
             collection(firebaseDb, "your-collection-name"),
             where("email", "==", props.email)
-          );
-          const [phoneSnapshot, emailSnapshot] = await Promise.all([
+        );
+        const [phoneSnapshot, emailSnapshot] = await Promise.all([
             getDocs(phoneQuery),
             getDocs(emailQuery),
-          ]);
-          const phoneResults = phoneSnapshot.docs.map(doc => ({
-            ...doc.data()
-          } as unknown as SalonUser));
-          const emailResults = emailSnapshot.docs.map(doc => ({
-            ...doc.data()
-          } as unknown as SalonUser));
-          // Combine the two arrays, filtering out duplicate documents if both queries match the same doc
-          const combinedResults = [...phoneResults, ...emailResults].filter(
+        ]);
+        const phoneResults = phoneSnapshot.docs.map(
+            (doc) =>
+                ({
+                    ...doc.data(),
+                } as unknown as SalonUser)
+        );
+        const emailResults = emailSnapshot.docs.map(
+            (doc) =>
+                ({
+                    ...doc.data(),
+                } as unknown as SalonUser)
+        );
+        const combinedResults = [...phoneResults, ...emailResults].filter(
             (doc, index, self) =>
-              index === self.findIndex((d) => d.userId === doc.userId)
-          );
-          return combinedResults;
-    }
-    return { getNameFromId, getEmployeeFromId, fetchAllUsers, fetchUserInfoFromEmailAndPhone };
+                index === self.findIndex((d) => d.userId === doc.userId)
+        );
+        return combinedResults;
+    };
+    const getAllEmployees = async () => {
+        const modQuery = query(
+            collection(firebaseDb, "users"),
+            where("role", "==", "MOD")
+        );
+        const adminQuery = query(
+            collection(firebaseDb, "users"),
+            where("role", "==", "ADMIN")
+        );
+        const [modSnapshot, adminSnapshot] = await Promise.all([
+            getDocs(modQuery),
+            getDocs(adminQuery),
+        ]);
+        const adminRes = adminSnapshot.docs.map(
+            (doc) =>
+                ({
+                    ...doc.data(),
+                } as unknown as SalonUser)
+        );
+        const modRes = modSnapshot.docs.map(
+            (doc) =>
+                ({
+                    ...doc.data(),
+                } as unknown as SalonUser)
+        );
+        const combinedResults = [...adminRes, ...modRes].filter(
+            (doc, index, self) =>
+                index === self.findIndex((d) => d.userId === doc.userId)
+        );
+        return combinedResults;
+    };
+    return {
+        getNameFromId,
+        getEmployeeFromId,
+        fetchAllUsers,
+        fetchUserInfoFromEmailAndPhone,
+        getAllEmployees,
+    };
 };

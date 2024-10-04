@@ -93,9 +93,10 @@ export default function ServiceForm({
             const db = getFirestore();
             const collectionName =
                 activeTab === "service" ? "services" : "goods";
-            await addDoc(collection(db, collectionName), {
+            const resDoc = await addDoc(collection(db, collectionName), {
                 ...data,
             });
+            data.id = resDoc.id;
             toast({
                 title: "Success",
                 description: `${

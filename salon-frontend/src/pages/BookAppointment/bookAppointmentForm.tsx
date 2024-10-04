@@ -42,6 +42,9 @@ import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
+import { useUsers } from "@/lib/hooks/useUsers";
+import { SalonUser } from "@/lib/types/types";
+import { useEffect, useState } from "react";
 
 const timeFormat = "hh:mm a";
 
@@ -60,9 +63,11 @@ const formSchema = z.object({
 });
 
 export default function BookAppointmentForm() {
+    const [employees, setEmployees] = useState<SalonUser[]>([]);
     const { toast } = useToast();
     const { user } = useUser();
     const navigate = useNavigate();
+    const { getAllEmployees } = useUsers();
 
     if (!user || !user.id) {
         navigate("/sign-in");
@@ -119,7 +124,17 @@ export default function BookAppointmentForm() {
             remove(index);
         }
     };
-
+    const fetchEmployees = async () => {
+        try {
+            const tempEmployee = await getAllEmployees();
+            setEmployees(tempEmployee);
+        } catch (e) {
+            console.log("fetchEmployees(): " + e);
+        }
+    };
+    useEffect(() => {
+        fetchEmployees();
+    }, []);
     return (
         <div className="flex justify-center items-center mt-24">
             <Toaster />
@@ -282,18 +297,23 @@ export default function BookAppointmentForm() {
                                                                 <SelectValue placeholder="Select an employee" />
                                                             </SelectTrigger>
                                                             <SelectContent>
-                                                                <SelectItem value="lee">
-                                                                    Lee
-                                                                </SelectItem>
-                                                                <SelectItem value="kim">
-                                                                    Kim
-                                                                </SelectItem>
-                                                                <SelectItem value="kimberly">
-                                                                    Kimberly
-                                                                </SelectItem>
-                                                                <SelectItem value="marie">
-                                                                    Marie
-                                                                </SelectItem>
+                                                                {employees.map(
+                                                                    (
+                                                                        employee
+                                                                    ) => {
+                                                                        return (
+                                                                            <SelectItem
+                                                                                value={
+                                                                                    employee.userId
+                                                                                }
+                                                                            >
+                                                                                {
+                                                                                    employee.firstName
+                                                                                }
+                                                                            </SelectItem>
+                                                                        );
+                                                                    }
+                                                                )}
                                                             </SelectContent>
                                                         </Select>
                                                     </FormControl>
@@ -302,29 +322,32 @@ export default function BookAppointmentForm() {
                                             )}
                                         />
                                     </div>
-                                    {(index !== 0 && index == fields.length -1) && (
-                                        <div className="w-full flex justify-end mt-2">
-                                            <Button
-                                                type="button"
-                                                variant="destructive"
-                                                onClick={() =>
-                                                    removeService(index)
-                                                }
-                                                className="mr-2"
-                                            >
-                                                <MinusIcon className="h-4 w-4" />
-                                            </Button>
-                                            <Button
-                                                type="button"
-                                                variant="secondary"
-                                                onClick={addService}
-                                                className="mr-1"
-                                                disabled={fields.length >= 4}
-                                            >
-                                                <PlusIcon className="h-4 w-4" />
-                                            </Button>
-                                        </div>
-                                    )}
+                                    {index !== 0 &&
+                                        index == fields.length - 1 && (
+                                            <div className="w-full flex justify-end mt-2">
+                                                <Button
+                                                    type="button"
+                                                    variant="destructive"
+                                                    onClick={() =>
+                                                        removeService(index)
+                                                    }
+                                                    className="mr-2"
+                                                >
+                                                    <MinusIcon className="h-4 w-4" />
+                                                </Button>
+                                                <Button
+                                                    type="button"
+                                                    variant="secondary"
+                                                    onClick={addService}
+                                                    className="mr-1"
+                                                    disabled={
+                                                        fields.length >= 4
+                                                    }
+                                                >
+                                                    <PlusIcon className="h-4 w-4" />
+                                                </Button>
+                                            </div>
+                                        )}
                                 </div>
                             ))}
                             <div className="w-full flex justify-between">

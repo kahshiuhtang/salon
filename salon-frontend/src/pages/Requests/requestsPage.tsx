@@ -119,7 +119,7 @@ export default function RequestsPage() {
               <p className="text-gray-600">No appointment requests found.</p>
             ) : (
               <div className="grid gap-6">
-                {filteredRequests.map((appointment: AppointmentWithClientName, index: number) => (
+                {filteredRequests.map((appointment: AppointmentWithClientName) => (
                   <RequestCard key={appointment.id} userRole={currRole} appointment={appointment} />
                 ))}
               </div>

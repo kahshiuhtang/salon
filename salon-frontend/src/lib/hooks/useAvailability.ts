@@ -3,8 +3,9 @@ import {
     collection,
     deleteDoc,
     doc,
-    getDoc,
-    setDoc,
+    DocumentData,
+    getDocs,
+    QuerySnapshot,
     Timestamp,
 } from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
@@ -41,45 +42,39 @@ interface UseAvailabilityReturn {
 }
 export const useAvailability = (): UseAvailabilityReturn => {
     const getAvailability = async (
-        appProps: GetAvailabilityProps
+        props: GetAvailabilityProps
     ): Promise<FormattedAvailability[]> => {
-        if (!appProps || !appProps.userId) {
+        if (!props || !props.userId) {
             throw new Error("Arguments invalid");
         }
-
-        const userId = appProps.userId;
-        const userDoc = doc(firebaseDb, "users", userId);
-        const userSnapshot = await getDoc(userDoc);
-
-        if (!userSnapshot.exists()) {
-            throw new Error("User does not exist");
-        }
-
-        const userRole = userSnapshot.data().role;
         const availability: FormattedAvailability[] = [];
-        if (userRole === "USER") {
-            const docRef = doc(firebaseDb, "availability", userId);
-            const docSnapshot = await getDoc(docRef);
-            if (!docSnapshot.exists()) {
-                console.log("document doesnt exist");
-                throw new Error("document for availability does not exist");
-            }
-            docSnapshot.data().forEach((doc: Availability) => {
-                const appDateObject = new Date(
-                    (doc.date as unknown as Timestamp).seconds * 1000
-                );
-                const dateString = appDateObject.toISOString().split("T")[0];
-                const startTimestring = `${dateString} ${doc.startTime}`;
-                const endTimestring = `${dateString} ${doc.endTime}`;
-                const startDateObject = new Date(startTimestring);
-                const endDateObject = new Date(endTimestring);
-                availability.push({
-                    id: doc.id,
-                    start: startDateObject,
-                    end: endDateObject,
-                } as FormattedAvailability);
-            });
+        const userId = props.userId;
+        // Get the availability collection for the specific user
+        const availabilityCollectionRef = collection(firebaseDb, `users/${userId}/availability`);
+        const availabilitySnapshot: QuerySnapshot<DocumentData> = await getDocs(availabilityCollectionRef);
+
+        // Check if the collection is empty
+        if (availabilitySnapshot.empty) {
+            console.log("No availability documents found");
+            return availability; // Return empty array if no documents exist
         }
+
+        // Iterate through each document in the snapshot
+        availabilitySnapshot.forEach((doc) => {
+            const data = doc.data() as Availability; // Cast to Availability type
+            const appDateObject = new Date((data.date as unknown as Timestamp).seconds * 1000);
+            const dateString = appDateObject.toISOString().split("T")[0];
+            const startTimestring = `${dateString} ${data.startTime}`;
+            const endTimestring = `${dateString} ${data.endTime}`;
+            const startDateObject = new Date(startTimestring);
+            const endDateObject = new Date(endTimestring);
+
+            availability.push({
+                id: doc.id,
+                start: startDateObject,
+                end: endDateObject,
+            } as FormattedAvailability);
+        });
         return availability;
     };
     const addAvailability = async (

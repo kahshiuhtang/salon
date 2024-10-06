@@ -52,7 +52,7 @@ export default function AvailabilityForm() {
     });
     const { user } = useUser();
     const { toast } = useToast();
-    const { addAvailability } = useAvailability(); 
+    const { addAvailability, getAvailability } = useAvailability(); 
     const navigate = useNavigate();
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
@@ -105,7 +105,8 @@ export default function AvailabilityForm() {
                             : false,
                 },
             });
-
+            const ref = await getAvailability({userId});
+            console.log(ref);
             toast({
                 title: "Added new availability",
                 description: `Friday, February 10, 2023 at ${startTimeStr} - ${endTimeStr}`,

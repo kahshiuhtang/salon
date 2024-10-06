@@ -18,7 +18,6 @@ import { z } from "zod";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { TimePicker } from "antd";
 import dayjs from "dayjs";
@@ -31,6 +30,7 @@ import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 const formSchema = z.object({
     date: z.date(),
     startTime: z.date(),
@@ -44,17 +44,39 @@ export default function AvailabilityForm() {
         resolver: zodResolver(formSchema),
         defaultValues: {},
     });
-    const navigate = useNavigate();
     const { user } = useUser();
+    const { toast } = useToast();
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             var userId = "";
             if (user && user["id"]) userId = user.id;
             if (userId == "") return;
-            console.log(values);
-            navigate("/");
+
+            const startHours = values.startTime.getHours();
+            const startMinutes = values.startTime.getMinutes();
+            const endHours = values.endTime.getHours();
+            const endMinutes = values.endTime.getMinutes();
+
+            // Check if endTime is after startTime (based on time only)
+            if (endHours < startHours || (endHours === startHours && endMinutes <= startMinutes)) {
+                console.log("Error: End time must be after start time");
+                toast({
+                    title: "Error",
+                    description: "End time must be after start time",
+                });
+                return;
+            }
+
+            const timeFormatOptions: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+            const startTimeStr = values.startTime.toLocaleTimeString('en-US', timeFormatOptions);
+            const endTimeStr = values.endTime.toLocaleTimeString('en-US', timeFormatOptions);
+
+            toast({
+                title: "Added new availability",
+                description: `Friday, February 10, 2023 at ${startTimeStr} - ${endTimeStr}`,
+            });
         } catch (e) {
-            console.log(e);
+            console.log("submit AvailabilityForm(): " + e);
         }
     }
     return (

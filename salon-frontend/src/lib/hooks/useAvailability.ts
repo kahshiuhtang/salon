@@ -4,6 +4,7 @@ import {
     deleteDoc,
     doc,
     getDoc,
+    setDoc,
     Timestamp,
 } from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
@@ -28,8 +29,8 @@ interface AvailabilityProp {
     startTime: string;
     endTime: string;
     repeat: boolean;
-    repeatTypeWeekly?: RepeatTypeWeek;
-    repeatTypeDaily?: RepeatTypeDay;
+    repeatWeekly: RepeatTypeWeek;
+    repeatDaily: RepeatTypeDay;
 }
 interface UseAvailabilityReturn {
     getAvailability: (
@@ -85,18 +86,19 @@ export const useAvailability = (): UseAvailabilityReturn => {
         props: AddAvailabilityProps
     ): Promise<string> => {
         try {
-            if (!props || !props.availability) {
-                console.log("invalid arguments passed");
+            if (!props || !props.availability || !props.userId) {
+                console.log("Invalid arguments passed");
                 return "";
             }
+    
+    
             const docRef = await addDoc(
-                collection(firebaseDb, "availability"),
+                collection(firebaseDb, `users/${props.userId}/availability`),
                 props.availability
             );
-            console.log("Appointment added with ID: ", docRef.id);
             return docRef.id;
         } catch (e) {
-            console.error("Error adding appointment: ", e);
+            console.error("Error adding multiple availabilities: ", e);
         }
         return "";
     };

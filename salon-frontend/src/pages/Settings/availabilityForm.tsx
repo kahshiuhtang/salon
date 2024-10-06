@@ -31,6 +31,9 @@ import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import { useAvailability } from "@/lib/hooks/useAvailability";
+import { useNavigate } from "react-router-dom";
+import { RepeatTypeDay, RepeatTypeWeek } from "@/lib/types/types";
 const formSchema = z.object({
     date: z.date(),
     startTime: z.date(),
@@ -42,15 +45,20 @@ const timeFormat = "hh:mm a";
 export default function AvailabilityForm() {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
-        defaultValues: {},
+        defaultValues: {
+            repeatDaily: "",
+            repeatWeekly: "",
+        },
     });
     const { user } = useUser();
     const { toast } = useToast();
+    const { addAvailability } = useAvailability(); 
+    const navigate = useNavigate();
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             var userId = "";
             if (user && user["id"]) userId = user.id;
-            if (userId == "") return;
+            if (userId == "") navigate("/sign-in");
 
             const startHours = values.startTime.getHours();
             const startMinutes = values.startTime.getMinutes();
@@ -58,7 +66,10 @@ export default function AvailabilityForm() {
             const endMinutes = values.endTime.getMinutes();
 
             // Check if endTime is after startTime (based on time only)
-            if (endHours < startHours || (endHours === startHours && endMinutes <= startMinutes)) {
+            if (
+                endHours < startHours ||
+                (endHours === startHours && endMinutes <= startMinutes)
+            ) {
                 console.log("Error: End time must be after start time");
                 toast({
                     title: "Error",
@@ -66,17 +77,41 @@ export default function AvailabilityForm() {
                 });
                 return;
             }
+            const timeFormatOptions: Intl.DateTimeFormatOptions = {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+            };
+            const startTimeStr = values.startTime.toLocaleTimeString(
+                "en-US",
+                timeFormatOptions
+            );
+            const endTimeStr = values.endTime.toLocaleTimeString(
+                "en-US",
+                timeFormatOptions
+            );
 
-            const timeFormatOptions: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
-            const startTimeStr = values.startTime.toLocaleTimeString('en-US', timeFormatOptions);
-            const endTimeStr = values.endTime.toLocaleTimeString('en-US', timeFormatOptions);
+            await addAvailability({
+                userId: userId,
+                availability: {
+                    ...values,
+                    startTime: startTimeStr,
+                    endTime: endTimeStr,
+                    repeatDaily: values.repeatDaily as RepeatTypeDay, //TODO: how to fix this to be more clear...
+                    repeatWeekly: values.repeatWeekly as RepeatTypeWeek,
+                    repeat:
+                        values.repeatDaily || values.repeatWeekly
+                            ? true
+                            : false,
+                },
+            });
 
             toast({
                 title: "Added new availability",
                 description: `Friday, February 10, 2023 at ${startTimeStr} - ${endTimeStr}`,
             });
         } catch (e) {
-            console.log("submit AvailabilityForm(): " + e);
+            console.log("onSubmit AvailabilityForm(): " + e);
         }
     }
     return (

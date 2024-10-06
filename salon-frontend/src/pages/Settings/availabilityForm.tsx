@@ -28,7 +28,7 @@ import {
 } from "@/components/ui/popover";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
+import { cn, isEndTimeBeforeStartTime } from "@/lib/utils";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useAvailability } from "@/lib/hooks/useAvailability";
@@ -52,7 +52,7 @@ export default function AvailabilityForm() {
     });
     const { user } = useUser();
     const { toast } = useToast();
-    const { addAvailability, getAvailability } = useAvailability(); 
+    const { addAvailability } = useAvailability(); 
     const navigate = useNavigate();
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
@@ -60,15 +60,9 @@ export default function AvailabilityForm() {
             if (user && user["id"]) userId = user.id;
             if (userId == "") navigate("/sign-in");
 
-            const startHours = values.startTime.getHours();
-            const startMinutes = values.startTime.getMinutes();
-            const endHours = values.endTime.getHours();
-            const endMinutes = values.endTime.getMinutes();
-
             // Check if endTime is after startTime (based on time only)
             if (
-                endHours < startHours ||
-                (endHours === startHours && endMinutes <= startMinutes)
+                isEndTimeBeforeStartTime(values.startTime, values.endTime)
             ) {
                 console.log("Error: End time must be after start time");
                 toast({
@@ -105,11 +99,9 @@ export default function AvailabilityForm() {
                             : false,
                 },
             });
-            const ref = await getAvailability({userId});
-            console.log(ref);
             toast({
                 title: "Added new availability",
-                description: `Friday, February 10, 2023 at ${startTimeStr} - ${endTimeStr}`,
+                description: `From ${startTimeStr} - ${endTimeStr}`,
             });
         } catch (e) {
             console.log("onSubmit AvailabilityForm(): " + e);

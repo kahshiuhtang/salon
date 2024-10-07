@@ -43,7 +43,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useUsers } from "@/lib/hooks/useUsers";
-import { Appointment, SalonUser } from "@/lib/types/types";
+import { Appointment, AppointmentState, SalonRole, SalonUser } from "@/lib/types/types";
 import { useEffect, useState } from "react";
 
 const timeFormat = "hh:mm a";
@@ -63,12 +63,14 @@ const formSchema = z.object({
 });
 interface BookAppointmentFormProps {
     insideCard?: boolean;
-    appointment?: Appointment
-    editedByAdmin?: boolean
+    appointment?: Appointment;
+    userRole: SalonRole;
 }
+//TODO: Allow for a message to be sent when booking appointment
 export default function BookAppointmentForm({
     insideCard,
-    appointment
+    userRole,
+    appointment,
 }: BookAppointmentFormProps) {
     const [employees, setEmployees] = useState<SalonUser[]>([]);
     const { toast } = useToast();
@@ -80,13 +82,17 @@ export default function BookAppointmentForm({
         navigate("/sign-in");
     }
     const userId = user?.id || "";
-    if(appointment)console.log(appointment.time);
+    if (appointment) console.log(appointment.time);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            time: appointment ? convertTimeToDateObject(appointment.time) :new Date(),
+            time: appointment
+                ? convertTimeToDateObject(appointment.time)
+                : new Date(),
             date: appointment ? appointment.date : new Date(),
-            services: appointment ? appointment.services : [{ service: "", tech: "" }],
+            services: appointment
+                ? appointment.services
+                : [{ service: "", tech: "" }],
         },
     });
 
@@ -95,20 +101,41 @@ export default function BookAppointmentForm({
         name: "services",
     });
 
-    const { addAppointment } = useAppointment();
+    const { addAppointment, updateAppointment } = useAppointment();
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            await addAppointment({
-                ...values,
-                time: values.time.toLocaleTimeString(),
-                state: "REQUESTED",
-                ownerId: userId,
-            });
-            toast({
-                title: "Appointment received",
-                description: "Check your email for confirmation from staff.",
-            });
+            if(appointment){
+                const status: AppointmentState = userRole === "USER" ? "COUNTERED-USER" : "COUNTERED-SALON";
+                const techSet = new Set<string>(); // set of people concerned with this appointment
+                values.services.forEach((service) => {
+                    techSet.add(service.tech);
+                });
+                const uniqueTechSet = Array.from(techSet);
+                updateAppointment({
+                    ...values,
+                    id: appointment.id,
+                    length: new Date(),
+                    involvedEmployees: uniqueTechSet,
+                    time: values.time.toLocaleTimeString(),
+                    state: status,
+                    ownerId: appointment.ownerId
+                });
+                toast({
+                    title: "Updated appointment",
+                });
+            }else{
+                await addAppointment({
+                    ...values,
+                    time: values.time.toLocaleTimeString(),
+                    state: "REQUESTED",
+                    ownerId: userId,
+                });
+                toast({
+                    title: "Appointment received",
+                    description: "Check your email for confirmation from staff.",
+                });
+            }
         } catch (error) {
             console.error("Error submitting appointment:", error);
             toast({
@@ -143,9 +170,19 @@ export default function BookAppointmentForm({
         fetchEmployees();
     }, []);
     return (
-        <div className={cn(insideCard ? '' : "flex justify-center items-center mt-24")}>
-            <Toaster />
-            <Card className={cn(insideCard ? '' : "w-3/4 sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3 2xl:w-1/4 3xl:w-1/5")}>
+        <div
+            className={cn(
+                insideCard ? "" : "flex justify-center items-center mt-24"
+            )}
+        >
+            {!appointment && <Toaster />}
+            <Card
+                className={cn(
+                    insideCard
+                        ? ""
+                        : "w-3/4 sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3 2xl:w-1/4 3xl:w-1/5"
+                )}
+            >
                 <CardHeader className="pl-8 pt-8 pb-0 mb-2">
                     <CardTitle>Book an appointment</CardTitle>
                     <CardDescription>
@@ -376,7 +413,6 @@ export default function BookAppointmentForm({
                                 )}
                             </div>
                         </form>
-                        
                     </Form>
                 </CardContent>
             </Card>

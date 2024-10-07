@@ -35,7 +35,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
 
-import { Appointment } from "@/lib/types/types";
+import { Appointment, SalonRole } from "@/lib/types/types";
 import { cn } from "@/lib/utils";
 import { useAppointment } from "@/lib/hooks/useAppointment";
 import { useToast } from "@/hooks/use-toast";
@@ -47,7 +47,7 @@ import BookAppointmentForm from "@/pages/BookAppointment/bookAppointmentForm";
 
 interface RequestCardProps {
     appointment: Appointment;
-    userRole: string;
+    userRole: SalonRole;
 }
 
 const timeFormat = "hh:mm a";
@@ -256,7 +256,11 @@ export default function RequestCard({
                                         </Button>
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-[425px]">
-                                    <BookAppointmentForm insideCard={true} appointment={appointment}/>
+                                        <BookAppointmentForm
+                                            insideCard={true}
+                                            userRole={userRole}
+                                            appointment={appointment}
+                                        />
                                     </DialogContent>
                                 </Dialog>
                                 <Dialog>

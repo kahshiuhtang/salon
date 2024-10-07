@@ -61,6 +61,9 @@ interface UseAppointmentReturn {
     updateAppointmentStatus: (
         statusProps: UpdateAppointmentStatusProps
     ) => Promise<void>;
+    updateAppointment: (
+        appointment: Appointment
+    ) => Promise<void>;
     getPreviousAppointments: (
         props: GetPreviousAppointmentsProp
     ) => Promise<Appointment[]>;
@@ -241,7 +244,19 @@ export const useAppointment = (): UseAppointmentReturn => {
             return appointments;
         }
     };
-
+    const updateAppointment = async (appointment: Appointment) => {
+        if (!appointment.id) {
+            throw new Error("Appointment ID is required to update the document.");
+          }
+        
+          const appointmentRef = doc(firebaseDb, "appointments", appointment.id);
+        
+          try {
+            await updateDoc(appointmentRef, { ...appointment });
+          } catch (error) {
+            console.error("Error updating appointment: ", error);
+          }
+    }
     const getFutureAppointments = async (props: GetFutureAppointmentsProp) => {
         if (!props || !props.userId || !props.role || !props.userFirstName) {
             throw new Error("Arguments invalid");
@@ -287,6 +302,7 @@ export const useAppointment = (): UseAppointmentReturn => {
         formatAppointments,
         convertAppsForHomePage,
         updateAppointmentStatus,
+        updateAppointment,
         getPreviousAppointments,
         getFutureAppointments,
     };

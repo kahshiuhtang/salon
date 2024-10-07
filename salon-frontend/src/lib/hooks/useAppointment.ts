@@ -55,7 +55,7 @@ interface UseAppointmentReturn {
     formatAppointments: (
         appointments: Appointment[]
     ) => FullCalendarAppointment[];
-    convertAppsForHomePage:(
+    convertAppsForHomePage: (
         appointments: Appointment[]
     ) => DailyCalendarAppointment[];
     updateAppointmentStatus: (
@@ -69,11 +69,10 @@ interface UseAppointmentReturn {
     ) => Promise<Appointment[]>;
 }
 export const useAppointment = (): UseAppointmentReturn => {
-
     const addAppointment = async (appointmentProps: AddAppointmentProps) => {
         const appCollectionRef = collection(firebaseDb, "appointments");
         const techSet = new Set(); // set of people concerned with this appointment
-        appointmentProps.services.forEach(service => {
+        appointmentProps.services.forEach((service) => {
             techSet.add(service.tech);
         });
         const uniqueTechSet = Array.from(techSet);
@@ -86,7 +85,6 @@ export const useAppointment = (): UseAppointmentReturn => {
     const getAppointments = async (
         appProps: GetAllAppointmentsProps
     ): Promise<Appointment[]> => {
-
         const userId = appProps.userId;
         const userDoc = doc(firebaseDb, "users", userId);
         const userSnapshot = await getDoc(userDoc);
@@ -99,14 +97,17 @@ export const useAppointment = (): UseAppointmentReturn => {
 
         if (userRole === "ADMIN" || userRole === "MOD") {
             const appointmentsRef = collection(firebaseDb, "appointments");
-            const q = query(appointmentsRef, where("involvedEmployees", "array-contains", userId));
+            const q = query(
+                appointmentsRef,
+                where("involvedEmployees", "array-contains", userId)
+            );
             const querySnapshot = await getDocs(q);
             const appointments: Appointment[] = [];
             querySnapshot.forEach((doc) => {
                 const app = {
                     id: doc.id,
                     ...doc.data(),
-                } as Appointment
+                } as Appointment;
                 app.date = (app.date as unknown as Timestamp).toDate();
                 appointments.push(app);
             });
@@ -123,7 +124,7 @@ export const useAppointment = (): UseAppointmentReturn => {
                 const app = {
                     id: doc.id,
                     ...doc.data(),
-                } as Appointment
+                } as Appointment;
                 app.date = (app.date as unknown as Timestamp).toDate();
                 appointments.push(app);
             });
@@ -131,32 +132,30 @@ export const useAppointment = (): UseAppointmentReturn => {
         }
     };
 
-    const convertAppsForHomePage = (
-        appointments: Appointment[]
-    ) => {
+    const convertAppsForHomePage = (appointments: Appointment[]) => {
         const ans: DailyCalendarAppointment[] = [];
         //TODO: maybe add the firstName, lastName to the appointment?
-        for(var i = 0; i < appointments.length; i++){
+        for (var i = 0; i < appointments.length; i++) {
             var currApp = appointments[i];
             var services: ACPService[] = [];
-            for(var j = 0; j < currApp.services.length; j++){
+            for (var j = 0; j < currApp.services.length; j++) {
                 const currService = currApp.services[j];
                 // TODO: probably want to combine ACPService with Service type
                 services.push({
                     name: currService.service,
                     technician: currService.tech,
-                })
+                });
             }
             ans.push({
                 id: currApp.id,
                 date: getDateOnlyFromDate(currApp.date),
                 time: currApp.time,
-                client: currApp.id, 
+                client: currApp.id,
                 services: services,
-            })
+            });
         }
         return ans;
-    }
+    };
 
     const formatAppointments = (appointments: Appointment[]) => {
         var ans: FullCalendarAppointment[] = [];
@@ -216,13 +215,15 @@ export const useAppointment = (): UseAppointmentReturn => {
             const q = query(
                 appointmentsRef,
                 where("involvedEmployees", "array-contains", userId),
-                where("time", "<", new Date()) 
-              );
-            
-              const querySnapshot = await getDocs(q);
-              const appointments = querySnapshot.docs.map(doc => doc.data() as Appointment);
-            
-              return appointments;
+                where("time", "<", new Date())
+            );
+
+            const querySnapshot = await getDocs(q);
+            const appointments = querySnapshot.docs.map(
+                (doc) => doc.data() as Appointment
+            );
+
+            return appointments;
         } else {
             var appointmentsQuery = query(
                 collection(firebaseDb, "appointments"),
@@ -255,12 +256,14 @@ export const useAppointment = (): UseAppointmentReturn => {
             const q = query(
                 appointmentsRef,
                 where("involvedEmployees", "array-contains", userId),
-                where("time", ">", new Date()) 
-              );
-            
-              const querySnapshot = await getDocs(q);
-              const appointments = querySnapshot.docs.map(doc => doc.data() as Appointment);
-              return appointments;
+                where("time", ">", new Date())
+            );
+
+            const querySnapshot = await getDocs(q);
+            const appointments = querySnapshot.docs.map(
+                (doc) => doc.data() as Appointment
+            );
+            return appointments;
         } else {
             var appointmentsQuery = query(
                 collection(firebaseDb, "appointments"),

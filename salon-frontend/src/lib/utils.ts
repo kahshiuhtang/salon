@@ -124,7 +124,6 @@ export function formatTimeDifference(
 }
 
 export function getDateOnlyFromDate(date: Date){
-    console.log(date)
     const month = date.getMonth() + 1; // Add 1 to get the correct month (1-12)
     const day = date.getDate();
     const year = date.getFullYear();

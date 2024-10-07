@@ -59,7 +59,7 @@ export default function RequestCard({
         useState<Appointment>(appointment);
     const [name, setName] = useState("");
     const appDateObject = new Date(
-        (appointment.date as unknown as Timestamp).seconds * 1000
+        appointment.date
     );
     const dateString = appDateObject.toISOString().split("T")[0];
     const dateTimeString = `${dateString} ${appointment.time}`;

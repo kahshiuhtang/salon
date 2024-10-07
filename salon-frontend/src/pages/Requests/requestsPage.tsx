@@ -142,10 +142,10 @@ export default function RequestsPage() {
                                         <SelectItem value="CONFIRMED">
                                             Confirmed
                                         </SelectItem>
-                                        <SelectItem value="CONFIRMED">
+                                        <SelectItem value="CHANGED-USER">
                                             Changed By User
                                         </SelectItem>
-                                        <SelectItem value="CONFIRMED">
+                                        <SelectItem value="CHANGED-SALON">
                                             Changed By Salon
                                         </SelectItem>
                                         <SelectItem value="CANCELLED">

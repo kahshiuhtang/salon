@@ -5,7 +5,7 @@ import { format } from "date-fns";
 import dayjs from "dayjs";
 import { CalendarIcon } from "lucide-react";
 import { TimePicker } from "antd";
-import { Timestamp, deleteDoc, doc } from "firebase/firestore";
+import { deleteDoc, doc } from "firebase/firestore";
 
 import {
     Card,
@@ -43,6 +43,7 @@ import { firebaseDb } from "@/lib/firebase";
 import { useUsers } from "@/lib/hooks/useUsers";
 
 import RequestField from "./requestField";
+import BookAppointmentForm from "@/pages/BookAppointment/bookAppointmentForm";
 
 interface RequestCardProps {
     appointment: Appointment;
@@ -58,9 +59,7 @@ export default function RequestCard({
     const [currentAppState, setCurrentAppState] =
         useState<Appointment>(appointment);
     const [name, setName] = useState("");
-    const appDateObject = new Date(
-        appointment.date
-    );
+    const appDateObject = new Date(appointment.date);
     const dateString = appDateObject.toISOString().split("T")[0];
     const dateTimeString = `${dateString} ${appointment.time}`;
     const appDate = new Date(dateTimeString);
@@ -68,7 +67,7 @@ export default function RequestCard({
     const { updateAppointmentStatus } = useAppointment();
     const { toast } = useToast();
     const { getNameFromId } = useUsers();
-    if(!setDate) console.log("...no set date");
+    if (!setDate) console.log("...no set date");
     const getName = async function () {
         try {
             const { firstName, lastName } = await getNameFromId({
@@ -250,9 +249,26 @@ export default function RequestCard({
                                 >
                                     Approve Appointment
                                 </Button>
-                                <Button variant="outline">
-                                    Suggest Changes
-                                </Button>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button variant="outline">
+                                            Suggest Changes
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-[425px]">
+                                    <BookAppointmentForm insideCard={true}/>
+                                        <DialogFooter className="sm:justify-start">
+                                            <DialogClose asChild>
+                                                <Button
+                                                    type="button"
+                                                    variant="secondary"
+                                                >
+                                                    Close
+                                                </Button>
+                                            </DialogClose>
+                                        </DialogFooter>
+                                    </DialogContent>
+                                </Dialog>
                                 <Dialog>
                                     <DialogTrigger asChild>
                                         <Button variant="destructive">

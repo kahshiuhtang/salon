@@ -61,8 +61,12 @@ const formSchema = z.object({
         .min(1, { message: "At least one service is required" })
         .max(4),
 });
-
-export default function BookAppointmentForm() {
+interface BookAppointmentFormProps {
+    insideCard?: boolean;
+}
+export default function BookAppointmentForm({
+    insideCard,
+}: BookAppointmentFormProps) {
     const [employees, setEmployees] = useState<SalonUser[]>([]);
     const { toast } = useToast();
     const { user } = useUser();
@@ -136,9 +140,9 @@ export default function BookAppointmentForm() {
         fetchEmployees();
     }, []);
     return (
-        <div className="flex justify-center items-center mt-24">
+        <div className={cn(insideCard ? '' : "flex justify-center items-center mt-24")}>
             <Toaster />
-            <Card className="w-3/4 sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3 2xl:w-1/4 3xl:w-1/5">
+            <Card className={cn(insideCard ? '' : "w-3/4 sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3 2xl:w-1/4 3xl:w-1/5")}>
                 <CardHeader className="pl-8 pt-8 pb-0 mb-2">
                     <CardTitle>Book an appointment</CardTitle>
                     <CardDescription>

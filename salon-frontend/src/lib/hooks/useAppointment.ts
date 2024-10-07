@@ -63,8 +63,9 @@ interface UseAppointmentReturn {
     ) => Promise<Appointment[]>;
 }
 export const useAppointment = (): UseAppointmentReturn => {
-    const appCollectionRef = collection(firebaseDb, "appointments");
+
     const addAppointment = async (appointmentProps: AddAppointmentProps) => {
+        const appCollectionRef = collection(firebaseDb, "appointments");
         const techSet = new Set(); // set of people concerned with this appointment
         appointmentProps.services.forEach(service => {
             techSet.add(service.tech);
@@ -75,6 +76,7 @@ export const useAppointment = (): UseAppointmentReturn => {
             involvedEmployees: uniqueTechSet,
         });
     };
+
     const getAppointments = async (
         appProps: GetAllAppointmentsProps
     ): Promise<Appointment[]> => {
@@ -92,35 +94,17 @@ export const useAppointment = (): UseAppointmentReturn => {
 
         const userRole = userSnapshot.data().role;
 
-        if (userRole === "ADMIN") {
-            const collectionRef = collection(firebaseDb, "appointments");
-            const querySnapshot = await getDocs(collectionRef);
-            return querySnapshot.docs.map(
-                (doc) =>
-                    ({
-                        id: doc.id, // The document ID
-                        ...doc.data(), // The document data
-                    } as Appointment)
-            );
-        } else if (userRole === "MOD") {
-            var appointmentsQuery = query(
-                collection(firebaseDb, "appointments"),
-                where("userId", "==", userId)
-            );
-            const querySnapshot = await getDocs(appointmentsQuery);
-            const appointments: Appointment[] = [];
-            querySnapshot.forEach((doc) => {
-                appointments.push({
-                    id: doc.id,
-                    ...doc.data(),
-                } as Appointment);
-            });
-            return appointments;
+        if (userRole === "ADMIN" || userRole === "MOD") {
+            const appointmentsRef = collection(firebaseDb, "appointments");
+            const q = query(appointmentsRef, where("involvedEmployees", "array-contains", userId));
+            const querySnapshot = await getDocs(q);
+            const matchingAppointments = querySnapshot.docs.map(doc => doc.data() as Appointment);
+            return matchingAppointments;
         } else {
             // Regular users fetch their own appointments
             var appointmentsQuery = query(
                 collection(firebaseDb, "appointments"),
-                where("userId", "==", userId)
+                where("ownerId", "==", userId)
             );
             const querySnapshot = await getDocs(appointmentsQuery);
             const appointments: Appointment[] = [];
@@ -133,6 +117,7 @@ export const useAppointment = (): UseAppointmentReturn => {
             return appointments;
         }
     };
+
     const formatAppointments = (appointments: Appointment[]) => {
         var ans: FullCalendarAppointment[] = [];
         for (var i = 0; i < appointments.length; i++) {
@@ -160,6 +145,7 @@ export const useAppointment = (): UseAppointmentReturn => {
         }
         return ans;
     };
+
     const updateAppointmentStatus = async (
         statusProps: UpdateAppointmentStatusProps
     ) => {
@@ -172,6 +158,7 @@ export const useAppointment = (): UseAppointmentReturn => {
             console.log(e);
         }
     };
+
     const getPreviousAppointments = async (
         props: GetPreviousAppointmentsProp
     ) => {
@@ -182,65 +169,20 @@ export const useAppointment = (): UseAppointmentReturn => {
         const userId = props.userId;
         const userRole = props.role;
 
-        const appointments = new Set<Appointment>();
         const now = new Date();
         if (userRole === "ADMIN" || userRole == "MOD") {
             const appointmentsRef = collection(firebaseDb, "appointments");
 
-            const query1 = query(
+            const q = query(
                 appointmentsRef,
-                where("tech1", "==", props.userFirstName),
-                where("time", "<", now)
-            );
-            const query2 = query(
-                appointmentsRef,
-                where("tech2", "==", props.userFirstName),
-                where("time", "<", now)
-            );
-            const query3 = query(
-                appointmentsRef,
-                where("tech3", "==", props.userFirstName),
-                where("time", "<", now)
-            );
-            const query4 = query(
-                appointmentsRef,
-                where("tech4", "==", props.userFirstName),
-                where("time", "<", now)
-            );
-
-            const [snapshot1, snapshot2, snapshot3, snapshot4] =
-                await Promise.all([
-                    getDocs(query1),
-                    getDocs(query2),
-                    getDocs(query3),
-                    getDocs(query4),
-                ]);
-            snapshot1.forEach((doc) =>
-                appointments.add({
-                    id: doc.id,
-                    ...doc.data(),
-                } as Appointment)
-            );
-            snapshot2.forEach((doc) =>
-                appointments.add({
-                    id: doc.id,
-                    ...doc.data(),
-                } as Appointment)
-            );
-            snapshot3.forEach((doc) =>
-                appointments.add({
-                    id: doc.id,
-                    ...doc.data(),
-                } as Appointment)
-            );
-            snapshot4.forEach((doc) =>
-                appointments.add({
-                    id: doc.id,
-                    ...doc.data(),
-                } as Appointment)
-            );
-            const result = Array.from(appointments);
-            return result;
+                where("involvedEmployees", "array-contains", userId),
+                where("time", "<", new Date()) 
+              );
+            
+              const querySnapshot = await getDocs(q);
+              const appointments = querySnapshot.docs.map(doc => doc.data() as Appointment);
+            
+              return appointments;
         } else {
             var appointmentsQuery = query(
                 collection(firebaseDb, "appointments"),
@@ -258,6 +200,7 @@ export const useAppointment = (): UseAppointmentReturn => {
             return appointments;
         }
     };
+
     const getFutureAppointments = async (props: GetFutureAppointmentsProp) => {
         if (!props || !props.userId || !props.role || !props.userFirstName) {
             throw new Error("Arguments invalid");
@@ -266,65 +209,18 @@ export const useAppointment = (): UseAppointmentReturn => {
         const userId = props.userId;
         const userRole = props.role;
 
-        const appointments = new Set<Appointment>();
         const now = new Date();
         if (userRole === "ADMIN" || userRole == "MOD") {
             const appointmentsRef = collection(firebaseDb, "appointments");
-
-            const query1 = query(
+            const q = query(
                 appointmentsRef,
-                where("tech1", "==", props.userFirstName),
-                where("time", ">", now)
-            );
-            const query2 = query(
-                appointmentsRef,
-                where("tech2", "==", props.userFirstName),
-                where("time", ">", now)
-            );
-            const query3 = query(
-                appointmentsRef,
-                where("tech3", "==", props.userFirstName),
-                where("time", ">", now)
-            );
-            const query4 = query(
-                appointmentsRef,
-                where("tech4", "==", props.userFirstName),
-                where("time", ">", now)
-            );
-
-            const [snapshot1, snapshot2, snapshot3, snapshot4] =
-                await Promise.all([
-                    getDocs(query1),
-                    getDocs(query2),
-                    getDocs(query3),
-                    getDocs(query4),
-                ]);
-            snapshot1.forEach((doc) =>
-                appointments.add({
-                    id: doc.id,
-                    ...doc.data(),
-                } as Appointment)
-            );
-            snapshot2.forEach((doc) =>
-                appointments.add({
-                    id: doc.id,
-                    ...doc.data(),
-                } as Appointment)
-            );
-            snapshot3.forEach((doc) =>
-                appointments.add({
-                    id: doc.id,
-                    ...doc.data(),
-                } as Appointment)
-            );
-            snapshot4.forEach((doc) =>
-                appointments.add({
-                    id: doc.id,
-                    ...doc.data(),
-                } as Appointment)
-            );
-            const result = Array.from(appointments);
-            return result;
+                where("involvedEmployees", "array-contains", userId),
+                where("time", ">", new Date()) 
+              );
+            
+              const querySnapshot = await getDocs(q);
+              const appointments = querySnapshot.docs.map(doc => doc.data() as Appointment);
+              return appointments;
         } else {
             var appointmentsQuery = query(
                 collection(firebaseDb, "appointments"),

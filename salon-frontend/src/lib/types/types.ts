@@ -1,7 +1,13 @@
 export type SalonRole = "USER" | "ADMIN" | "MOD";
 
 export type RepeatTypeWeek = "WEEKLY" | "BIWEEKLY" | "MONTHLY" | "";
-export type RepeatTypeDay = "ODD-WEEKDAYS" | "EVEN-WEEKDAYS" | "WEEKEND" | "ODD-ALLDAYS" | "EVEN-ALLDAYS" | "";
+export type RepeatTypeDay =
+    | "ODD-WEEKDAYS"
+    | "EVEN-WEEKDAYS"
+    | "WEEKEND"
+    | "ODD-ALLDAYS"
+    | "EVEN-ALLDAYS"
+    | "";
 
 export type AppointmentState =
     | "REQUESTED"
@@ -46,12 +52,12 @@ export interface FullCalendarAppointment {
     allDay?: boolean; //  (optional)
     backgroundColor?: string; //  (optional)
 }
-export interface SalonRRule{
+export interface SalonRRule {
     freq?: string;
     interval?: number;
-    byweekday?: string[],
-    bymonthday?: number[],
-    dtstart: string
+    byweekday?: string[];
+    bymonthday?: number[];
+    dtstart: string;
 }
 export interface SalonUser {
     firstName: string;
@@ -63,36 +69,41 @@ export interface SalonUser {
     userId: string;
 }
 export interface ACPService {
-  name: string;
-  duration?: number;
-  technician: string;
+    name: string;
+    duration?: number;
+    technician: string;
 }
 export interface FormattedAvailability {
-    id: string,
-    title: string,
-    duration: string,
+    id: string;
+    title: string;
+    duration: string;
     rrule: SalonRRule;
 }
 export interface DailyCalendarAppointment {
-  id: string | number;
-  date: string;
-  time: string;
-  client: string;
-  services: ACPService[];
+    id: string | number;
+    date: string;
+    time: string;
+    client: string;
+    services: ACPService[];
 }
-export type SalonServiceType = "MANICURE" | "TIP SET" | "WAXING" | "PEDICURE" | "MISC";
+export type SalonServiceType =
+    | "MANICURE"
+    | "TIP SET"
+    | "WAXING"
+    | "PEDICURE"
+    | "MISC";
 export interface SalonService {
     id: string;
     name: string;
     type: SalonServiceType;
     price: number;
-    time: number
+    time: number;
 }
-export interface SalonGood{
+export interface SalonGood {
     id: string;
     name: string;
     price: number;
-    time? : number;
+    time?: number;
 }
 export interface ServiceRequest {
     service: string;

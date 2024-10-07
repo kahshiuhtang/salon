@@ -43,7 +43,12 @@ import { Toaster } from "@/components/ui/toaster";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useUsers } from "@/lib/hooks/useUsers";
-import { Appointment, AppointmentState, SalonRole, SalonUser } from "@/lib/types/types";
+import {
+    Appointment,
+    AppointmentState,
+    SalonRole,
+    SalonUser,
+} from "@/lib/types/types";
 import { useEffect, useState } from "react";
 
 const timeFormat = "hh:mm a";
@@ -105,8 +110,9 @@ export default function BookAppointmentForm({
 
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
-            if(appointment){
-                const status: AppointmentState = userRole === "USER" ? "COUNTERED-USER" : "COUNTERED-SALON";
+            if (appointment) {
+                const status: AppointmentState =
+                    userRole === "USER" ? "COUNTERED-USER" : "COUNTERED-SALON";
                 const techSet = new Set<string>(); // set of people concerned with this appointment
                 values.services.forEach((service) => {
                     techSet.add(service.tech);
@@ -119,12 +125,12 @@ export default function BookAppointmentForm({
                     involvedEmployees: uniqueTechSet,
                     time: values.time.toLocaleTimeString(),
                     state: status,
-                    ownerId: appointment.ownerId
+                    ownerId: appointment.ownerId,
                 });
                 toast({
                     title: "Updated appointment",
                 });
-            }else{
+            } else {
                 await addAppointment({
                     ...values,
                     time: values.time.toLocaleTimeString(),
@@ -133,7 +139,8 @@ export default function BookAppointmentForm({
                 });
                 toast({
                     title: "Appointment received",
-                    description: "Check your email for confirmation from staff.",
+                    description:
+                        "Check your email for confirmation from staff.",
                 });
             }
         } catch (error) {

@@ -19,6 +19,7 @@ export interface Appointment {
     length: Date;
     date: Date;
     services: ServiceRequest[];
+    involvedEmployees: string[];
     state: AppointmentState;
     ownerId: string;
 }

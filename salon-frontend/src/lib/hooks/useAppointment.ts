@@ -65,8 +65,14 @@ interface UseAppointmentReturn {
 export const useAppointment = (): UseAppointmentReturn => {
     const appCollectionRef = collection(firebaseDb, "appointments");
     const addAppointment = async (appointmentProps: AddAppointmentProps) => {
+        const techSet = new Set(); // set of people concerned with this appointment
+        appointmentProps.services.forEach(service => {
+            techSet.add(service.tech);
+        });
+        const uniqueTechSet = Array.from(techSet);
         await addDoc(appCollectionRef, {
             ...appointmentProps,
+            involvedEmployees: uniqueTechSet,
         });
     };
     const getAppointments = async (

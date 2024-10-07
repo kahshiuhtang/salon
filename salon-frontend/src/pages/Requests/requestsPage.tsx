@@ -39,7 +39,6 @@ export default function RequestsPage() {
     const { getRole } = useRole();
     const { getAppointments } = useAppointment();
     const { getNameFromId } = useUsers();
-
     useEffect(() => {
         if (!user || !user.id) {
             navigate("/sign-in");

@@ -35,7 +35,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
 
-import { Appointment, SalonRole } from "@/lib/types/types";
+import { Appointment, SalonName, SalonRole } from "@/lib/types/types";
 import { cn } from "@/lib/utils";
 import { useAppointment } from "@/lib/hooks/useAppointment";
 import { useToast } from "@/hooks/use-toast";
@@ -58,6 +58,9 @@ export default function RequestCard({
 }: RequestCardProps) {
     const [currentAppState, setCurrentAppState] =
         useState<Appointment>(appointment);
+    const [usernameCache, setUsernameCache] = useState<{
+        [key: string]: SalonName;
+    }>({});
     const [name, setName] = useState("");
     const appDateObject = new Date(appointment.date);
     const dateString = appDateObject.toISOString().split("T")[0];
@@ -87,6 +90,10 @@ export default function RequestCard({
 
     useEffect(() => {
         getName();
+        for (var i = 0; i < appointment.services.length; i++) {
+            const currServices = appointment.services[i];
+            getUsername(currServices.tech);
+        }
     }, []);
 
     const handleApprove = async function () {
@@ -137,11 +144,32 @@ export default function RequestCard({
             });
         }
     };
+    const getUsername = async (id: string) => {
+        if (usernameCache[id]) {
+            console.log("Username from cache:", usernameCache[id]);
+            return usernameCache[id];
+        }
 
+        const fetchedUsername = await getNameFromId({ userId: id });
+
+        setUsernameCache((prevCache) => ({
+            ...prevCache,
+            [id]: fetchedUsername,
+        }));
+
+        console.log("Username fetched from API:", fetchedUsername);
+        return fetchedUsername;
+    };
+    
     return (
         <>
             <Toaster />
-            <Card className="w-full">
+            <Card
+                className={cn(
+                    appointment.state == "COUNTERED-SALON" ? "bg-red-100" : "",
+                    "w-full"
+                )}
+            >
                 <CardHeader>
                     <CardTitle>Appointment Details</CardTitle>
                     <CardDescription>ID: {appointment.id}</CardDescription>
@@ -220,7 +248,7 @@ export default function RequestCard({
                                 <RequestField
                                     key={index}
                                     service={service.service}
-                                    technician={service.tech}
+                                    technician={usernameCache[service.tech] ? usernameCache[service.tech].firstName : "AAA"}
                                     index={index + 1}
                                 />
                             ))}

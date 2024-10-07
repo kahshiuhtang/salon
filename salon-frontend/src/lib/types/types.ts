@@ -109,3 +109,8 @@ export interface ServiceRequest {
     service: string;
     tech: string;
 }
+
+export interface SalonName {
+    firstName: string;
+    lastName: string;
+}

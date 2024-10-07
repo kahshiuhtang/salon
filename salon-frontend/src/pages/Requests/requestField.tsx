@@ -32,13 +32,10 @@ export default function RequestField({
                 </Select>
                 <Select defaultValue={technician}>
                     <SelectTrigger className="w-[180px]">
-                        <SelectValue></SelectValue>
+                        <SelectValue>{technician}</SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="lee">Lee</SelectItem>
-                        <SelectItem value="kim">Kim</SelectItem>
-                        <SelectItem value="kimberly">Kimberly</SelectItem>
-                        <SelectItem value="marie">Marie</SelectItem>
+                        <SelectItem value={technician}>{technician}</SelectItem>
                     </SelectContent>
                 </Select>
             </div>

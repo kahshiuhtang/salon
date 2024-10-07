@@ -156,8 +156,6 @@ export default function RequestCard({
             ...prevCache,
             [id]: fetchedUsername,
         }));
-
-        console.log("Username fetched from API:", fetchedUsername);
         return fetchedUsername;
     };
     

@@ -10,8 +10,9 @@ import {
 } from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
 import { RepeatTypeWeek, RepeatTypeDay } from "@/lib/types/types";
-import { Availability, FormattedAvailability } from "@/lib/types/types";
-
+import { Availability } from "@/lib/types/types";
+import { generateRRule } from "@/lib/utils";
+import { EventInput } from "@fullcalendar/core/index.js";
 interface GetAvailabilityProps {
     userId: string;
 }
@@ -36,18 +37,18 @@ interface AvailabilityProp {
 interface UseAvailabilityReturn {
     getAvailability: (
         props: GetAvailabilityProps
-    ) => Promise<FormattedAvailability[]>;
+    ) => Promise<EventInput[]>;
     addAvailability: (props: AddAvailabilityProps) => Promise<string>;
     deleteAvailability: (props: DeleteAvailability) => Promise<void>;
 }
 export const useAvailability = (): UseAvailabilityReturn => {
     const getAvailability = async (
         props: GetAvailabilityProps
-    ): Promise<FormattedAvailability[]> => {
+    ): Promise<EventInput[]> => {
         if (!props || !props.userId) {
             throw new Error("Arguments invalid");
         }
-        const availability: FormattedAvailability[] = [];
+        const availability: EventInput[] = [];
         const userId = props.userId;
         // Get the availability collection for the specific user
         const availabilityCollectionRef = collection(firebaseDb, `users/${userId}/availability`);
@@ -69,11 +70,21 @@ export const useAvailability = (): UseAvailabilityReturn => {
             const startDateObject = new Date(startTimestring);
             const endDateObject = new Date(endTimestring);
 
-            availability.push({
-                id: doc.id,
-                start: startDateObject,
-                end: endDateObject,
-            } as FormattedAvailability);
+            const durationInMillis = endDateObject.getTime() - startDateObject.getTime();
+
+            const hours = Math.floor(durationInMillis / (1000 * 60 * 60));
+            const minutes = Math.floor((durationInMillis % (1000 * 60 * 60)) / (1000 * 60));
+            const formattedDuration = `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
+
+                        
+            const rrule = generateRRule(data, startDateObject);
+            const eventInput: EventInput = {
+                id: doc.id, // Unique ID for the event
+                title: startTimestring, // Event title
+                duration: formattedDuration,
+                rrule: rrule ? rrule.options : undefined, // Include RRule options if it exists
+            };
+            availability.push(eventInput);
         });
         return availability;
     };

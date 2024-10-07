@@ -29,6 +29,9 @@ importers:
       '@fullcalendar/react':
         specifier: ^6.1.15
         version: 6.1.15(@fullcalendar/core@6.1.15)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@fullcalendar/rrule':
+        specifier: ^6.1.15
+        version: 6.1.15(@fullcalendar/core@6.1.15)(rrule@2.8.1)
       '@fullcalendar/timegrid':
         specifier: ^6.1.15
         version: 6.1.15(@fullcalendar/core@6.1.15)
@@ -101,6 +104,9 @@ importers:
       react-router-dom:
         specifier: ^6.26.1
         version: 6.26.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      rrule:
+        specifier: ^2.8.1
+        version: 2.8.1
       tailwind-merge:
         specifier: ^2.5.2
         version: 2.5.2
@@ -789,6 +795,12 @@ packages:
       '@fullcalendar/core': ~6.1.15
       react: ^16.7.0 || ^17 || ^18 || ^19
       react-dom: ^16.7.0 || ^17 || ^18 || ^19
+
+  '@fullcalendar/rrule@6.1.15':
+    resolution: {integrity: sha512-4tJivAncp/eIhMDTH2v1gssv3sHPYrj2RHfbUklz2Z7bYRSj8tI7mjZWve2acqPmbg21y1nVEOwDfjWhHPcE/Q==}
+    peerDependencies:
+      '@fullcalendar/core': ~6.1.15
+      rrule: ^2.6.0
 
   '@fullcalendar/timegrid@6.1.15':
     resolution: {integrity: sha512-61ORr3A148RtxQ2FNG7JKvacyA/TEVZ7z6I+3E9Oeu3dqTf6M928bFcpehRTIK6zIA6Yifs7BeWHgOE9dFnpbw==}
@@ -3740,6 +3752,11 @@ snapshots:
       '@fullcalendar/core': 6.1.15
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
+
+  '@fullcalendar/rrule@6.1.15(@fullcalendar/core@6.1.15)(rrule@2.8.1)':
+    dependencies:
+      '@fullcalendar/core': 6.1.15
+      rrule: 2.8.1
 
   '@fullcalendar/timegrid@6.1.15(@fullcalendar/core@6.1.15)':
     dependencies:

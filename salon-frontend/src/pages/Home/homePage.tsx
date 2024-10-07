@@ -18,58 +18,11 @@ import { SalonRole, DailyCalendarAppointment } from "@/lib/types/types";
 import DailyCalendar from "@/pages/Home/dailyCalendar";
 import AppointmentCard from "@/pages/Home/appointmentCard";
 import { useAppointment } from "@/lib/hooks/useAppointment";
-const tempApps: DailyCalendarAppointment[] = [
-    {
-        id: 1,
-        date: "2023-09-25",
-        time: "14:00",
-        client: "Alice Johnson",
-        services: [
-            { name: "Haircut", duration: 30, technician: "Le" },
-            { name: "Color", duration: 60, technician: "Le" },
-        ],
-    },
-    {
-        id: 2,
-        date: "2023-09-26",
-        time: "10:30",
-        client: "Bob Smith",
-        services: [
-            { name: "Beard Trim", duration: 15, technician: "Kim" },
-            { name: "Shave", duration: 30, technician: "Kimberly" },
-        ],
-    },
-    {
-        id: 3,
-        date: "2023-09-27",
-        time: "11:00",
-        client: "Charlie Brown",
-        services: [
-            { name: "Manicure", duration: 45, technician: "Kim" },
-            { name: "Pedicure", duration: 45, technician: "Kim" },
-        ],
-    },
-    {
-        id: 4,
-        date: "2023-09-20",
-        time: "15:00",
-        client: "David Wilson",
-        services: [{ name: "Haircut", duration: 30, technician: "Marie" }],
-    },
-    {
-        id: 5,
-        date: "2023-09-18",
-        time: "13:30",
-        client: "Eva Martinez",
-        services: [
-            { name: "Hair Styling", duration: 45, technician: "Marie" },
-            { name: "Makeup", duration: 30, technician: "Marie" },
-        ],
-    },
-];
+const tempApps: DailyCalendarAppointment[] = [];
 export default function HomePage() {
     const [userType, setUserType] = useState<SalonRole>("USER");
     const [selectedDate, setSelectedDate] = useState("2023-09-25");
+    const [dateRange, setDateRange] = useState<Date[]>([]);
     const [firstName, setFirstName] = useState("");
     const [appointments, setAppointments] = useState(tempApps);
     const currentDate = new Date();
@@ -101,10 +54,9 @@ export default function HomePage() {
     };
     const fetchRelevantAppointments = async function () {
         try {
-            const apps = await getAppointments({userId});
-            if(!apps) console.log("nothing retreived...");
+            const apps = await getAppointments({ userId });
             const formattedApps = convertAppsForHomePage(apps);
-            console.log(formattedApps)
+            console.log(formattedApps);
             setAppointments(formattedApps);
         } catch (e) {
             console.log("fetchRelevantAppointments(): " + e);
@@ -112,10 +64,25 @@ export default function HomePage() {
     };
     useEffect(() => {
         fetchNameAndRole();
-    },[]);
-    useEffect(()=>{
+        generateDateRange(new Date());
+    }, []);
+
+    useEffect(() => {
         fetchRelevantAppointments();
-    }, [user?.id])
+    }, [user?.id]);
+
+    const generateDateRange = function (date: Date) {
+        const daysArray: Date[] = [];
+
+        for (let i = -3; i <= 3; i++) {
+            const newDate = new Date(date);
+            newDate.setDate(date.getDate() + i);
+            daysArray.push(newDate);
+            // daysArray.push(newDate.toISOString().split("T")[0]);
+        }
+        setDateRange(daysArray);
+    };
+
     return (
         <div className="min-h-screen flex flex-col">
             <Navbar />
@@ -190,27 +157,28 @@ export default function HomePage() {
                         </TabsList>
                         <TabsContent value="calendar">
                             <div className="flex justify-center space-x-4 mb-4">
-                                <Button
-                                    onClick={() =>
-                                        setSelectedDate("2023-09-25")
-                                    }
-                                >
-                                    Sep 25
-                                </Button>
-                                <Button
-                                    onClick={() =>
-                                        setSelectedDate("2023-09-26")
-                                    }
-                                >
-                                    Sep 26
-                                </Button>
-                                <Button
-                                    onClick={() =>
-                                        setSelectedDate("2023-09-27")
-                                    }
-                                >
-                                    Sep 27
-                                </Button>
+                                {dateRange.map((date, index) => {
+                                    return (
+                                        <Button
+                                            key={index}
+                                            onClick={() =>
+                                                {
+                                                    setSelectedDate(
+                                                        date
+                                                            .toISOString()
+                                                            .split("T")[0]
+                                                    );
+                                                    generateDateRange(date);
+                                                }
+                                            }
+                                        >
+                                            {date.toLocaleDateString("en-US", {
+                                                month: "short",
+                                                day: "numeric",
+                                            })}
+                                        </Button>
+                                    );
+                                })}
                             </div>
                             <DailyCalendar
                                 appointments={appointments}

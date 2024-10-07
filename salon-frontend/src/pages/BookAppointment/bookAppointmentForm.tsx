@@ -69,7 +69,7 @@ const formSchema = z.object({
 interface BookAppointmentFormProps {
     insideCard?: boolean;
     appointment?: Appointment;
-    userRole: SalonRole;
+    userRole?: SalonRole;
 }
 //TODO: Allow for a message to be sent when booking appointment
 export default function BookAppointmentForm({

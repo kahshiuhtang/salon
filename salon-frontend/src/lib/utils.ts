@@ -38,16 +38,18 @@ export function isEndTimeBeforeStartTime(startTime: Date, endTime: Date) {
 export function generateRRule(
     availability: Availability,
     startDate: Date
-): SalonRRule{
+): SalonRRule {
     const { repeatTypeWeekly, repeatTypeDaily } = availability;
-    const lastYear = new Date(startDate.setFullYear(startDate.getFullYear() - 1));
+    const lastYear = new Date(
+        startDate.setFullYear(startDate.getFullYear() - 1)
+    );
     const isoString = lastYear.toISOString();
     const rruleOptions: SalonRRule = {
-        freq: "WEEKLY", 
-        interval: 1,          
+        freq: "WEEKLY",
+        interval: 1,
         byweekday: [],
         bymonthday: [],
-        dtstart: isoString,   
+        dtstart: isoString,
     };
 
     switch (repeatTypeWeekly) {
@@ -123,7 +125,7 @@ export function formatTimeDifference(
     return `${formattedHours}:${formattedMinutes}`;
 }
 
-export function getDateOnlyFromDate(date: Date){
+export function getDateOnlyFromDate(date: Date) {
     const month = date.getMonth() + 1; // Add 1 to get the correct month (1-12)
     const day = date.getDate();
     const year = date.getFullYear();
@@ -131,13 +133,30 @@ export function getDateOnlyFromDate(date: Date){
     return `${month}-${day}-${year}`;
 }
 
-export function getTimeOnlyFromDate(date: Date){
+export function getTimeOnlyFromDate(date: Date) {
     let hours = date.getHours();
-    const minutes = date.getMinutes().toString().padStart(2, '0'); // Ensure 2-digit minutes
+    const minutes = date.getMinutes().toString().padStart(2, "0"); // Ensure 2-digit minutes
 
-    const ampm = hours >= 12 ? 'PM' : 'AM';
+    const ampm = hours >= 12 ? "PM" : "AM";
 
     hours = hours % 12;
     hours = hours ? hours : 12; // Convert '0' hour to '12'
     return `${hours}:${minutes} ${ampm}`;
+}
+
+export function convertTimeToDateObject(timeString: string) {
+    const currentDate = new Date();
+    const [time, period] = timeString.split(" ");
+
+    const [hours, minutes, seconds] = time.split(":").map(Number);
+
+    let adjustedHours = hours;
+    if (period === "PM" && hours < 12) {
+        adjustedHours += 12;
+    } else if (period === "AM" && hours === 12) {
+        adjustedHours = 0;
+    }
+
+    currentDate.setHours(adjustedHours, minutes, seconds);
+    return currentDate;
 }

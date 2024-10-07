@@ -35,7 +35,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { cn, convertTimeToDateObject } from "@/lib/utils";
 import { CalendarIcon, PlusIcon, MinusIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
@@ -43,7 +43,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useUsers } from "@/lib/hooks/useUsers";
-import { SalonUser } from "@/lib/types/types";
+import { Appointment, SalonUser } from "@/lib/types/types";
 import { useEffect, useState } from "react";
 
 const timeFormat = "hh:mm a";
@@ -63,9 +63,12 @@ const formSchema = z.object({
 });
 interface BookAppointmentFormProps {
     insideCard?: boolean;
+    appointment?: Appointment
+    editedByAdmin?: boolean
 }
 export default function BookAppointmentForm({
     insideCard,
+    appointment
 }: BookAppointmentFormProps) {
     const [employees, setEmployees] = useState<SalonUser[]>([]);
     const { toast } = useToast();
@@ -77,13 +80,13 @@ export default function BookAppointmentForm({
         navigate("/sign-in");
     }
     const userId = user?.id || "";
-
+    if(appointment)console.log(appointment.time);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            time: new Date(),
-            date: new Date(),
-            services: [{ service: "", tech: "" }],
+            time: appointment ? convertTimeToDateObject(appointment.time) :new Date(),
+            date: appointment ? appointment.date : new Date(),
+            services: appointment ? appointment.services : [{ service: "", tech: "" }],
         },
     });
 
@@ -373,6 +376,7 @@ export default function BookAppointmentForm({
                                 )}
                             </div>
                         </form>
+                        
                     </Form>
                 </CardContent>
             </Card>

@@ -256,17 +256,7 @@ export default function RequestCard({
                                         </Button>
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-[425px]">
-                                    <BookAppointmentForm insideCard={true}/>
-                                        <DialogFooter className="sm:justify-start">
-                                            <DialogClose asChild>
-                                                <Button
-                                                    type="button"
-                                                    variant="secondary"
-                                                >
-                                                    Close
-                                                </Button>
-                                            </DialogClose>
-                                        </DialogFooter>
+                                    <BookAppointmentForm insideCard={true} appointment={appointment}/>
                                     </DialogContent>
                                 </Dialog>
                                 <Dialog>

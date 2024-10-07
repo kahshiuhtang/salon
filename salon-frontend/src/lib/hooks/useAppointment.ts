@@ -10,13 +10,16 @@ import {
     updateDoc,
 } from "firebase/firestore";
 import {
+    ACPService,
     Appointment,
     AppointmentState,
+    DailyCalendarAppointment,
     FullCalendarAppointment,
     SalonRole,
     ServiceRequest,
 } from "@/lib/types/types";
 import { firebaseDb } from "@/lib/firebase";
+import { getDateOnlyFromDate } from "../utils";
 interface GetAllAppointmentsProps {
     userId: string;
 }
@@ -52,6 +55,9 @@ interface UseAppointmentReturn {
     formatAppointments: (
         appointments: Appointment[]
     ) => FullCalendarAppointment[];
+    convertAppsForHomePage:(
+        appointments: Appointment[]
+    ) => DailyCalendarAppointment[];
     updateAppointmentStatus: (
         statusProps: UpdateAppointmentStatusProps
     ) => Promise<void>;
@@ -80,9 +86,6 @@ export const useAppointment = (): UseAppointmentReturn => {
     const getAppointments = async (
         appProps: GetAllAppointmentsProps
     ): Promise<Appointment[]> => {
-        if (!appProps || !appProps.userId) {
-            throw new Error("Arguments invalid");
-        }
 
         const userId = appProps.userId;
         const userDoc = doc(firebaseDb, "users", userId);
@@ -98,8 +101,16 @@ export const useAppointment = (): UseAppointmentReturn => {
             const appointmentsRef = collection(firebaseDb, "appointments");
             const q = query(appointmentsRef, where("involvedEmployees", "array-contains", userId));
             const querySnapshot = await getDocs(q);
-            const matchingAppointments = querySnapshot.docs.map(doc => doc.data() as Appointment);
-            return matchingAppointments;
+            const appointments: Appointment[] = [];
+            querySnapshot.forEach((doc) => {
+                const app = {
+                    id: doc.id,
+                    ...doc.data(),
+                } as Appointment
+                app.date = (app.date as unknown as Timestamp).toDate();
+                appointments.push(app);
+            });
+            return appointments;
         } else {
             // Regular users fetch their own appointments
             var appointmentsQuery = query(
@@ -109,14 +120,43 @@ export const useAppointment = (): UseAppointmentReturn => {
             const querySnapshot = await getDocs(appointmentsQuery);
             const appointments: Appointment[] = [];
             querySnapshot.forEach((doc) => {
-                appointments.push({
+                const app = {
                     id: doc.id,
                     ...doc.data(),
-                } as Appointment);
+                } as Appointment
+                app.date = (app.date as unknown as Timestamp).toDate();
+                appointments.push(app);
             });
             return appointments;
         }
     };
+
+    const convertAppsForHomePage = (
+        appointments: Appointment[]
+    ) => {
+        const ans: DailyCalendarAppointment[] = [];
+        //TODO: maybe add the firstName, lastName to the appointment?
+        for(var i = 0; i < appointments.length; i++){
+            var currApp = appointments[i];
+            var services: ACPService[] = [];
+            for(var j = 0; j < currApp.services.length; j++){
+                const currService = currApp.services[j];
+                // TODO: probably want to combine ACPService with Service type
+                services.push({
+                    name: currService.service,
+                    technician: currService.tech,
+                })
+            }
+            ans.push({
+                id: currApp.id,
+                date: getDateOnlyFromDate(currApp.date),
+                time: currApp.time,
+                client: currApp.id, 
+                services: services,
+            })
+        }
+        return ans;
+    }
 
     const formatAppointments = (appointments: Appointment[]) => {
         var ans: FullCalendarAppointment[] = [];
@@ -242,6 +282,7 @@ export const useAppointment = (): UseAppointmentReturn => {
         addAppointment,
         getAppointments,
         formatAppointments,
+        convertAppsForHomePage,
         updateAppointmentStatus,
         getPreviousAppointments,
         getFutureAppointments,

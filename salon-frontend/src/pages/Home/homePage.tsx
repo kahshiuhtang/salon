@@ -18,7 +18,7 @@ import { SalonRole, DailyCalendarAppointment } from "@/lib/types/types";
 import DailyCalendar from "@/pages/Home/dailyCalendar";
 import AppointmentCard from "@/pages/Home/appointmentCard";
 import { useAppointment } from "@/lib/hooks/useAppointment";
-const appointments: DailyCalendarAppointment[] = [
+const tempApps: DailyCalendarAppointment[] = [
     {
         id: 1,
         date: "2023-09-25",
@@ -71,6 +71,7 @@ export default function HomePage() {
     const [userType, setUserType] = useState<SalonRole>("USER");
     const [selectedDate, setSelectedDate] = useState("2023-09-25");
     const [firstName, setFirstName] = useState("");
+    const [appointments, setAppointments] = useState(tempApps);
     const currentDate = new Date();
     const upcomingAppointments = appointments.filter(
         (a) => new Date(a.date) >= currentDate
@@ -86,7 +87,7 @@ export default function HomePage() {
     const userId = user?.id || "";
 
     const { getNameFromId } = useUsers();
-    const { getAppointments } = useAppointment();
+    const { getAppointments, convertAppsForHomePage } = useAppointment();
     const { getRole } = useRole();
     const fetchNameAndRole = async function () {
         try {
@@ -102,15 +103,19 @@ export default function HomePage() {
         try {
             const apps = await getAppointments({userId});
             if(!apps) console.log("nothing retreived...");
+            const formattedApps = convertAppsForHomePage(apps);
+            console.log(formattedApps)
+            setAppointments(formattedApps);
         } catch (e) {
             console.log("fetchRelevantAppointments(): " + e);
         }
     };
     useEffect(() => {
         fetchNameAndRole();
-        fetchRelevantAppointments();
     },[]);
-
+    useEffect(()=>{
+        fetchRelevantAppointments();
+    }, [user?.id])
     return (
         <div className="min-h-screen flex flex-col">
             <Navbar />

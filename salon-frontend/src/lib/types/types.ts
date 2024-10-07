@@ -15,7 +15,7 @@ export type AppointmentState =
     | "FINISHED";
 export interface Appointment {
     id: string;
-    time: Date;
+    time: string;
     length: Date;
     date: Date;
     services: ServiceRequest[];
@@ -64,7 +64,7 @@ export interface SalonUser {
 }
 export interface ACPService {
   name: string;
-  duration: number;
+  duration?: number;
   technician: string;
 }
 export interface FormattedAvailability {

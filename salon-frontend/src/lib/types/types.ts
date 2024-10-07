@@ -1,5 +1,3 @@
-import { RRule} from 'rrule';
-
 export type SalonRole = "USER" | "ADMIN" | "MOD";
 
 export type RepeatTypeWeek = "WEEKLY" | "BIWEEKLY" | "MONTHLY" | "";
@@ -47,6 +45,13 @@ export interface FullCalendarAppointment {
     allDay?: boolean; //  (optional)
     backgroundColor?: string; //  (optional)
 }
+export interface SalonRRule{
+    freq?: string;
+    interval?: number;
+    byweekday?: string[],
+    bymonthday?: number[],
+    dtstart: string
+}
 export interface SalonUser {
     firstName: string;
     lastName: string;
@@ -62,9 +67,10 @@ export interface ACPService {
   technician: string;
 }
 export interface FormattedAvailability {
+    id: string,
     title: string,
     duration: string,
-    rrule: RRule;
+    rrule: SalonRRule;
 }
 export interface DailyCalendarAppointment {
   id: string | number;

@@ -1,7 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Availability } from "@/lib//types/types";
-import { RRule, Options } from "rrule";
+import { Availability, SalonRRule } from "@/lib//types/types";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -39,25 +38,29 @@ export function isEndTimeBeforeStartTime(startTime: Date, endTime: Date) {
 export function generateRRule(
     availability: Availability,
     startDate: Date
-): RRule {
+): SalonRRule{
     const { repeatTypeWeekly, repeatTypeDaily } = availability;
-    if (!availability.repeat)
-        return new RRule({
-            dtstart: startDate,
-        } as Options);
-    const rruleOptions: Partial<Options> = {};
+    const lastYear = new Date(startDate.setFullYear(startDate.getFullYear() - 1));
+    const isoString = lastYear.toISOString();
+    const rruleOptions: SalonRRule = {
+        freq: "WEEKLY", 
+        interval: 1,          
+        byweekday: [],
+        bymonthday: [],
+        dtstart: isoString,   
+    };
 
     switch (repeatTypeWeekly) {
         case "WEEKLY":
-            rruleOptions.freq = RRule.WEEKLY;
+            rruleOptions.freq = "WEEKLY";
             rruleOptions.interval = 1;
             break;
         case "BIWEEKLY":
-            rruleOptions.freq = RRule.WEEKLY;
+            rruleOptions.freq = "BIWEEKLY";
             rruleOptions.interval = 2;
             break;
         case "MONTHLY":
-            rruleOptions.freq = RRule.MONTHLY;
+            rruleOptions.freq = "MONTHLY";
             break;
         default:
             break;
@@ -66,13 +69,13 @@ export function generateRRule(
     if (repeatTypeDaily) {
         switch (repeatTypeDaily) {
             case "ODD-WEEKDAYS":
-                rruleOptions.byweekday = [RRule.MO, RRule.WE, RRule.FR]; // Monday, Wednesday, Friday
+                rruleOptions.byweekday = ["mo", "we", "fr"]; // Monday, Wednesday, Friday
                 break;
             case "EVEN-WEEKDAYS":
-                rruleOptions.byweekday = [RRule.TU, RRule.TH]; // Tuesday, Thursday
+                rruleOptions.byweekday = ["tu", "th"]; // Tuesday, Thursday
                 break;
             case "WEEKEND":
-                rruleOptions.byweekday = [RRule.SA, RRule.SU]; // Saturday, Sunday
+                rruleOptions.byweekday = ["sa", "su"]; // Saturday, Sunday
                 break;
             case "ODD-ALLDAYS":
                 rruleOptions.bymonthday = Array.from(
@@ -91,10 +94,7 @@ export function generateRRule(
         }
     }
 
-    return new RRule({
-        ...rruleOptions,
-        dtstart: startDate, // dtstart must be passed directly here
-    } as Options);
+    return rruleOptions;
 }
 
 export function formatTimeDifference(

@@ -10,9 +10,8 @@ import {
 } from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
 import { RepeatTypeWeek, RepeatTypeDay } from "@/lib/types/types";
-import { Availability } from "@/lib/types/types";
+import { Availability, FormattedAvailability } from "@/lib/types/types";
 import { generateRRule } from "@/lib/utils";
-import { EventInput } from "@fullcalendar/core/index.js";
 interface GetAvailabilityProps {
     userId: string;
 }
@@ -37,18 +36,18 @@ interface AvailabilityProp {
 interface UseAvailabilityReturn {
     getAvailability: (
         props: GetAvailabilityProps
-    ) => Promise<EventInput[]>;
+    ) => Promise<FormattedAvailability[]>;
     addAvailability: (props: AddAvailabilityProps) => Promise<string>;
     deleteAvailability: (props: DeleteAvailability) => Promise<void>;
 }
 export const useAvailability = (): UseAvailabilityReturn => {
     const getAvailability = async (
         props: GetAvailabilityProps
-    ): Promise<EventInput[]> => {
+    ): Promise<FormattedAvailability[]> => {
         if (!props || !props.userId) {
             throw new Error("Arguments invalid");
         }
-        const availability: EventInput[] = [];
+        const availability: FormattedAvailability[] = [];
         const userId = props.userId;
         // Get the availability collection for the specific user
         const availabilityCollectionRef = collection(firebaseDb, `users/${userId}/availability`);
@@ -78,11 +77,11 @@ export const useAvailability = (): UseAvailabilityReturn => {
 
                         
             const rrule = generateRRule(data, startDateObject);
-            const eventInput: EventInput = {
+            const eventInput: FormattedAvailability = {
                 id: doc.id, // Unique ID for the event
                 title: startTimestring, // Event title
                 duration: formattedDuration,
-                rrule: rrule ? rrule.options : undefined, // Include RRule options if it exists
+                rrule: rrule,
             };
             availability.push(eventInput);
         });

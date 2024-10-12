@@ -37,6 +37,9 @@ interface UseAvailabilityReturn {
     getAvailability: (
         props: GetAvailabilityProps
     ) => Promise<FormattedAvailability[]>;
+    getUnformattedAvailability: (
+        props: GetAvailabilityProps
+    ) => Promise<Availability[]>;
     addAvailability: (props: AddAvailabilityProps) => Promise<string>;
     deleteAvailability: (props: DeleteAvailability) => Promise<void>;
 }
@@ -53,15 +56,13 @@ export const useAvailability = (): UseAvailabilityReturn => {
         const availabilityCollectionRef = collection(firebaseDb, `users/${userId}/availability`);
         const availabilitySnapshot: QuerySnapshot<DocumentData> = await getDocs(availabilityCollectionRef);
 
-        // Check if the collection is empty
         if (availabilitySnapshot.empty) {
             console.log("No availability documents found");
-            return availability; // Return empty array if no documents exist
+            return availability; 
         }
 
-        // Iterate through each document in the snapshot
         availabilitySnapshot.forEach((doc) => {
-            const data = doc.data() as Availability; // Cast to Availability type
+            const data = doc.data() as Availability; 
             const appDateObject = new Date((data.date as unknown as Timestamp).seconds * 1000);
             const dateString = appDateObject.toISOString().split("T")[0];
             const startTimestring = `${dateString} ${data.startTime}`;
@@ -84,6 +85,31 @@ export const useAvailability = (): UseAvailabilityReturn => {
                 rrule: rrule,
             };
             availability.push(eventInput);
+        });
+        return availability;
+    };
+
+    const getUnformattedAvailability = async (
+        props: GetAvailabilityProps
+    ): Promise<Availability[]> => {
+        if (!props || !props.userId) {
+            throw new Error("Arguments invalid");
+        }
+        const availability: Availability[] = [];
+        const userId = props.userId;
+        // Get the availability collection for the specific user
+        const availabilityCollectionRef = collection(firebaseDb, `users/${userId}/availability`);
+        const availabilitySnapshot: QuerySnapshot<DocumentData> = await getDocs(availabilityCollectionRef);
+
+        if (availabilitySnapshot.empty) {
+            console.log("No availability documents found");
+            return availability; 
+        }
+
+        availabilitySnapshot.forEach((doc) => {
+            const data = doc.data() as Availability;
+            data.date = (data.date as unknown as Timestamp).toDate();
+            availability.push(data);
         });
         return availability;
     };
@@ -123,5 +149,5 @@ export const useAvailability = (): UseAvailabilityReturn => {
             console.error("Error deleting availability: ", e);
         }
     };
-    return { getAvailability, addAvailability, deleteAvailability };
+    return { getAvailability, getUnformattedAvailability, addAvailability, deleteAvailability };
 };

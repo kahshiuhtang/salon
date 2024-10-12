@@ -1,10 +1,16 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { format } from "date-fns"
-import { CalendarIcon, Clock, RepeatIcon } from "lucide-react"
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Button } from "@/components/ui/button"
+import { useEffect, useState } from "react";
+import { CalendarIcon, Clock, RepeatIcon } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -12,7 +18,7 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -20,85 +26,66 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from "@/components/ui/dialog"
-import AvailabilityForm  from "@/pages/Settings/availabilityForm"
+} from "@/components/ui/dialog";
+import AvailabilityForm from "@/pages/Settings/availabilityForm";
+import { Availability } from "@/lib/types/types";
+import { useAvailability } from "@/lib/hooks/useAvailability";
+import { useUser } from "@clerk/clerk-react";
 
-interface Availability {
-  id: string
-  date: Date
-  startTime: string
-  endTime: string
-  repeat: boolean
-  repeatTypeWeekly?: RepeatTypeWeek
-  repeatTypeDaily?: RepeatTypeDay
-}
-
-type RepeatTypeWeek = "weekly" | "biweekly" | "monthly"
-type RepeatTypeDay = "everyday" | "weekdays" | "weekends"
-
-const mockData: Availability[] = [
-  {
-    id: "1",
-    date: new Date("2023-06-01"),
-    startTime: "09:00",
-    endTime: "17:00",
-    repeat: true,
-    repeatTypeWeekly: "weekly",
-  },
-  {
-    id: "2",
-    date: new Date("2023-06-02"),
-    startTime: "10:00",
-    endTime: "18:00",
-    repeat: true,
-    repeatTypeDaily: "weekdays",
-  },
-  {
-    id: "3",
-    date: new Date("2023-06-03"),
-    startTime: "11:00",
-    endTime: "15:00",
-    repeat: false,
-  },
-]
+const mockData: Availability[] = [];
 
 export default function AvailabilityListView() {
-  const [availabilities, setAvailabilities] = useState<Availability[]>(mockData)
-  const [editingAvailability, setEditingAvailability] = useState<Availability | null>(null)
-  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false)
-  const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [availabilities, setAvailabilities] =
+    useState<Availability[]>(mockData);
+  const [editingAvailability, setEditingAvailability] =
+    useState<Availability | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+
+  const { getUnformattedAvailability } = useAvailability();
+  const { user } = useUser();
+  var userId = "";
+  if(user && user.id){
+    userId = user?.id || "";
+  }
 
   const getRepeatText = (availability: Availability) => {
-    if (!availability.repeat) return "No repeat"
-    if (availability.repeatTypeWeekly) return `Repeats ${availability.repeatTypeWeekly}`
-    if (availability.repeatTypeDaily) return `Repeats ${availability.repeatTypeDaily}`
-    return "Repeats"
-  }
+    if (availability.repeatTypeWeekly && availability.repeatTypeDaily)
+        return `Repeats ${availability.repeatTypeWeekly} and ${availability.repeatTypeDaily}`;
+    if (availability.repeatTypeWeekly)
+      return `Repeats ${availability.repeatTypeWeekly}`;
+    if (availability.repeatTypeDaily)
+      return `Repeats ${availability.repeatTypeDaily}`;
+    return "No repeats";
+  };
 
   const handleEdit = (availability: Availability) => {
-    setEditingAvailability(availability)
-    setIsEditDialogOpen(true)
-  }
-
-  const handleEditSubmit = (updatedAvailability: Availability) => {
-    setAvailabilities(availabilities.map(a => a.id === updatedAvailability.id ? updatedAvailability : a))
-    setIsEditDialogOpen(false)
-    setEditingAvailability(null)
-  }
+    setEditingAvailability(availability);
+    setIsEditDialogOpen(true);
+  };
 
   const handleDelete = (id: string) => {
-    setDeletingId(id)
-    setIsDeleteDialogOpen(true)
-  }
+    setDeletingId(id);
+    setIsDeleteDialogOpen(true);
+  };
 
   const confirmDelete = () => {
     if (deletingId) {
-      setAvailabilities(availabilities.filter((a) => a.id !== deletingId))
-      setIsDeleteDialogOpen(false)
-      setDeletingId(null)
+      setAvailabilities(availabilities.filter((a) => a.id !== deletingId));
+      setIsDeleteDialogOpen(false);
+      setDeletingId(null);
     }
-  }
+  };
+
+  const fetchAvailability = async function () {
+    const availability = await getUnformattedAvailability({userId: userId});
+    setAvailabilities(availability);
+    console.log(availability);
+  };
+  useEffect(() => {
+    fetchAvailability();
+  }, []);
 
   return (
     <div className="container mx-auto py-10">
@@ -118,7 +105,7 @@ export default function AvailabilityListView() {
               <TableCell>
                 <div className="flex items-center">
                   <CalendarIcon className="mr-2 h-4 w-4" />
-                  {format(availability.date, "MMM dd, yyyy")}
+                  {availability.date.toDateString()}
                 </div>
               </TableCell>
               <TableCell>
@@ -158,12 +145,22 @@ export default function AvailabilityListView() {
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem onClick={() => navigator.clipboard.writeText(availability.id)}>
+                    <DropdownMenuItem
+                      onClick={() =>
+                        navigator.clipboard.writeText(availability.id)
+                      }
+                    >
                       Copy ID
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => handleEdit(availability)}>Edit</DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleDelete(availability.id)}>Delete</DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleEdit(availability)}>
+                      Edit
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => handleDelete(availability.id)}
+                    >
+                      Delete
+                    </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </TableCell>
@@ -177,10 +174,7 @@ export default function AvailabilityListView() {
           <DialogHeader>
             <DialogTitle>Edit Availability</DialogTitle>
           </DialogHeader>
-          {editingAvailability && (
-            <AvailabilityForm
-            />
-          )}
+          {editingAvailability && <AvailabilityForm />}
         </DialogContent>
       </Dialog>
 
@@ -189,15 +183,23 @@ export default function AvailabilityListView() {
           <DialogHeader>
             <DialogTitle>Confirm Deletion</DialogTitle>
             <DialogDescription>
-              Are you sure you want to delete this availability? This action cannot be undone.
+              Are you sure you want to delete this availability? This action
+              cannot be undone.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setIsDeleteDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={confirmDelete}>Delete</Button>
+            <Button
+              variant="outline"
+              onClick={() => setIsDeleteDialogOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDelete}>
+              Delete
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
     </div>
-  )
+  );
 }

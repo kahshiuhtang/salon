@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/button"
 
 interface DeleteConfirmationProps {
   onDelete: () => void
-  itemName?: string
 }
 
 export interface DeleteConfirmationRef {
@@ -22,7 +21,7 @@ export interface DeleteConfirmationRef {
 }
 
 const DeleteConfirmation = forwardRef<DeleteConfirmationRef, DeleteConfirmationProps>(
-  ({ onDelete, itemName = "item" }, ref) => {
+  ({ onDelete }, ref) => {
     const [isOpen, setIsOpen] = useState(false)
 
     const openModal = () => setIsOpen(true)

@@ -114,7 +114,6 @@ export default function AvailablityCalendar() {
             <DeleteConfirmation
                 ref={deleteConfirmationRef}
                 onDelete={handleDelete}
-                itemName="user"
             />
             <Dialog open={open}>
                 <DialogContent className="sm:max-w-md">

@@ -13,6 +13,7 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import AvailabilityListView from "@/pages/Settings/listView"
 
 export default function SettingsPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false)
@@ -69,7 +70,9 @@ export default function SettingsPage() {
           <TabsContent value="settings" className="mt-6">
             <UserInfoForm center={false} />
           </TabsContent>
-          <TabsContent value="list" className="mt-6"></TabsContent>
+          <TabsContent value="list" className="mt-6">
+            <AvailabilityListView/>
+          </TabsContent>
         </Tabs>
       </div>
     </>

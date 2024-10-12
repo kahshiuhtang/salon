@@ -220,7 +220,7 @@ export default function AvailabilityForm() {
                         render={({ field }) => {
                             return (
                                 <FormItem className="w-1/2 mr-2">
-                                    <FormLabel>Repeated Event</FormLabel>
+                                    <FormLabel>Daily Repeat</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         defaultValue={field.value}
@@ -261,7 +261,7 @@ export default function AvailabilityForm() {
                             return (
                                 <FormItem className="w-1/2">
                                     <FormLabel>
-                                        Repeated Event (Weekly)
+                                        Weekly Repeat
                                     </FormLabel>
                                     <Select
                                         onValueChange={field.onChange}

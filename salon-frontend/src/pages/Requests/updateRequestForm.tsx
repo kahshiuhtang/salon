@@ -38,11 +38,11 @@ import {
     Popover,
     PopoverContent,
     PopoverTrigger,
-} from "@radix-ui/react-popover";
+} from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
-import { SelectValue } from "@radix-ui/react-select";
+import { SelectValue } from "@/components/ui/select";
 import { useRef } from "react";
 const timeFormat = "hh:mm a";
 import { Appointment, ServiceRequest } from "@/lib/types/types";

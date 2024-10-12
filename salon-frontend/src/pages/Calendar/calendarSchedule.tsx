@@ -14,7 +14,7 @@ import {
   DialogHeader,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { DialogTitle } from "@radix-ui/react-dialog";
+import { DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import ScheduleForm from "@/pages/Calendar/scheduleForm";
 import { FullCalendarAppointment } from "@/lib/types/types";

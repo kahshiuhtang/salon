@@ -116,7 +116,7 @@ export const useAvailability = (): UseAvailabilityReturn => {
                 return;
             }
             await deleteDoc(
-                doc(firebaseDb, "availability", props.availabilityId)
+                doc(firebaseDb, `users/${props.userId}/availability`, props.availabilityId)
             );
             console.log("Availability successfully deleted!");
         } catch (e) {

@@ -69,7 +69,6 @@ export const useAvailability = (): UseAvailabilityReturn => {
             const endTimestring = `${dateString} ${data.endTime}`;
             const startDateObject = new Date(startTimestring);
             const endDateObject = new Date(endTimestring);
-
             const durationInMillis = endDateObject.getTime() - startDateObject.getTime();
 
             const hours = Math.floor(durationInMillis / (1000 * 60 * 60));
@@ -78,14 +77,27 @@ export const useAvailability = (): UseAvailabilityReturn => {
 
                         
             const rrule = generateRRule(data, startDateObject);
-            const eventInput: FormattedAvailability = {
-                id: doc.id, // Unique ID for the event
-                title: startTimestring, // Event title
-                duration: formattedDuration,
-                rrule: rrule,
-            };
-            availability.push(eventInput);
+            if(rrule == null){
+                const startDate = new Date(startTimestring);
+                const endDate = new Date(endTimestring);
+                availability.push({
+                    id: data.id, 
+                    title: ' Available ', 
+                    start: startDate.toISOString(), 
+                    end: endDate.toISOString(),    
+                    allDay: false,
+                  });
+            }else{
+                const eventInput: FormattedAvailability = {
+                    id: doc.id, // Unique ID for the event
+                    title: startTimestring, // Event title
+                    duration: formattedDuration,
+                    rrule: rrule,
+                };
+                availability.push(eventInput);
+            }
         });
+        console.log(availability);
         return availability;
     };
 
@@ -108,7 +120,9 @@ export const useAvailability = (): UseAvailabilityReturn => {
 
         availabilitySnapshot.forEach((doc) => {
             const data = doc.data() as Availability;
+            console.log(doc.data());
             data.date = (data.date as unknown as Timestamp).toDate();
+            data.id = doc.id;
             availability.push(data);
         });
         return availability;
@@ -121,7 +135,6 @@ export const useAvailability = (): UseAvailabilityReturn => {
                 console.log("Invalid arguments passed");
                 return "";
             }
-    
     
             const docRef = await addDoc(
                 collection(firebaseDb, `users/${props.userId}/availability`),

@@ -38,14 +38,15 @@ export function isEndTimeBeforeStartTime(startTime: Date, endTime: Date) {
 export function generateRRule(
     availability: Availability,
     startDate: Date
-): SalonRRule {
+): (SalonRRule | null) {
     const { repeatTypeWeekly, repeatTypeDaily } = availability;
     const lastYear = new Date(
         startDate.setFullYear(startDate.getFullYear() - 1)
     );
     const isoString = lastYear.toISOString();
+    var found = false;
     const rruleOptions: SalonRRule = {
-        freq: "WEEKLY",
+        freq: "DAILY",
         interval: 1,
         byweekday: [],
         bymonthday: [],
@@ -56,13 +57,16 @@ export function generateRRule(
         case "WEEKLY":
             rruleOptions.freq = "WEEKLY";
             rruleOptions.interval = 1;
+            found = true;
             break;
         case "BIWEEKLY":
             rruleOptions.freq = "BIWEEKLY";
             rruleOptions.interval = 2;
+            found = true;
             break;
         case "MONTHLY":
             rruleOptions.freq = "MONTHLY";
+            found = true;
             break;
         default:
             break;
@@ -72,30 +76,37 @@ export function generateRRule(
         switch (repeatTypeDaily) {
             case "ODD-WEEKDAYS":
                 rruleOptions.byweekday = ["mo", "we", "fr"]; // Monday, Wednesday, Friday
+                found = true;
                 break;
             case "EVEN-WEEKDAYS":
                 rruleOptions.byweekday = ["tu", "th"]; // Tuesday, Thursday
+                found = true;
                 break;
             case "WEEKEND":
                 rruleOptions.byweekday = ["sa", "su"]; // Saturday, Sunday
+                found = true;
                 break;
             case "ODD-ALLDAYS":
                 rruleOptions.bymonthday = Array.from(
                     { length: 31 },
                     (_, i) => i + 1
                 ).filter((day) => day % 2 === 1); // Odd days of the month
+                found = true;
                 break;
             case "EVEN-ALLDAYS":
                 rruleOptions.bymonthday = Array.from(
                     { length: 31 },
                     (_, i) => i + 1
                 ).filter((day) => day % 2 === 0); // Even days of the month
+                found = true;
                 break;
             default:
                 break;
         }
     }
-
+    if(!found){
+        return null;
+    }
     return rruleOptions;
 }
 

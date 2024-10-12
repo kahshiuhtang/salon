@@ -73,12 +73,20 @@ export interface ACPService {
     duration?: number;
     technician: string;
 }
-export interface FormattedAvailability {
+export type FormattedAvailability = FormattedAvailability1 | FormattedAvailability2;
+export interface FormattedAvailability1 {
     id: string;
     title: string;
     duration: string;
     rrule: SalonRRule;
 }
+export interface FormattedAvailability2 {
+    title: string;
+    start: string;
+    end?: string;
+    id?: string;
+    allDay?: boolean;
+  }
 export interface DailyCalendarAppointment {
     id: string | number;
     date: string;

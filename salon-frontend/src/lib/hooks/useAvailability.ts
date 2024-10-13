@@ -7,6 +7,7 @@ import {
     getDocs,
     QuerySnapshot,
     Timestamp,
+    updateDoc,
 } from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
 import { RepeatTypeWeek, RepeatTypeDay } from "@/lib/types/types";
@@ -33,6 +34,11 @@ interface AvailabilityProp {
     repeatWeekly: RepeatTypeWeek;
     repeatDaily: RepeatTypeDay;
 }
+interface UpdateAvailabilityProps {
+    userId: string;
+    availabilityId: string;
+    availability: Availability; // Replace with the appropriate type
+}
 interface UseAvailabilityReturn {
     getAvailability: (
         props: GetAvailabilityProps
@@ -42,8 +48,24 @@ interface UseAvailabilityReturn {
     ) => Promise<Availability[]>;
     addAvailability: (props: AddAvailabilityProps) => Promise<string>;
     deleteAvailability: (props: DeleteAvailability) => Promise<void>;
+    updateAvailability: (props: UpdateAvailabilityProps) => Promise<boolean>;
 }
 export const useAvailability = (): UseAvailabilityReturn => {
+    const updateAvailability = async (props: UpdateAvailabilityProps): Promise<boolean> => {
+        try {
+            if (!props || !props.availability || !props.userId || !props.availabilityId) {
+                console.log("Invalid arguments passed");
+                return false;
+            }
+            const docRef = doc(firebaseDb, `users/${props.userId}/availability`, props.availabilityId);
+            await updateDoc(docRef, { ...props.availability });
+            return true;
+        } catch (e) {
+            console.error("Error updating availability: ", e);
+        }
+        return false;
+    };
+
     const getAvailability = async (
         props: GetAvailabilityProps
     ): Promise<FormattedAvailability[]> => {
@@ -52,7 +74,6 @@ export const useAvailability = (): UseAvailabilityReturn => {
         }
         const availability: FormattedAvailability[] = [];
         const userId = props.userId;
-        // Get the availability collection for the specific user
         const availabilityCollectionRef = collection(firebaseDb, `users/${userId}/availability`);
         const availabilitySnapshot: QuerySnapshot<DocumentData> = await getDocs(availabilityCollectionRef);
 
@@ -162,5 +183,5 @@ export const useAvailability = (): UseAvailabilityReturn => {
             console.error("Error deleting availability: ", e);
         }
     };
-    return { getAvailability, getUnformattedAvailability, addAvailability, deleteAvailability };
+    return { getAvailability, updateAvailability, getUnformattedAvailability, addAvailability, deleteAvailability };
 };

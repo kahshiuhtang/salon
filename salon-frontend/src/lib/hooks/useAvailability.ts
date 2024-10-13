@@ -37,7 +37,7 @@ interface AvailabilityProp {
 interface UpdateAvailabilityProps {
     userId: string;
     availabilityId: string;
-    availability: Availability; // Replace with the appropriate type
+    availability: AvailabilityProp; // Replace with the appropriate type
 }
 interface UseAvailabilityReturn {
     getAvailability: (
@@ -58,6 +58,7 @@ export const useAvailability = (): UseAvailabilityReturn => {
                 return false;
             }
             const docRef = doc(firebaseDb, `users/${props.userId}/availability`, props.availabilityId);
+            console.log(props.availability);
             await updateDoc(docRef, { ...props.availability });
             return true;
         } catch (e) {
@@ -102,7 +103,7 @@ export const useAvailability = (): UseAvailabilityReturn => {
                 const startDate = new Date(startTimestring);
                 const endDate = new Date(endTimestring);
                 availability.push({
-                    id: data.id, 
+                    id: doc.id, 
                     title: ' Available ', 
                     start: startDate.toISOString(), 
                     end: endDate.toISOString(),    
@@ -141,11 +142,11 @@ export const useAvailability = (): UseAvailabilityReturn => {
 
         availabilitySnapshot.forEach((doc) => {
             const data = doc.data() as Availability;
-            console.log(doc.data());
             data.date = (data.date as unknown as Timestamp).toDate();
             data.id = doc.id;
             availability.push(data);
         });
+        console.log(availability);
         return availability;
     };
     const addAvailability = async (

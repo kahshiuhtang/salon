@@ -1,6 +1,5 @@
 import { Outlet, useNavigate } from "react-router-dom";
 import { ClerkProvider, SignedIn, SignedOut } from "@clerk/clerk-react";
-import LandingPage from "@/pages/landingPage";
 var PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
 if (!PUBLISHABLE_KEY) {
     PUBLISHABLE_KEY = process.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -21,9 +20,7 @@ export default function RootLayout() {
                 <div>
                     <SignedIn></SignedIn>
                     <SignedOut>
-                        {window.location.href.includes("sign-up") == false &&
-                            window.location.href.includes("sign-in") ==
-                                false && <LandingPage></LandingPage>}
+                        
                     </SignedOut>
                 </div>
             </header>

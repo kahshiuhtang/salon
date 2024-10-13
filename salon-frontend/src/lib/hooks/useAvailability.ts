@@ -58,7 +58,6 @@ export const useAvailability = (): UseAvailabilityReturn => {
                 return false;
             }
             const docRef = doc(firebaseDb, `users/${props.userId}/availability`, props.availabilityId);
-            console.log(props.availability);
             await updateDoc(docRef, { ...props.availability,
                 repeatTypeDaily: props.availability.repeatDaily,
                 repeatTypeWeekly: props.availability.repeatWeekly,

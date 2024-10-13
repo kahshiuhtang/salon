@@ -22,7 +22,7 @@ export type AppointmentState =
 export interface Appointment {
     id: string;
     time: string;
-    length: Date;
+    appLength: string;
     date: Date;
     services: ServiceRequest[];
     involvedEmployees: string[];

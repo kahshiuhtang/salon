@@ -52,6 +52,9 @@ interface UseAppointmentReturn {
     getAppointments: (
         appointmentProps: GetAllAppointmentsProps
     ) => Promise<Appointment[]>;
+    getAppointmentsToday: (
+        appointmentProps: GetAllAppointmentsProps
+    ) => Promise<Appointment[]>;
     formatAppointments: (
         appointments: Appointment[]
     ) => FullCalendarAppointment[];
@@ -89,6 +92,9 @@ export const useAppointment = (): UseAppointmentReturn => {
         appProps: GetAllAppointmentsProps
     ): Promise<Appointment[]> => {
         const userId = appProps.userId;
+        if(!userId){
+            return [];
+        }
         const userDoc = doc(firebaseDb, "users", userId);
         const userSnapshot = await getDoc(userDoc);
 
@@ -134,7 +140,60 @@ export const useAppointment = (): UseAppointmentReturn => {
             return appointments;
         }
     };
+    const getAppointmentsToday = async (
+        appProps: GetAllAppointmentsProps
+    ): Promise<Appointment[]> => {
+        const userId = appProps.userId;
+        if(!userId){
+            return [];
+        }
+        const userDoc = doc(firebaseDb, "users", userId);
+        const userSnapshot = await getDoc(userDoc);
 
+        if (!userSnapshot.exists()) {
+            throw new Error("User does not exist");
+        }
+
+        const userRole = userSnapshot.data().role;
+        // const start = startOfDay(new Date()); // Midnight at the start of today
+        // const end = endOfDay(new Date());     // 11:59:59.999 PM at the end of today
+        // TODO: fix this to choose by date
+        if (userRole === "ADMIN" || userRole === "MOD") {
+            const appointmentsRef = collection(firebaseDb, "appointments");
+            const q = query(
+                appointmentsRef,
+                where("involvedEmployees", "array-contains", userId),
+            );
+            const querySnapshot = await getDocs(q);
+
+            const appointments: Appointment[] = [];
+            querySnapshot.forEach((doc) => {
+                const app = {
+                    id: doc.id,
+                    ...doc.data(),
+                } as Appointment;
+                app.date = (app.date as unknown as Timestamp).toDate();
+                appointments.push(app);
+            });
+            return appointments;
+        } else {
+            var appointmentsQuery = query(
+                collection(firebaseDb, "appointments"),
+                where("ownerId", "==", userId),
+            );
+            const querySnapshot = await getDocs(appointmentsQuery);
+            const appointments: Appointment[] = [];
+            querySnapshot.forEach((doc) => {
+                const app = {
+                    id: doc.id,
+                    ...doc.data(),
+                } as Appointment;
+                app.date = (app.date as unknown as Timestamp).toDate();
+                appointments.push(app);
+            });
+            return appointments;
+        }
+    };
     const convertAppsForHomePage = (appointments: Appointment[]) => {
         const ans: DailyCalendarAppointment[] = [];
         //TODO: maybe add the firstName, lastName to the appointment?
@@ -169,14 +228,21 @@ export const useAppointment = (): UseAppointmentReturn => {
                 continue;
             }
             const appDateObject = new Date(
-                (currApp.date as unknown as Timestamp).seconds * 1000
+                (currApp.date)
             );
             const dateString = appDateObject.toISOString().split("T")[0];
             const dateTimeString = `${dateString} ${currApp.time}`;
             const startDateObject = new Date(dateTimeString);
             const endDateObject = new Date(dateTimeString);
-            endDateObject.setHours(endDateObject.getHours() + 1);
-            endDateObject.setMinutes(endDateObject.getMinutes() + 30);
+            if(currApp.appLength){
+                const [hours, minutes] = (currApp && currApp.appLength) ? currApp.appLength.split(/:(.*)/s) : ["", ""];
+                endDateObject.setHours(endDateObject.getHours() + parseInt(hours));
+                endDateObject.setMinutes(endDateObject.getMinutes() + parseInt(minutes));
+            }else{
+                endDateObject.setHours(endDateObject.getHours() + 1);
+                endDateObject.setMinutes(endDateObject.getMinutes() + 30);
+            }
+            console.log(currApp);
             ans.push({
                 id: currApp.id,
                 title: "Appointment",
@@ -185,6 +251,7 @@ export const useAppointment = (): UseAppointmentReturn => {
                 allDay: false,
             });
         }
+        console.log(ans);
         return ans;
     };
 
@@ -197,7 +264,7 @@ export const useAppointment = (): UseAppointmentReturn => {
                 state: statusProps.newStatus,
             });
         } catch (e) {
-            console.log(e);
+            console.log("updateAppointmentStatus(): " + e);
         }
     };
 
@@ -299,6 +366,7 @@ export const useAppointment = (): UseAppointmentReturn => {
     return {
         addAppointment,
         getAppointments,
+        getAppointmentsToday,
         formatAppointments,
         convertAppsForHomePage,
         updateAppointmentStatus,

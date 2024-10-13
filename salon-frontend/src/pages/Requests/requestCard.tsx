@@ -61,6 +61,9 @@ export default function RequestCard({
     const [usernameCache, setUsernameCache] = useState<{
         [key: string]: SalonName;
     }>({});
+    const [hours, minutes] = appointment.appLength
+        ? appointment.appLength.split(/:(.*)/s)
+        : ["", ""];
     const [name, setName] = useState("");
     const appDateObject = new Date(appointment.date);
     const dateString = appDateObject.toISOString().split("T")[0];
@@ -81,8 +84,7 @@ export default function RequestCard({
             console.error("Error fetching user name:", e);
             toast({
                 title: "Error",
-                description:
-                    "Unable to fetch user name. Please try again later.",
+                description: "Unable to fetch user name. Please try again later.",
                 variant: "destructive",
             });
         }
@@ -95,7 +97,6 @@ export default function RequestCard({
             getUsername(currServices.tech);
         }
     }, []);
-
     const handleApprove = async function () {
         try {
             if (currentAppState.state === "CONFIRMED") {
@@ -118,8 +119,7 @@ export default function RequestCard({
             console.error("Error confirming appointment:", e);
             toast({
                 title: "Confirmation Error",
-                description:
-                    "Unable to confirm the appointment. Please try again.",
+                description: "Unable to confirm the appointment. Please try again.",
                 variant: "destructive",
             });
         }
@@ -138,8 +138,7 @@ export default function RequestCard({
             console.error("Error deleting appointment:", e);
             toast({
                 title: "Deletion Error",
-                description:
-                    "Unable to delete this appointment. Please try again.",
+                description: "Unable to delete this appointment. Please try again.",
                 variant: "destructive",
             });
         }
@@ -158,7 +157,7 @@ export default function RequestCard({
         }));
         return fetchedUsername;
     };
-    
+
     return (
         <>
             <Toaster />
@@ -206,25 +205,18 @@ export default function RequestCard({
                                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent
-                                        className="w-auto p-0"
-                                        align="start"
-                                    >
+                                    <PopoverContent className="w-auto p-0" align="start">
                                         <Calendar
                                             mode="single"
                                             selected={appDate}
-                                            disabled={(date) =>
-                                                date < new Date()
-                                            }
+                                            disabled={(date) => date < new Date()}
                                             initialFocus
                                         />
                                     </PopoverContent>
                                 </Popover>
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="appointment-time">
-                                    Start Time
-                                </Label>
+                                <Label htmlFor="appointment-time">Start Time</Label>
                                 <TimePicker
                                     id="appointment-time"
                                     value={dayjs(date)}
@@ -239,28 +231,37 @@ export default function RequestCard({
                             </div>
                         </div>
                         <div className="grid gap-4">
-                            <h3 className="text-lg font-semibold">
-                                Requested Services
-                            </h3>
+                            <h3 className="text-lg font-semibold">Requested Services</h3>
                             {appointment.services.map((service, index) => (
                                 <RequestField
                                     key={index}
                                     service={service.service}
-                                    technician={usernameCache[service.tech] ? usernameCache[service.tech].firstName : "AAA"}
+                                    technician={
+                                        usernameCache[service.tech]
+                                            ? usernameCache[service.tech].firstName
+                                            : "AAA"
+                                    }
                                     index={index + 1}
                                 />
                             ))}
                         </div>
+                        <h3 className="text-lg font-semibold">Expected Duration</h3>
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            <div className="grid gap-2">
+                                <Label>Hours</Label>
+                                <Input value={hours} />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label>Minutes</Label>
+                                <Input value={minutes} />
+                            </div>
+                        </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="appointment-status">
-                                Current Status
-                            </Label>
+                            <Label htmlFor="appointment-status">Current Status </Label>
                             <Input
                                 id="appointment-status"
                                 value={
-                                    currentAppState.state
-                                        .charAt(0)
-                                        .toUpperCase() +
+                                    currentAppState.state.charAt(0).toUpperCase() +
                                     currentAppState.state.slice(1).toLowerCase()
                                 }
                                 disabled
@@ -269,17 +270,12 @@ export default function RequestCard({
                         </div>
                         {(userRole === "ADMIN" || userRole === "MOD") && (
                             <div className="flex flex-wrap gap-4">
-                                <Button
-                                    variant="secondary"
-                                    onClick={handleApprove}
-                                >
+                                <Button variant="secondary" onClick={handleApprove}>
                                     Approve Appointment
                                 </Button>
                                 <Dialog>
                                     <DialogTrigger asChild>
-                                        <Button variant="outline">
-                                            Suggest Changes
-                                        </Button>
+                                        <Button variant="outline">Suggest Changes</Button>
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-[425px]">
                                         <BookAppointmentForm
@@ -291,27 +287,19 @@ export default function RequestCard({
                                 </Dialog>
                                 <Dialog>
                                     <DialogTrigger asChild>
-                                        <Button variant="destructive">
-                                            Cancel Appointment
-                                        </Button>
+                                        <Button variant="destructive">Cancel Appointment</Button>
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-[425px]">
                                         <DialogHeader>
-                                            <DialogTitle>
-                                                Cancel Appointment
-                                            </DialogTitle>
+                                            <DialogTitle>Cancel Appointment</DialogTitle>
                                             <DialogDescription>
-                                                Are you sure you want to cancel
-                                                this appointment? This action
-                                                cannot be undone.
+                                                Are you sure you want to cancel this appointment? This
+                                                action cannot be undone.
                                             </DialogDescription>
                                         </DialogHeader>
                                         <DialogFooter className="sm:justify-start">
                                             <DialogClose asChild>
-                                                <Button
-                                                    type="button"
-                                                    variant="secondary"
-                                                >
+                                                <Button type="button" variant="secondary">
                                                     No, Keep Appointment
                                                 </Button>
                                             </DialogClose>

@@ -38,7 +38,6 @@ export default function AvailabilityListView() {
   var userId = user?.id || "";
 
   const getRepeatText = (availability: Availability) => {
-    console.log(availability);
     if (availability.repeatTypeWeekly && availability.repeatTypeDaily)
       return `Repeats ${availability.repeatTypeWeekly} and ${availability.repeatTypeDaily}`;
     if (availability.repeatTypeWeekly)
@@ -59,7 +58,6 @@ export default function AvailabilityListView() {
   const fetchAvailability = async function () {
     const availability = await getUnformattedAvailability({ userId });
     setAvailabilities(availability);
-    console.log(availability);
   };
   useEffect(() => {
     fetchAvailability();

@@ -46,7 +46,7 @@ export function generateRRule(
     const isoString = lastYear.toISOString();
     var found = false;
     const rruleOptions: SalonRRule = {
-        freq: "DAILY",
+        freq: "WEEKLY",
         interval: 1,
         byweekday: [],
         bymonthday: [],
@@ -60,7 +60,7 @@ export function generateRRule(
             found = true;
             break;
         case "BIWEEKLY":
-            rruleOptions.freq = "BIWEEKLY";
+            rruleOptions.freq = "WEEKLY"; //TODO: no biweekly?
             rruleOptions.interval = 2;
             found = true;
             break;
@@ -107,6 +107,7 @@ export function generateRRule(
     if(!found){
         return null;
     }
+    console.log(rruleOptions);
     return rruleOptions;
 }
 

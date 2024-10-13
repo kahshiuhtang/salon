@@ -59,7 +59,10 @@ export const useAvailability = (): UseAvailabilityReturn => {
             }
             const docRef = doc(firebaseDb, `users/${props.userId}/availability`, props.availabilityId);
             console.log(props.availability);
-            await updateDoc(docRef, { ...props.availability });
+            await updateDoc(docRef, { ...props.availability,
+                repeatTypeDaily: props.availability.repeatDaily,
+                repeatTypeWeekly: props.availability.repeatWeekly,
+             });
             return true;
         } catch (e) {
             console.error("Error updating availability: ", e);
@@ -119,7 +122,6 @@ export const useAvailability = (): UseAvailabilityReturn => {
                 availability.push(eventInput);
             }
         });
-        console.log(availability);
         return availability;
     };
 
@@ -146,7 +148,6 @@ export const useAvailability = (): UseAvailabilityReturn => {
             data.id = doc.id;
             availability.push(data);
         });
-        console.log(availability);
         return availability;
     };
     const addAvailability = async (
@@ -160,7 +161,10 @@ export const useAvailability = (): UseAvailabilityReturn => {
     
             const docRef = await addDoc(
                 collection(firebaseDb, `users/${props.userId}/availability`),
-                props.availability
+                { ...props.availability,
+                    repeatTypeDaily: props.availability.repeatDaily, //TODO: fix this mismatch of names somewhere
+                    repeatTypeWeekly: props.availability.repeatWeekly,
+                 }
             );
             return docRef.id;
         } catch (e) {

@@ -8,7 +8,7 @@ import Navbar from "@/pages/Navbar/navbar";
 import { useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import RequestCard from "./requestCard";
+import RequestCard from "@/pages/Requests/requestCard";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {

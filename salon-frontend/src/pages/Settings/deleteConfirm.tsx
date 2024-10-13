@@ -10,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import AvailabilityCard from "./availabilityCard"
+import AvailabilityCard from "@/pages/Settings/availabilityCard"
 
 interface DeleteConfirmationProps {
   onDelete: () => void

@@ -22,7 +22,7 @@ import {
 import { Availability } from "@/lib/types/types";
 import { useAvailability } from "@/lib/hooks/useAvailability";
 import { useUser } from "@clerk/clerk-react";
-import EditDeleteDropdown from "./editDeleteDropdown";
+import EditDeleteDropdown from "@/pages/Settings/editDeleteDropdown";
 
 const mockData: Availability[] = [];
 

@@ -8,6 +8,7 @@ import {
   Users,
 } from "lucide-react";
 import { Link } from "react-router-dom";
+import NotificationDropdown from "@/pages/Navbar/Notifications/notificationPopover";
 export default function Navbar() {
   return (
     <nav className="bg-primary text-primary-foreground p-4">
@@ -52,6 +53,7 @@ export default function Navbar() {
             <Settings className="mr-1 h-4 w-4" />
             Settings
           </Link>
+          <NotificationDropdown />
           <UserButton />
         </div>
       </div>

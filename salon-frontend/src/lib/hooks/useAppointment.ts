@@ -197,7 +197,7 @@ export const useAppointment = (): UseAppointmentReturn => {
                 state: statusProps.newStatus,
             });
         } catch (e) {
-            console.log(e);
+            console.log("updateAppointmentStatus(): " + e);
         }
     };
 

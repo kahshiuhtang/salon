@@ -107,7 +107,6 @@ export function generateRRule(
     if(!found){
         return null;
     }
-    console.log(rruleOptions);
     return rruleOptions;
 }
 

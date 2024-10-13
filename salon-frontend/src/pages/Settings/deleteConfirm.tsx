@@ -10,6 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
+import AvailabilityCard from "./availabilityCard"
 
 interface DeleteConfirmationProps {
   onDelete: () => void
@@ -41,12 +42,13 @@ const DeleteConfirmation = forwardRef<DeleteConfirmationRef, DeleteConfirmationP
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Are you absolutely sure?</DialogTitle>
+            <DialogTitle>Are you?</DialogTitle>
             <DialogDescription>
               This action cannot be undone. This will permanently delete the availability and remove it from our servers.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>
+            <AvailabilityCard />
             <Button variant="outline" onClick={closeModal}>
               Cancel
             </Button>

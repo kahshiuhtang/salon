@@ -12,14 +12,6 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -27,47 +19,33 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import AvailabilityForm from "@/pages/Settings/availabilityForm";
 import { Availability } from "@/lib/types/types";
 import { useAvailability } from "@/lib/hooks/useAvailability";
 import { useUser } from "@clerk/clerk-react";
+import EditDeleteDropdown from "./editDeleteDropdown";
 
 const mockData: Availability[] = [];
 
 export default function AvailabilityListView() {
   const [availabilities, setAvailabilities] =
     useState<Availability[]>(mockData);
-  const [editingAvailability, setEditingAvailability] =
-    useState<Availability | null>(null);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const { getUnformattedAvailability } = useAvailability();
   const { user } = useUser();
-  var userId = "";
-  if(user && user.id){
-    userId = user?.id || "";
-  }
+  var userId = user?.id || "";
 
   const getRepeatText = (availability: Availability) => {
+    console.log(availability);
     if (availability.repeatTypeWeekly && availability.repeatTypeDaily)
-        return `Repeats ${availability.repeatTypeWeekly} and ${availability.repeatTypeDaily}`;
+      return `Repeats ${availability.repeatTypeWeekly} and ${availability.repeatTypeDaily}`;
     if (availability.repeatTypeWeekly)
       return `Repeats ${availability.repeatTypeWeekly}`;
     if (availability.repeatTypeDaily)
       return `Repeats ${availability.repeatTypeDaily}`;
     return "No repeats";
-  };
-
-  const handleEdit = (availability: Availability) => {
-    setEditingAvailability(availability);
-    setIsEditDialogOpen(true);
-  };
-
-  const handleDelete = (id: string) => {
-    setDeletingId(id);
-    setIsDeleteDialogOpen(true);
   };
 
   const confirmDelete = () => {
@@ -79,7 +57,7 @@ export default function AvailabilityListView() {
   };
 
   const fetchAvailability = async function () {
-    const availability = await getUnformattedAvailability({userId: userId});
+    const availability = await getUnformattedAvailability({ userId });
     setAvailabilities(availability);
     console.log(availability);
   };
@@ -121,48 +99,7 @@ export default function AvailabilityListView() {
                 </div>
               </TableCell>
               <TableCell className="text-right">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="h-8 w-8 p-0">
-                      <span className="sr-only">Open menu</span>
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-4 w-4"
-                      >
-                        <circle cx="12" cy="12" r="1" />
-                        <circle cx="12" cy="5" r="1" />
-                        <circle cx="12" cy="19" r="1" />
-                      </svg>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        navigator.clipboard.writeText(availability.id)
-                      }
-                    >
-                      Copy ID
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => handleEdit(availability)}>
-                      Edit
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() => handleDelete(availability.id)}
-                    >
-                      Delete
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <EditDeleteDropdown availability={availability}/>
               </TableCell>
             </TableRow>
           ))}
@@ -174,7 +111,6 @@ export default function AvailabilityListView() {
           <DialogHeader>
             <DialogTitle>Edit Availability</DialogTitle>
           </DialogHeader>
-          {editingAvailability && <AvailabilityForm />}
         </DialogContent>
       </Dialog>
 

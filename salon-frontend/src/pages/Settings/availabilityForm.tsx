@@ -33,7 +33,7 @@ import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 import { useAvailability } from "@/lib/hooks/useAvailability";
 import { useNavigate } from "react-router-dom";
-import { RepeatTypeDay, RepeatTypeWeek } from "@/lib/types/types";
+import { Availability, RepeatTypeDay, RepeatTypeWeek } from "@/lib/types/types";
 const formSchema = z.object({
     date: z.date(),
     startTime: z.date(),
@@ -42,25 +42,32 @@ const formSchema = z.object({
     repeatDaily: z.string().optional(),
 });
 const timeFormat = "hh:mm a";
-export default function AvailabilityForm() {
+interface AvailabilityFormProps{
+    availability?: Availability;
+}
+export default function AvailabilityForm({ availability } : AvailabilityFormProps) {
+    const today = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+    const startTimeString = `${today} ${availability?.startTime}`;
+    const endTimeString = `${today} ${availability?.endTime}`;
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            repeatDaily: "",
-            repeatWeekly: "",
+            startTime: availability ? new Date(startTimeString) : new Date(),
+            endTime: availability ? new Date(endTimeString) : new Date(),
+            date: availability ? availability.date : new Date(),
+            repeatDaily: availability ? (availability.repeatTypeDaily ? availability.repeatTypeDaily : "") : "",
+            repeatWeekly: availability ? (availability.repeatTypeWeekly ? availability.repeatTypeWeekly : "")  : "",
         },
     });
     const { user } = useUser();
     const { toast } = useToast();
-    const { addAvailability } = useAvailability(); 
+    const { addAvailability, updateAvailability } = useAvailability(); 
     const navigate = useNavigate();
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             var userId = "";
             if (user && user["id"]) userId = user.id;
             if (userId == "") navigate("/sign-in");
-
-            // Check if endTime is after startTime (based on time only)
             if (
                 isEndTimeBeforeStartTime(values.startTime, values.endTime)
             ) {
@@ -85,24 +92,46 @@ export default function AvailabilityForm() {
                 timeFormatOptions
             );
 
-            await addAvailability({
-                userId: userId,
-                availability: {
-                    ...values,
-                    startTime: startTimeStr,
-                    endTime: endTimeStr,
-                    repeatDaily: values.repeatDaily as RepeatTypeDay, //TODO: how to fix this to be more clear...
-                    repeatWeekly: values.repeatWeekly as RepeatTypeWeek,
-                    repeat:
-                        values.repeatDaily || values.repeatWeekly
-                            ? true
-                            : false,
-                },
-            });
-            toast({
-                title: "Added new availability",
-                description: `From ${startTimeStr} - ${endTimeStr}`,
-            });
+            if(availability){
+                await updateAvailability({
+                    userId: userId,
+                    availability: {
+                        ...values,
+                        startTime: startTimeStr,
+                        endTime: endTimeStr,
+                        repeatDaily: values.repeatDaily as RepeatTypeDay, //TODO: how to fix this to be more clear...
+                        repeatWeekly: values.repeatWeekly as RepeatTypeWeek,
+                        repeat:
+                            values.repeatDaily || values.repeatWeekly
+                                ? true
+                                : false,
+                    },
+                    availabilityId: availability.id,
+                });
+                toast({
+                    title: "Edited existing availability",
+                    description: `From ${startTimeStr} - ${endTimeStr}`,
+                });
+            }else{
+                await addAvailability({
+                    userId: userId,
+                    availability: {
+                        ...values,
+                        startTime: startTimeStr,
+                        endTime: endTimeStr,
+                        repeatDaily: values.repeatDaily as RepeatTypeDay, //TODO: how to fix this to be more clear...
+                        repeatWeekly: values.repeatWeekly as RepeatTypeWeek,
+                        repeat:
+                            values.repeatDaily || values.repeatWeekly
+                                ? true
+                                : false,
+                    },
+                });
+                toast({
+                    title: "Added new availability",
+                    description: `From ${startTimeStr} - ${endTimeStr}`,
+                });
+            }
         } catch (e) {
             console.log("onSubmit AvailabilityForm(): " + e);
         }

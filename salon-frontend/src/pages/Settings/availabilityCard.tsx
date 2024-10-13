@@ -7,7 +7,11 @@ import {
 } from "@/components/ui/card";
 import AvailabilityForm from "@/pages/Settings/availabilityForm";
 import { Toaster } from "@/components/ui/toaster"
-export default function AvailabilityCard() {
+import { Availability } from "@/lib/types/types";
+interface AvailabilityCardProps{
+    availability?: Availability;
+}
+export default function AvailabilityCard({availability} : AvailabilityCardProps) {
     return (
         <div className="w-full mt-2">
             <Toaster/>
@@ -20,7 +24,7 @@ export default function AvailabilityCard() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <AvailabilityForm />
+                    <AvailabilityForm availability={availability}/>
                 </CardContent>
             </Card>
         </div>

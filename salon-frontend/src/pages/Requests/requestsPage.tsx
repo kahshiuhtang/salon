@@ -171,10 +171,11 @@ export default function RequestsPage() {
                             <div className="grid gap-6">
                                 {filteredRequests.map(
                                     (
-                                        appointment: AppointmentWithClientName
+                                        appointment: AppointmentWithClientName,
+                                        index
                                     ) => (
                                         <RequestCard
-                                            key={appointment.id}
+                                            key={index}
                                             userRole={currRole}
                                             appointment={appointment}
                                         />

@@ -350,10 +350,12 @@ export default function BookAppointmentForm({
                                                             <SelectContent>
                                                                 {employees.map(
                                                                     (
-                                                                        employee
+                                                                        employee,
+                                                                        index
                                                                     ) => {
                                                                         return (
                                                                             <SelectItem
+                                                                            key={index}
                                                                                 value={
                                                                                     employee.userId
                                                                                 }

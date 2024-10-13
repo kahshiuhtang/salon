@@ -122,3 +122,12 @@ export interface SalonName {
     firstName: string;
     lastName: string;
 }
+export interface SalonNotification {
+    id: string;
+    title: string;
+    description: string;
+    senderId: string;
+    type: string;
+    dateSent: Date;
+    seen: boolean;
+}

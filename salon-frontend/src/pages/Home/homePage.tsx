@@ -15,8 +15,8 @@ import { useUsers } from "@/lib/hooks/useUsers";
 import { useRole } from "@/lib/hooks/useRole";
 import { SalonRole, DailyCalendarAppointment } from "@/lib/types/types";
 import { useAppointment } from "@/lib/hooks/useAppointment";
-import CustomerDashboard from "./dashboards/customerDashboard";
-import EmployeeDashboard from "./dashboards/employeeDashboard";
+import CustomerDashboard from "@/pages/Home/dashboards/customerDashboard";
+import EmployeeDashboard from "@/pages/Home/dashboards/employeeDashboard";
 const tempApps: DailyCalendarAppointment[] = [];
 export default function HomePage() {
     const [userType, setUserType] = useState<SalonRole>("USER");
@@ -60,8 +60,6 @@ export default function HomePage() {
     useEffect(() => {
         fetchRelevantAppointments();
     }, [user?.id, userType]);
-
-    console.log(role);
     return (
         <div className="min-h-screen flex flex-col">
             <Navbar />

@@ -1,47 +1,108 @@
-import React from "react";
-import { DailyCalendarAppointment } from "@/lib/types/types";
+import dayGridPlugin from "@fullcalendar/daygrid";
+import interactionPlugin from "@fullcalendar/interaction";
+import timeGridPlugin from "@fullcalendar/timegrid";
+import { FullCalendarAppointment } from "@/lib/types/types";
+import FullCalendar from "@fullcalendar/react";
+import { useEffect, useState } from "react";
+import { useAppointment } from "@/lib/hooks/useAppointment";
+import { useUser } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
+import { useUserProfile } from "@/lib/hooks/useUserProfile";
+import { DateSelectArg, EventClickArg } from "@fullcalendar/core/index.js";
+
 
 interface DailyCalendarProps {
     date: string;
-    appointments: DailyCalendarAppointment[];
+}
+// TODO: add some name infromation...?
+function renderEventContent(eventInfo: any) {
+    return (
+        <>
+            <b>{eventInfo.timeText}</b>
+            <i>{eventInfo.event.title}</i>
+        </>
+    );
+}
+function handleTimeframeSelect(selectInfo: DateSelectArg) {
+    const { startStr, endStr } = selectInfo;
+    console.log(new Date(startStr));
+    console.log(new Date(endStr));
 }
 export default function DailyCalendar({
     date,
-    appointments,
 }: DailyCalendarProps) {
-    const dayAppointments = appointments.filter((a) => a.date === date);
-    const hours = Array.from({ length: 12 }, (_, i) => i + 8); // 8 AM to 7 PM
-
+    const [currentEvents, setCurrentEvents] = useState<FullCalendarAppointment[]>(
+        []
+    );
+    const [_, setCurrEvent] = useState<string>("");
+    const { verifyProfile } = useUserProfile();
+    const { user } = useUser();
+    const navigate = useNavigate();
+    const { getAppointments, formatAppointments } = useAppointment();
+    const handleEventClick = (e: EventClickArg) => {
+        setCurrEvent(e.event.id);
+    };
+    const fetchAppointments = async () => {
+        try {
+            console.log("fetching data...");
+            if (user == null || user == undefined || user["id"] == null) {
+                console.log("No user id");
+                return;
+            }
+            const userId = user["id"];
+            const isVerified = await verifyProfile({ userId });
+            if (!isVerified) {
+                navigate("/create-profile");
+                return;
+            }
+            const appointments = await getAppointments({ userId });
+            const formattedApps = formatAppointments(appointments);
+            setCurrentEvents(formattedApps);
+        } catch (error) {
+            console.error("Error fetching appointments:", error);
+        }
+    };
+    useEffect(() => {
+        fetchAppointments();
+    }, []);
+    useEffect(() => {
+        fetchAppointments();
+    }, [user]);
     return (
-        <div className="mt-4">
+        <div className="mt-4 max-w-full max-h-full">
             <h2 className="text-xl font-semibold mb-2">
                 Daily Schedule - {date}
             </h2>
-            <div className="grid grid-cols-[auto,1fr] gap-2">
-                {hours.map((hour) => (
-                    <React.Fragment key={hour}>
-                        <div className="text-right pr-2">{hour}:00</div>
-                        <div className="border-l pl-2 min-h-[60px]">
-                            {dayAppointments
-                                .filter(
-                                    (a) =>
-                                        parseInt(a.time.split(":")[0]) === hour
-                                )
-                                .map((appointment) => (
-                                    <div
-                                        key={appointment.id}
-                                        className="bg-black text-white p-1 text-sm mb-1 rounded"
-                                    >
-                                        {appointment.time} -{" "}
-                                        {appointment.client}:{" "}
-                                        {appointment.services
-                                            .map((s) => s.name)
-                                            .join(", ")}
-                                    </div>
-                                ))}
-                        </div>
-                    </React.Fragment>
-                ))}
+            <div className="max-w-full max-h-full">
+                
+            <FullCalendar
+                plugins={[
+                    dayGridPlugin,
+                    timeGridPlugin,
+                    interactionPlugin,
+                ]}
+                headerToolbar={{
+                    left: "prev,next today",
+                    center: "title",
+                    right: "timeGridWeek,timeGridDay",
+                }}
+                initialView="timeGridWeek"
+                editable
+                selectable
+                select={handleTimeframeSelect}
+                selectMirror
+                dayMaxEvents
+                weekends
+                eventClick={(info) => handleEventClick(info)}
+                events={currentEvents}
+                eventContent={renderEventContent}
+                businessHours={{
+                    startTime: "9:30",
+                    endTime: "21:30",
+                }}
+                slotMinTime="7:00"
+                slotMaxTime="22:00"
+            />
             </div>
         </div>
     );

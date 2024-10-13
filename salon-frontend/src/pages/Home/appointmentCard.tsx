@@ -51,7 +51,6 @@ export default function AppointmentCard({
         }
         getUsername(appointment.client);
     }, []);
-    console.log(appointment.client); // FIX ISSUE WITH CLIENT NOT BEING RIGHT, random string?
     //TODO: add AM/PM to appointment time
     return (
         <Card className="mb-4">
@@ -86,7 +85,7 @@ export default function AppointmentCard({
                         <User className="mr-2 h-4 w-4" />
                         {usernameCache[appointment.client]
                             ? usernameCache[appointment.client].firstName
-                            : "EE"}
+                            : ""}
                     </div>
                 )}
                 <div className="mt-2">

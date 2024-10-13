@@ -61,6 +61,8 @@ const serviceSchema = z.object({
 const formSchema = z.object({
     time: z.date(),
     date: z.date(),
+    hoursLength: z.string().optional(),
+    minutesLength: z.string().optional(),
     services: z
         .array(serviceSchema)
         .min(1, { message: "At least one service is required" })
@@ -82,12 +84,12 @@ export default function BookAppointmentForm({
     const { user } = useUser();
     const navigate = useNavigate();
     const { getAllEmployees } = useUsers();
+    const [hours, minutes] = (appointment && appointment.appLength) ? appointment.appLength.split(/:(.*)/s) : ["", ""];
 
     if (!user || !user.id) {
         navigate("/sign-in");
     }
     const userId = user?.id || "";
-    if (appointment) console.log(appointment.time);
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -98,6 +100,8 @@ export default function BookAppointmentForm({
             services: appointment
                 ? appointment.services
                 : [{ service: "", tech: "" }],
+            hoursLength: hours,
+            minutesLength: minutes,
         },
     });
 
@@ -121,14 +125,14 @@ export default function BookAppointmentForm({
                 updateAppointment({
                     ...values,
                     id: appointment.id,
-                    length: new Date(),
+                    appLength: values.hoursLength || values.minutesLength ? values.hoursLength + ":" + values.minutesLength : "0",
                     involvedEmployees: uniqueTechSet,
                     time: values.time.toLocaleTimeString(),
                     state: status,
                     ownerId: appointment.ownerId,
                 });
                 toast({
-                    title: "Updated appointment",
+                    title: "Updated appointment.",
                 });
             } else {
                 await addAppointment({
@@ -217,7 +221,7 @@ export default function BookAppointmentForm({
                                                             className={cn(
                                                                 "w-[200px] pl-3 text-left font-normal",
                                                                 !field.value &&
-                                                                    "text-muted-foreground"
+                                                                "text-muted-foreground"
                                                             )}
                                                         >
                                                             {field.value ? (
@@ -249,7 +253,7 @@ export default function BookAppointmentForm({
                                                                 new Date();
                                                             yesterday.setDate(
                                                                 yesterday.getDate() -
-                                                                    1
+                                                                1
                                                             );
                                                             return (
                                                                 date < yesterday
@@ -355,7 +359,7 @@ export default function BookAppointmentForm({
                                                                     ) => {
                                                                         return (
                                                                             <SelectItem
-                                                                            key={index}
+                                                                                key={index}
                                                                                 value={
                                                                                     employee.userId
                                                                                 }
@@ -403,6 +407,114 @@ export default function BookAppointmentForm({
                                         )}
                                 </div>
                             ))}
+                            {
+                                appointment && userRole == "ADMIN" &&
+                                <div className="flex space-x-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="hoursLength"
+                                        render={({ field }) => (
+                                            <FormItem className="flex-1">
+                                                <FormLabel>Hours</FormLabel>
+                                                <FormControl>
+                                                    <Select onValueChange={field.onChange} value={field.value}>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select hours" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {Array.from({ length: 5 }, (_, i) => (
+                                                                <SelectItem key={i} value={i.toString()}>
+                                                                    {i.toString().padStart(2, '0')}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="minutesLength"
+                                        render={({ field }) => (
+                                            <FormItem className="flex-1">
+                                                <FormLabel>Minutes</FormLabel>
+                                                <FormControl>
+                                                    <Select onValueChange={field.onChange} value={field.value}>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select minutes"/>
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {[0, 15, 30, 45].map((minute) => (
+                                                                <SelectItem key={minute} value={minute.toString()}>
+                                                                    {minute.toString().padStart(2, '0')}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            }
+                            {
+                                appointment && userRole == "USER" && appointment.appLength &&
+                                <div className="flex space-x-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="hoursLength"
+                                        render={({ field }) => (
+                                            <FormItem className="flex-1">
+                                                <FormLabel>Expected Hours</FormLabel>
+                                                <FormControl>
+                                                    <Select onValueChange={field.onChange} value={field.value} disabled>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select hours" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {Array.from({ length: 5 }, (_, i) => (
+                                                                <SelectItem key={i} value={i.toString()}>
+                                                                    {i.toString().padStart(2, '0')}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+
+                                    <FormField
+                                        control={form.control}
+                                        name="minutesLength"
+                                        render={({ field }) => (
+                                            <FormItem className="flex-1">
+                                                <FormLabel>Expected Mins.</FormLabel>
+                                                <FormControl>
+                                                    <Select onValueChange={field.onChange} value={field.value} disabled>
+                                                        <SelectTrigger>
+                                                            <SelectValue placeholder="Select minutes" />
+                                                        </SelectTrigger>
+                                                        <SelectContent>
+                                                            {[0, 15, 30, 45].map((minute) => (
+                                                                <SelectItem key={minute} value={minute.toString()}>
+                                                                    {minute.toString().padStart(2, '0')}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            }
                             <div className="w-full flex justify-between">
                                 <div>
                                     <Button type="submit">Submit</Button>

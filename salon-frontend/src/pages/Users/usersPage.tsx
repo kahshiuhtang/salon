@@ -31,7 +31,7 @@ import {
     Calendar,
 } from "lucide-react";
 import { useUserProfile } from "@/lib/hooks/useUserProfile";
-import { SalonUser } from "@/lib/types/types";
+import { FullCalendarAppointment, SalonUser } from "@/lib/types/types";
 import { useUsers } from "@/lib/hooks/useUsers";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
@@ -48,6 +48,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import { useAppointment } from "@/lib/hooks/useAppointment";
 
 const userSchema = z.object({
     firstName: z.string().min(1, "First name is required"),
@@ -60,7 +61,7 @@ const userSchema = z.object({
 });
 
 type SalonUserForm = z.infer<typeof userSchema>;
-
+// TODO: refactor this page, way too large
 export default function UsersPage() {
     const [users, setUsers] = useState<SalonUser[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -70,6 +71,7 @@ export default function UsersPage() {
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     const [selectedUserCalendar, setSelectedUserCalendar] =
         useState<SalonUser | null>(null);
+    const [selectedCalendarEvents, setSelectedCalendarEvents] = useState<FullCalendarAppointment[]>([]);
     if (!selectedUserCalendar) console.log("...error with useState"); //TODO: figure out how to make this more discreete
     const form = useForm<z.infer<typeof userSchema>>({
         resolver: zodResolver(userSchema),
@@ -189,10 +191,9 @@ export default function UsersPage() {
 
     const renderEventContent = (eventInfo: any) => {
         return (
-            <>
+            <div>
                 <b>{eventInfo.timeText}</b>
-                <i>{eventInfo.event.title}</i>
-            </>
+            </div>
         );
     };
 
@@ -351,7 +352,7 @@ export default function UsersPage() {
             </form>
         </Form>
     );
-
+    const { getAppointments, formatAppointments } = useAppointment();
     return (
         <>
             <Navbar />
@@ -410,13 +411,13 @@ export default function UsersPage() {
                                 </p>
                             ) : (
                                 <ul className="space-y-4">
-                                    {filteredUsers.map((user) => (
+                                    {filteredUsers.map((currUser) => (
                                         <li
-                                            key={user.userId}
+                                            key={currUser.userId}
                                             className={`p-4 rounded-lg shadow-md border ${
-                                                user.role === "ADMIN"
+                                                currUser.role === "ADMIN"
                                                     ? "bg-red-50 border-red-200"
-                                                    : user.role === "MOD"
+                                                    : currUser.role === "MOD"
                                                     ? "bg-yellow-50 border-yellow-200"
                                                     : "bg-blue-50 border-blue-200"
                                             }`}
@@ -424,32 +425,32 @@ export default function UsersPage() {
                                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
                                                 <div>
                                                     <h3 className="font-semibold text-lg text-gray-800">
-                                                        {user.firstName}{" "}
-                                                        {user.lastName}
+                                                        {currUser.firstName}{" "}
+                                                        {currUser.lastName}
                                                     </h3>
                                                     <p className="text-sm text-gray-600">
-                                                        {user.email}
+                                                        {currUser.email}
                                                     </p>
                                                     <p className="text-sm text-gray-600">
-                                                        {user.phoneNumber}
+                                                        {currUser.phoneNumber}
                                                     </p>
                                                     <p className="text-sm mt-2 text-gray-700">
-                                                        {user.comments}
+                                                        {currUser.comments}
                                                     </p>
                                                 </div>
                                                 <div className="flex flex-col items-end space-y-2">
                                                     <span
                                                         className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                                                            user.role ===
+                                                            currUser.role ===
                                                             "ADMIN"
                                                                 ? "bg-red-500 text-white"
-                                                                : user.role ===
+                                                                : currUser.role ===
                                                                   "MOD"
                                                                 ? "bg-yellow-500 text-gray-800"
                                                                 : "bg-blue-500 text-white"
                                                         }`}
                                                     >
-                                                        {user.role}
+                                                        {currUser.role}
                                                     </span>
                                                     <div className="flex space-x-2">
                                                         <Button
@@ -457,7 +458,7 @@ export default function UsersPage() {
                                                             variant="outline"
                                                             onClick={() =>
                                                                 handleRoleChange(
-                                                                    user.userId,
+                                                                    currUser.userId,
                                                                     1
                                                                 )
                                                             }
@@ -471,7 +472,7 @@ export default function UsersPage() {
                                                             variant="outline"
                                                             onClick={() =>
                                                                 handleRoleChange(
-                                                                    user.userId,
+                                                                    currUser.userId,
                                                                     -1
                                                                 )
                                                             }
@@ -496,7 +497,7 @@ export default function UsersPage() {
                                                                     variant="outline"
                                                                     onClick={() =>
                                                                         handleEdit(
-                                                                            user
+                                                                            currUser
                                                                         )
                                                                     }
                                                                     aria-label="Edit user"
@@ -536,13 +537,16 @@ export default function UsersPage() {
                                                                 <Button
                                                                     size="icon"
                                                                     variant="outline"
-                                                                    onClick={() => {
+                                                                    onClick={async () => {
                                                                         setSelectedUserCalendar(
-                                                                            user
+                                                                            currUser
                                                                         );
                                                                         setIsCalendarOpen(
                                                                             true
                                                                         );
+                                                                        const res = await getAppointments({ userId: currUser.userId });
+                                                                        const formatedApps = formatAppointments(res);
+                                                                        setSelectedCalendarEvents(formatedApps);
                                                                     }}
                                                                     aria-label="View user calendar"
                                                                     className="bg-white hover:bg-gray-100"
@@ -554,10 +558,10 @@ export default function UsersPage() {
                                                                 <DialogHeader>
                                                                     <DialogTitle>
                                                                         {
-                                                                            user.firstName
+                                                                            selectedUserCalendar?.firstName
                                                                         }{" "}
                                                                         {
-                                                                            user.lastName
+                                                                            selectedUserCalendar?.lastName
                                                                         }
                                                                         's
                                                                         Calendar
@@ -581,7 +585,7 @@ export default function UsersPage() {
                                                                         selectMirror
                                                                         dayMaxEvents
                                                                         weekends
-                                                                        events={[]} // You would populate this with user-specific events
+                                                                        events={selectedCalendarEvents} // You would populate this with user-specific events
                                                                         select={
                                                                             handleDateSelect
                                                                         }

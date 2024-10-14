@@ -36,6 +36,13 @@ interface FetchFromPhoneOrEmailProps {
     phoneNumber: string;
     email: string;
 }
+interface CreateClerkProfileProps {
+    email: string;
+    phoneNumber: string;
+    firstName: string;
+    lastName: string;
+
+}
 
 interface UseUserReturn {
     getNameFromId: (
@@ -49,6 +56,7 @@ interface UseUserReturn {
         props: FetchFromPhoneOrEmailProps
     ) => Promise<SalonUser[]>;
     getAllEmployees: () => Promise<SalonUser[]>;
+    createClerkProfile: (props: CreateClerkProfileProps) => Promise<void>;
 }
 export const useUsers = (): UseUserReturn => {
     const getNameFromId = async (props: GetNameFromUserIdProps) => {
@@ -63,6 +71,9 @@ export const useUsers = (): UseUserReturn => {
         const data = userSnapshot.data() as SalonUser;
         return { firstName: data.firstName, lastName: data.lastName };
     };
+    const createClerkProfile = async (props: CreateClerkProfileProps) => {
+
+    }
     const getEmployeeFromId = async (props: GetEmployeeFromUserIdProps) => {
         if (!props || !props.userId) {
             throw new Error("arguments invalid");
@@ -163,5 +174,6 @@ export const useUsers = (): UseUserReturn => {
         fetchAllUsers,
         fetchUserInfoFromEmailAndPhone,
         getAllEmployees,
+        createClerkProfile
     };
 };

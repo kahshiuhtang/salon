@@ -72,7 +72,7 @@ export const useUsers = (): UseUserReturn => {
         return { firstName: data.firstName, lastName: data.lastName };
     };
     const createClerkProfile = async (props: CreateClerkProfileProps) => {
-
+        if(props) return;
     }
     const getEmployeeFromId = async (props: GetEmployeeFromUserIdProps) => {
         if (!props || !props.userId) {

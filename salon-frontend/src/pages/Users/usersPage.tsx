@@ -31,7 +31,7 @@ import {
     Calendar,
 } from "lucide-react";
 import { useUserProfile } from "@/lib/hooks/useUserProfile";
-import { SalonUser } from "@/lib/types/types";
+import { FullCalendarAppointment, SalonUser } from "@/lib/types/types";
 import { useUsers } from "@/lib/hooks/useUsers";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
@@ -48,6 +48,7 @@ import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
+import { useAppointment } from "@/lib/hooks/useAppointment";
 
 const userSchema = z.object({
     firstName: z.string().min(1, "First name is required"),
@@ -60,7 +61,7 @@ const userSchema = z.object({
 });
 
 type SalonUserForm = z.infer<typeof userSchema>;
-
+// TODO: refactor this page, way too large
 export default function UsersPage() {
     const [users, setUsers] = useState<SalonUser[]>([]);
     const [searchTerm, setSearchTerm] = useState("");
@@ -70,6 +71,7 @@ export default function UsersPage() {
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     const [selectedUserCalendar, setSelectedUserCalendar] =
         useState<SalonUser | null>(null);
+    const [selectedCalendarEvents, setSelectedCalendarEvents] = useState<FullCalendarAppointment[]>([]);
     if (!selectedUserCalendar) console.log("...error with useState"); //TODO: figure out how to make this more discreete
     const form = useForm<z.infer<typeof userSchema>>({
         resolver: zodResolver(userSchema),
@@ -189,10 +191,9 @@ export default function UsersPage() {
 
     const renderEventContent = (eventInfo: any) => {
         return (
-            <>
+            <div>
                 <b>{eventInfo.timeText}</b>
-                <i>{eventInfo.event.title}</i>
-            </>
+            </div>
         );
     };
 
@@ -351,6 +352,7 @@ export default function UsersPage() {
             </form>
         </Form>
     );
+    const { getAppointments, formatAppointments } = useAppointment();
     return (
         <>
             <Navbar />
@@ -535,13 +537,16 @@ export default function UsersPage() {
                                                                 <Button
                                                                     size="icon"
                                                                     variant="outline"
-                                                                    onClick={() => {
+                                                                    onClick={async () => {
                                                                         setSelectedUserCalendar(
                                                                             currUser
                                                                         );
                                                                         setIsCalendarOpen(
                                                                             true
                                                                         );
+                                                                        const res = await getAppointments({ userId: currUser.userId });
+                                                                        const formatedApps = formatAppointments(res);
+                                                                        setSelectedCalendarEvents(formatedApps);
                                                                     }}
                                                                     aria-label="View user calendar"
                                                                     className="bg-white hover:bg-gray-100"
@@ -580,7 +585,7 @@ export default function UsersPage() {
                                                                         selectMirror
                                                                         dayMaxEvents
                                                                         weekends
-                                                                        events={[]} // You would populate this with user-specific events
+                                                                        events={selectedCalendarEvents} // You would populate this with user-specific events
                                                                         select={
                                                                             handleDateSelect
                                                                         }

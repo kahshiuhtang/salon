@@ -41,9 +41,11 @@ export default function EmployeeDashboard({
         generateDateRange(new Date());
     }, []);
 
-    const todayAppointments = appointments.filter(
-        (appointment) => appointment.date === new Date().toISOString().split("T")[0]
-    );
+    const today = new Date().toISOString().split("T")[0];
+    const todayAppointments = appointments
+        .filter(appointment => appointment.date == today) 
+        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); 
+
 
     return (
         <Tabs defaultValue="today" className="w-full">
@@ -63,7 +65,7 @@ export default function EmployeeDashboard({
 
             <TabsContent value="my-appointments">
                 <div className="grid gap-4 md:grid-cols-2">
-                    {todayAppointments.map((appointment) => (
+                    {todayAppointments.length > 0 && todayAppointments.map((appointment) => (
                         <AppointmentCard
                             key={appointment.id}
                             appointment={appointment}
@@ -71,6 +73,9 @@ export default function EmployeeDashboard({
                             isPast={new Date(appointment.date) < new Date()}
                         />
                     ))}
+                    {
+                        todayAppointments.length == 0 && <div>No Appointments Today</div>
+                    }
                 </div>
             </TabsContent>
 

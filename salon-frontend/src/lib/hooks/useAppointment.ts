@@ -242,7 +242,6 @@ export const useAppointment = (): UseAppointmentReturn => {
                 endDateObject.setHours(endDateObject.getHours() + 1);
                 endDateObject.setMinutes(endDateObject.getMinutes() + 30);
             }
-            console.log(currApp);
             ans.push({
                 id: currApp.id,
                 title: "Appointment",
@@ -251,7 +250,6 @@ export const useAppointment = (): UseAppointmentReturn => {
                 allDay: false,
             });
         }
-        console.log(ans);
         return ans;
     };
 

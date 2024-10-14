@@ -351,7 +351,6 @@ export default function UsersPage() {
             </form>
         </Form>
     );
-
     return (
         <>
             <Navbar />
@@ -410,13 +409,13 @@ export default function UsersPage() {
                                 </p>
                             ) : (
                                 <ul className="space-y-4">
-                                    {filteredUsers.map((user) => (
+                                    {filteredUsers.map((currUser) => (
                                         <li
-                                            key={user.userId}
+                                            key={currUser.userId}
                                             className={`p-4 rounded-lg shadow-md border ${
-                                                user.role === "ADMIN"
+                                                currUser.role === "ADMIN"
                                                     ? "bg-red-50 border-red-200"
-                                                    : user.role === "MOD"
+                                                    : currUser.role === "MOD"
                                                     ? "bg-yellow-50 border-yellow-200"
                                                     : "bg-blue-50 border-blue-200"
                                             }`}
@@ -424,32 +423,32 @@ export default function UsersPage() {
                                             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0">
                                                 <div>
                                                     <h3 className="font-semibold text-lg text-gray-800">
-                                                        {user.firstName}{" "}
-                                                        {user.lastName}
+                                                        {currUser.firstName}{" "}
+                                                        {currUser.lastName}
                                                     </h3>
                                                     <p className="text-sm text-gray-600">
-                                                        {user.email}
+                                                        {currUser.email}
                                                     </p>
                                                     <p className="text-sm text-gray-600">
-                                                        {user.phoneNumber}
+                                                        {currUser.phoneNumber}
                                                     </p>
                                                     <p className="text-sm mt-2 text-gray-700">
-                                                        {user.comments}
+                                                        {currUser.comments}
                                                     </p>
                                                 </div>
                                                 <div className="flex flex-col items-end space-y-2">
                                                     <span
                                                         className={`px-3 py-1 text-xs font-semibold rounded-full ${
-                                                            user.role ===
+                                                            currUser.role ===
                                                             "ADMIN"
                                                                 ? "bg-red-500 text-white"
-                                                                : user.role ===
+                                                                : currUser.role ===
                                                                   "MOD"
                                                                 ? "bg-yellow-500 text-gray-800"
                                                                 : "bg-blue-500 text-white"
                                                         }`}
                                                     >
-                                                        {user.role}
+                                                        {currUser.role}
                                                     </span>
                                                     <div className="flex space-x-2">
                                                         <Button
@@ -457,7 +456,7 @@ export default function UsersPage() {
                                                             variant="outline"
                                                             onClick={() =>
                                                                 handleRoleChange(
-                                                                    user.userId,
+                                                                    currUser.userId,
                                                                     1
                                                                 )
                                                             }
@@ -471,7 +470,7 @@ export default function UsersPage() {
                                                             variant="outline"
                                                             onClick={() =>
                                                                 handleRoleChange(
-                                                                    user.userId,
+                                                                    currUser.userId,
                                                                     -1
                                                                 )
                                                             }
@@ -496,7 +495,7 @@ export default function UsersPage() {
                                                                     variant="outline"
                                                                     onClick={() =>
                                                                         handleEdit(
-                                                                            user
+                                                                            currUser
                                                                         )
                                                                     }
                                                                     aria-label="Edit user"
@@ -538,7 +537,7 @@ export default function UsersPage() {
                                                                     variant="outline"
                                                                     onClick={() => {
                                                                         setSelectedUserCalendar(
-                                                                            user
+                                                                            currUser
                                                                         );
                                                                         setIsCalendarOpen(
                                                                             true
@@ -554,10 +553,10 @@ export default function UsersPage() {
                                                                 <DialogHeader>
                                                                     <DialogTitle>
                                                                         {
-                                                                            user.firstName
+                                                                            selectedUserCalendar?.firstName
                                                                         }{" "}
                                                                         {
-                                                                            user.lastName
+                                                                            selectedUserCalendar?.lastName
                                                                         }
                                                                         's
                                                                         Calendar

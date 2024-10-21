@@ -47,6 +47,11 @@ interface AddAppointmentProps {
     state: AppointmentState;
     ownerId: string;
 }
+interface GetAllSalonAppsThisWeekProps {
+    userId: string;
+    startDate: Date;
+    endDate: Date;
+}
 interface UseAppointmentReturn {
     addAppointment: (appointmentProps: AddAppointmentProps) => Promise<void>;
     getAppointments: (
@@ -73,6 +78,7 @@ interface UseAppointmentReturn {
     getFutureAppointments: (
         props: GetFutureAppointmentsProp
     ) => Promise<Appointment[]>;
+    getAllSalonAppsThisWeek: (props: GetAllSalonAppsThisWeekProps) => Promise<Appointment[]>;
 }
 export const useAppointment = (): UseAppointmentReturn => {
     const addAppointment = async (appointmentProps: AddAppointmentProps) => {
@@ -86,6 +92,37 @@ export const useAppointment = (): UseAppointmentReturn => {
             ...appointmentProps,
             involvedEmployees: uniqueTechSet,
         });
+    };
+    const getAllSalonAppsThisWeek = async (props: GetAllSalonAppsThisWeekProps): Promise<Appointment[]> => {
+        const res: Appointment[] = [];
+        try{
+            if(!props || !props.startDate || !props.endDate || !props.userId){
+                return res;
+            }
+            const userDoc = doc(firebaseDb, "users", props.userId);
+            const userSnapshot = await getDoc(userDoc);
+    
+            if (!userSnapshot.exists()) {
+                throw new Error("User does not exist");
+            }
+            const userRole = userSnapshot.data().role;
+            if(userRole == "USER") return res;
+            
+            const appointmentsRef = collection(firebaseDb, 'appointments'); // Replace with your Firebase collection
+            const q = query(
+                appointmentsRef,
+                where('date', '>=', props.startDate),
+                where('date', '<=', props.endDate)
+            );
+            const querySnapshot = await getDocs(q);
+                querySnapshot.forEach((doc) => {
+                res.push({ id: doc.id, ...doc.data() } as Appointment);
+            });
+            return res;
+        }catch(e){
+            console.log("getAllSalonAppsThisWeek(): " + e);
+        }
+        return [];
     };
 
     const getAppointments = async (
@@ -371,5 +408,6 @@ export const useAppointment = (): UseAppointmentReturn => {
         updateAppointment,
         getPreviousAppointments,
         getFutureAppointments,
+        getAllSalonAppsThisWeek
     };
 };

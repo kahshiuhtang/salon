@@ -11,7 +11,7 @@ import { useUserProfile } from "@/lib/hooks/useUserProfile";
 import { DateSelectArg, EventClickArg } from "@fullcalendar/core/index.js";
 
 
-interface DailyCalendarProps {
+interface WeeklySalonCalendarProps {
     date: string;
 }
 // TODO: add some name infromation...?
@@ -28,12 +28,13 @@ function handleTimeframeSelect(selectInfo: DateSelectArg) {
     console.log(new Date(startStr));
     console.log(new Date(endStr));
 }
-export default function DailyCalendar({
+export default function WeeklySalonCalendar({
     date,
-}: DailyCalendarProps) {
+}: WeeklySalonCalendarProps) {
     const [currentEvents, setCurrentEvents] = useState<FullCalendarAppointment[]>(
         []
     );
+    if(!date) console.log("... no date");
     const [_, setCurrEvent] = useState<string>("");
     const { verifyProfile } = useUserProfile();
     const { user } = useUser();
@@ -71,7 +72,7 @@ export default function DailyCalendar({
     return (
         <div className="mt-4 max-w-full max-h-full">
             <h2 className="text-xl font-semibold mb-2">
-                Today's Schedule - {date}
+                Weekly Salon Schedule
             </h2>
             <div className="max-w-full max-h-full">
                 
@@ -84,9 +85,9 @@ export default function DailyCalendar({
                 headerToolbar={{
                     left: "prev,next today",
                     center: "title",
-                    right: "timeGridDay",
+                    right: "timeGridDay, timeGridWeek",
                 }}
-                initialView="timeGridDay"
+                initialView="timeGridWeek"
                 editable
                 selectable
                 select={handleTimeframeSelect}

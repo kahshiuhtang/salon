@@ -144,6 +144,23 @@ export function getDateOnlyFromDate(date: Date) {
     return `${month}-${day}-${year}`;
 }
 
+export function getStartAndEndDate(date: Date){
+    try{
+        const resultDate = new Date(date);
+        const DAYS_IN_WEEK = 7;
+        const dayOfWeek = resultDate.getDay();
+        if (dayOfWeek !== 0) {
+            resultDate.setDate(resultDate.getDate() - dayOfWeek);
+        }
+        const endDate = new Date(resultDate);
+        endDate.setDate(resultDate.getDate() + DAYS_IN_WEEK - 1);
+        return { startDate: resultDate, endDate };
+    }catch(e){
+        console.log("getStartAndEndDate(): " + e);
+    }
+    return { startDate: new Date(), endDate: new Date() };
+}
+
 export function getTimeOnlyFromDate(date: Date) {
     let hours = date.getHours();
     const minutes = date.getMinutes().toString().padStart(2, "0"); // Ensure 2-digit minutes

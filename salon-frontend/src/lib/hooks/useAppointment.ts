@@ -115,8 +115,13 @@ export const useAppointment = (): UseAppointmentReturn => {
                 where('date', '<=', props.endDate)
             );
             const querySnapshot = await getDocs(q);
-                querySnapshot.forEach((doc) => {
-                res.push({ id: doc.id, ...doc.data() } as Appointment);
+            querySnapshot.forEach((doc) => {
+                const app = {
+                    id: doc.id,
+                    ...doc.data(),
+                } as Appointment;
+                app.date = (app.date as unknown as Timestamp).toDate();
+                res.push(app);
             });
             return res;
         }catch(e){

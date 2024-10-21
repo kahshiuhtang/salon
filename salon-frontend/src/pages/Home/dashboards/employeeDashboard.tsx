@@ -14,7 +14,7 @@ export default function EmployeeDashboard({
     appointments,
     role,
 }: EmployeeDashboardProps) {
-    const [selectedDate, setSelectedDate] = useState(
+    const [_, setSelectedDate] = useState(
         new Date().toISOString().split("T")[0]
     );
     if(!setSelectedDate) console.log("useState error"); 
@@ -112,7 +112,7 @@ export default function EmployeeDashboard({
                         <ChevronRight className="h-4 w-4" />
                     </Button>
                 </div> */}
-                <WeeklySalonCalendar date={selectedDate} />
+                <WeeklySalonCalendar />
             </TabsContent>
         </Tabs>
     );

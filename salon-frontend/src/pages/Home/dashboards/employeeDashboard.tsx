@@ -2,9 +2,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DailyCalendarAppointment, SalonRole } from "@/lib/types/types";
 import DailyCalendar from "@/pages/Home/dailyCalendar";
 import AppointmentCard from "@/pages/Home/appointmentCard";
-import { useEffect, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useState } from "react";
+import WeeklySalonCalendar from "@/pages/Home/weeklySalonCalendar";
 
 interface EmployeeDashboardProps {
     appointments: DailyCalendarAppointment[];
@@ -18,28 +17,29 @@ export default function EmployeeDashboard({
     const [selectedDate, setSelectedDate] = useState(
         new Date().toISOString().split("T")[0]
     );
-    const [dateRange, setDateRange] = useState<Date[]>([]);
+    if(!setSelectedDate) console.log("useState error"); 
+    // const [dateRange, setDateRange] = useState<Date[]>([]);
 
-    const generateDateRange = (date: Date) => {
-        const daysArray: Date[] = [];
-        for (let i = -3; i <= 3; i++) {
-            const newDate = new Date(date);
-            newDate.setDate(date.getDate() + i);
-            daysArray.push(newDate);
-        }
-        setDateRange(daysArray);
-    };
+    // const generateDateRange = (date: Date) => {
+    //     const daysArray: Date[] = [];
+    //     for (let i = -3; i <= 3; i++) {
+    //         const newDate = new Date(date);
+    //         newDate.setDate(date.getDate() + i);
+    //         daysArray.push(newDate);
+    //     }
+    //     setDateRange(daysArray);
+    // };
 
-    const moveWeek = (direction: "left" | "right") => {
-        const firstDate = new Date(dateRange[0]);
-        const newStartDate = new Date(firstDate);
-        newStartDate.setDate(firstDate.getDate() + (direction === "left" ? -7 : 7));
-        generateDateRange(newStartDate);
-    };
+    // const moveWeek = (direction: "left" | "right") => {
+    //     const firstDate = new Date(dateRange[0]);
+    //     const newStartDate = new Date(firstDate);
+    //     newStartDate.setDate(firstDate.getDate() + (direction === "left" ? -7 : 7));
+    //     generateDateRange(newStartDate);
+    // };
 
-    useEffect(() => {
-        generateDateRange(new Date());
-    }, []);
+    // useEffect(() => {
+    //     generateDateRange(new Date());
+    // }, []);
 
     const today = new Date().toISOString().split("T")[0];
     const todayAppointments = appointments
@@ -80,7 +80,7 @@ export default function EmployeeDashboard({
             </TabsContent>
 
             <TabsContent value="all-appointments">
-                <div className="flex justify-center space-x-4 mb-4">
+                {/* <div className="flex justify-center space-x-4 mb-4">
                     <Button
                         variant="outline"
                         size="icon"
@@ -111,8 +111,8 @@ export default function EmployeeDashboard({
                     >
                         <ChevronRight className="h-4 w-4" />
                     </Button>
-                </div>
-                <DailyCalendar date={selectedDate} />
+                </div> */}
+                <WeeklySalonCalendar date={selectedDate} />
             </TabsContent>
         </Tabs>
     );

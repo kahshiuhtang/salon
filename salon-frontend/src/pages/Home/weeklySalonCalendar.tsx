@@ -8,7 +8,8 @@ import { useAppointment } from "@/lib/hooks/useAppointment";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useUserProfile } from "@/lib/hooks/useUserProfile";
-import { DateSelectArg, EventClickArg } from "@fullcalendar/core/index.js";
+import { DatesSetArg, EventClickArg } from "@fullcalendar/core/index.js";
+import { getStartAndEndDate } from "@/lib/utils";
 
 
 interface WeeklySalonCalendarProps {
@@ -23,11 +24,7 @@ function renderEventContent(eventInfo: any) {
         </>
     );
 }
-function handleTimeframeSelect(selectInfo: DateSelectArg) {
-    const { startStr, endStr } = selectInfo;
-    console.log(new Date(startStr));
-    console.log(new Date(endStr));
-}
+
 export default function WeeklySalonCalendar({
     date,
 }: WeeklySalonCalendarProps) {
@@ -39,10 +36,30 @@ export default function WeeklySalonCalendar({
     const { verifyProfile } = useUserProfile();
     const { user } = useUser();
     const navigate = useNavigate();
-    const { getAppointments, formatAppointments } = useAppointment();
+    const { getAllSalonAppsThisWeek, formatAppointments } = useAppointment();
     const handleEventClick = (e: EventClickArg) => {
         setCurrEvent(e.event.id);
     };
+    // TODO: should probably do some cacheing to not pull so many times... how to know if stale?
+    async function handleDateStartMoved(arg: DatesSetArg){
+        try{
+            if (user == null || user == undefined || user["id"] == null) {
+                console.log("No user id");
+                return;
+            }
+            const userId = user["id"];
+            const { startStr, endStr } = arg;
+            const appointments = await getAllSalonAppsThisWeek({
+                userId: userId,
+                startDate: new Date(startStr),
+                endDate: new Date(endStr)
+            });
+            const formattedApps = formatAppointments(appointments);
+            setCurrentEvents(formattedApps);
+        }catch(e){
+            console.log("handleDateStartMoved(): " + e);
+        }
+    }
     const fetchAppointments = async () => {
         try {
             console.log("fetching data...");
@@ -56,7 +73,12 @@ export default function WeeklySalonCalendar({
                 navigate("/create-profile");
                 return;
             }
-            const appointments = await getAppointments({ userId });
+            const startingEdgeDates = getStartAndEndDate(new Date());
+            const appointments = await getAllSalonAppsThisWeek({
+                userId: userId,
+                startDate: startingEdgeDates.startDate,
+                endDate: startingEdgeDates.endDate,
+            });
             const formattedApps = formatAppointments(appointments);
             setCurrentEvents(formattedApps);
         } catch (error) {
@@ -90,11 +112,11 @@ export default function WeeklySalonCalendar({
                 initialView="timeGridWeek"
                 editable
                 selectable
-                select={handleTimeframeSelect}
                 selectMirror
                 dayMaxEvents
                 weekends
                 eventClick={(info) => handleEventClick(info)}
+                datesSet={handleDateStartMoved}
                 events={currentEvents}
                 eventContent={renderEventContent}
                 businessHours={{

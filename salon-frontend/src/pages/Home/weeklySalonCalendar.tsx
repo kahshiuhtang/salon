@@ -8,7 +8,7 @@ import { useAppointment } from "@/lib/hooks/useAppointment";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { useUserProfile } from "@/lib/hooks/useUserProfile";
-import { DateSelectArg, EventClickArg } from "@fullcalendar/core/index.js";
+import { DateSelectArg, DatesSetArg, EventClickArg } from "@fullcalendar/core/index.js";
 
 
 interface WeeklySalonCalendarProps {
@@ -28,6 +28,7 @@ function handleTimeframeSelect(selectInfo: DateSelectArg) {
     console.log(new Date(startStr));
     console.log(new Date(endStr));
 }
+
 export default function WeeklySalonCalendar({
     date,
 }: WeeklySalonCalendarProps) {
@@ -39,10 +40,29 @@ export default function WeeklySalonCalendar({
     const { verifyProfile } = useUserProfile();
     const { user } = useUser();
     const navigate = useNavigate();
-    const { getAppointments, formatAppointments } = useAppointment();
+    const { getAllSalonAppsThisWeek, getAppointments, formatAppointments } = useAppointment();
     const handleEventClick = (e: EventClickArg) => {
         setCurrEvent(e.event.id);
     };
+    async function handleDateStartMoved(arg: DatesSetArg){
+        try{
+            if (user == null || user == undefined || user["id"] == null) {
+                console.log("No user id");
+                return;
+            }
+            const userId = user["id"];
+            const { startStr, endStr } = arg;
+            const appointments = await getAllSalonAppsThisWeek({
+                userId: userId,
+                startDate: new Date(startStr),
+                endDate: new Date(endStr)
+            });
+            const formattedApps = formatAppointments(appointments);
+            setCurrentEvents(formattedApps);
+        }catch(e){
+            console.log("handleDateStartMoved(): " + e);
+        }
+    }
     const fetchAppointments = async () => {
         try {
             console.log("fetching data...");
@@ -95,6 +115,7 @@ export default function WeeklySalonCalendar({
                 dayMaxEvents
                 weekends
                 eventClick={(info) => handleEventClick(info)}
+                datesSet={handleDateStartMoved}
                 events={currentEvents}
                 eventContent={renderEventContent}
                 businessHours={{

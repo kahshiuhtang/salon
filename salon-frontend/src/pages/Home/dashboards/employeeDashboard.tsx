@@ -5,6 +5,7 @@ import AppointmentCard from "@/pages/Home/appointmentCard";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import WeeklySalonCalendar from "@/pages/Home/weeklySalonCalendar";
 
 interface EmployeeDashboardProps {
     appointments: DailyCalendarAppointment[];
@@ -112,7 +113,7 @@ export default function EmployeeDashboard({
                         <ChevronRight className="h-4 w-4" />
                     </Button>
                 </div>
-                <DailyCalendar date={selectedDate} />
+                <WeeklySalonCalendar date={selectedDate} />
             </TabsContent>
         </Tabs>
     );

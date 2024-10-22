@@ -59,7 +59,6 @@ export default function UsersPage() {
     const [selectedCalendarEvents, setSelectedCalendarEvents] = useState<
         FullCalendarAppointment[]
     >([]);
-    if (!selectedUserCalendar) console.log("...error with useState"); //TODO: figure out how to make this more discreete
     const form = useForm<z.infer<typeof userSchema>>({
         resolver: zodResolver(userSchema),
         defaultValues: {
@@ -67,7 +66,7 @@ export default function UsersPage() {
         },
     });
     const { fetchAllUsers, createClerkProfile } = useUsers();
-    const { editProfile } = useUserProfile();
+    const { editProfile, createProfile } = useUserProfile();
     const navigate = useNavigate();
     const { user } = useUser();
     var userId = "";
@@ -98,23 +97,43 @@ export default function UsersPage() {
                 setUsers(
                     users.map((user) =>
                         user.userId === editingUser.userId
-                            ? { ...data, userId: editingUser.userId, comments: data.comments || ""}
+                            ? {
+                                  ...data,
+                                  userId: editingUser.userId,
+                                  comments: data.comments || "",
+                              }
                             : user
                     )
                 );
                 setEditingUser(null);
                 setIsEditUserOpen(false);
             } else {
-                const tempUserId = "TEMP" + data.email + data.phoneNumber;
-                //await createProfile({ ...data, userId: tempUserId });
-                await createClerkProfile({
+                const res = await createClerkProfile({
                     firstName: data.lastName,
                     password: "SUPER-SECURE",
                     lastName: data.lastName,
                     email: [data.email],
                     phoneNumber: [data.phoneNumber],
                 });
-                setUsers([...users, { ...data, userId: tempUserId, comments: data.comments || "", }]);
+                if (!res || res.message != "Success") {
+                    return;
+                }
+                if (res.userId == "") {
+                    return;
+                }
+                await createProfile({
+                    ...data,
+                    userId: res.userId,
+                    comments: data.comments || "",
+                });
+                setUsers([
+                    ...users,
+                    {
+                        ...data,
+                        userId: res.userId,
+                        comments: data.comments || "",
+                    },
+                ]);
                 setIsAddUserOpen(false);
             }
             form.reset();

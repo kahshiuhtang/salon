@@ -38,10 +38,14 @@ interface FetchFromPhoneOrEmailProps {
 }
 interface CreateClerkProfileProps {
     email: string[];
-    phoneNumber: string[],
+    phoneNumber: string[];
     password: string;
     firstName: string;
     lastName: string;
+}
+interface CreateClerkUserResponse {
+    message: string;
+    userId: string;
 }
 
 interface UseUserReturn {
@@ -56,7 +60,9 @@ interface UseUserReturn {
         props: FetchFromPhoneOrEmailProps
     ) => Promise<SalonUser[]>;
     getAllEmployees: () => Promise<SalonUser[]>;
-    createClerkProfile: (props: CreateClerkProfileProps) => Promise<boolean>;
+    createClerkProfile: (
+        props: CreateClerkProfileProps
+    ) => Promise<CreateClerkUserResponse>;
 }
 export const useUsers = (): UseUserReturn => {
     const getNameFromId = async (props: GetNameFromUserIdProps) => {
@@ -76,23 +82,44 @@ export const useUsers = (): UseUserReturn => {
         if (!API_GATEWAY) {
             API_GATEWAY = process.env.VITE_API_GATEWAY;
         }
-        if(!props) return false;
-        try{
+        if (!props) return { message: "Props not set properly", userId: "" };
+        try {
             const response = await fetch(API_GATEWAY, {
-                method: 'POST',
+                method: "POST",
                 headers: {
-                  'Content-Type': 'application/json',
+                    "Content-Type": "application/json",
                 },
-                body: JSON.stringify(props),
-              });
-              const data = await response.json();
-              console.log(data);
-              return data.ok;
-        }catch(e){
+                body: JSON.stringify({
+                    firstName: props.firstName,
+                    lastName: props.lastName,
+                    emailAddress: props.email, // Ensure this is an array if required
+                    password: props.password,
+                    phoneNumber: props.phoneNumber,
+                }),
+            });
+
+            if (!response.ok) {
+                console.error(
+                    `Failed to create profile: ${response.statusText}`
+                );
+                return {
+                    message:
+                        "Error, unable to create new profile. Please refresh and try again.",
+                    userId: "",
+                };
+            }
+            const data = await response.json();
+            const body = JSON.parse(data.body);
+            return { message: "Success", userId: body.id };
+        } catch (e) {
             console.log("createClerkProfile(): " + e);
         }
-        return false;
-    }
+        return {
+            message:
+                "Error, unable to create new profile. Please refresh and try again.",
+            userId: "",
+        };
+    };
     const getEmployeeFromId = async (props: GetEmployeeFromUserIdProps) => {
         if (!props || !props.userId) {
             throw new Error("arguments invalid");
@@ -193,6 +220,6 @@ export const useUsers = (): UseUserReturn => {
         fetchAllUsers,
         fetchUserInfoFromEmailAndPhone,
         getAllEmployees,
-        createClerkProfile
+        createClerkProfile,
     };
 };

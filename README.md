@@ -1,21 +1,22 @@
 # Salon
 
-Customer Management System for Nail Salons, Specifically SNS nails in SI, NYC
+Customer Management System for Nail Salons, designed with input from SNS Nail Salon in Staten Island, New York.
 
-### Main Objectives
+### Main Features
 
-1. Write notes about customers
+Here are some of the functionality that was asked to be implemented by staff from SNS Nails.
 
-2. Automatic send reminders to customers
+* Method to search through and filter all existing customers
 
-3. Create a waitlist where customers can see availability
+* Method to schedule appointments
 
-4. Keep payment method on file... Apple Pay?
+* Method to view appointments that were occurring on a specific day
 
-5. List forms of communication
+* Method to allow customers to easily put what their availability was
 
-6. List which people do what services
+* Method to handle pricing of services
 
+* Method to allow for easy rescheduling of appointments
 
 ### Images
 
@@ -58,10 +59,9 @@ Here, employees can change and verify appointments so see what status each appoi
 
 ### Dependencies
 
-1. Golang 1.20+
-2. pnpm
-3. ReactJS
-4. Maven, Java 22
+1. pnpm
+2. ReactJS
+3. Maven, Java 22
 
 ### To Run
 

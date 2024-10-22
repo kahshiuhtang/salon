@@ -37,11 +37,11 @@ interface FetchFromPhoneOrEmailProps {
     email: string;
 }
 interface CreateClerkProfileProps {
-    email: string;
-    phoneNumber: string;
+    email: string[];
+    phoneNumber: string[],
+    password: string;
     firstName: string;
     lastName: string;
-
 }
 
 interface UseUserReturn {
@@ -56,7 +56,7 @@ interface UseUserReturn {
         props: FetchFromPhoneOrEmailProps
     ) => Promise<SalonUser[]>;
     getAllEmployees: () => Promise<SalonUser[]>;
-    createClerkProfile: (props: CreateClerkProfileProps) => Promise<void>;
+    createClerkProfile: (props: CreateClerkProfileProps) => Promise<boolean>;
 }
 export const useUsers = (): UseUserReturn => {
     const getNameFromId = async (props: GetNameFromUserIdProps) => {
@@ -72,7 +72,26 @@ export const useUsers = (): UseUserReturn => {
         return { firstName: data.firstName, lastName: data.lastName };
     };
     const createClerkProfile = async (props: CreateClerkProfileProps) => {
-        if(props) return;
+        var API_GATEWAY = import.meta.env.VITE_API_GATEWAY;
+        if (!API_GATEWAY) {
+            API_GATEWAY = process.env.VITE_API_GATEWAY;
+        }
+        if(!props) return false;
+        try{
+            const response = await fetch(API_GATEWAY, {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(props),
+              });
+              const data = await response.json();
+              console.log(data);
+              return data.ok;
+        }catch(e){
+            console.log("createClerkProfile(): " + e);
+        }
+        return false;
     }
     const getEmployeeFromId = async (props: GetEmployeeFromUserIdProps) => {
         if (!props || !props.userId) {

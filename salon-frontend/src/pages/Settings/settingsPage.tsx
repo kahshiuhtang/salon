@@ -13,6 +13,7 @@ import AvailabilityListView from "@/pages/Settings/listView";
 import { SalonUser } from "@/lib/types/types";
 import { useUser } from "@clerk/clerk-react";
 import { useUsers } from "@/lib/hooks/useUsers";
+import { Toaster } from "@/components/ui/toaster";
 
 export default function SettingsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -38,6 +39,7 @@ export default function SettingsPage() {
     return (
         <>
             <Navbar />
+            <Toaster/>
             <div className="min-h-screen bg-background p-4 sm:p-8">
                 <Tabs
                     defaultValue="calendar"
@@ -56,7 +58,7 @@ export default function SettingsPage() {
                             className="text-sm sm:text-base flex items-center justify-center gap-2"
                         >
                             <Settings className="w-4 h-4 sm:w-5 sm:h-5" />
-                            <span className="hidden sm:inline">Settings</span>
+                            <span className="hidden sm:inline">Profile</span>
                         </TabsTrigger>
                         <TabsTrigger
                             value="list"

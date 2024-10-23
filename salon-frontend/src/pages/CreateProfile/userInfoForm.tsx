@@ -24,6 +24,7 @@ import { useUserProfile } from "@/lib/hooks/useUserProfile";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
 import { SalonUser } from "@/lib/types/types";
+import { useToast } from "@/hooks/use-toast";
 
 interface UserInfoFormProps {
     center: boolean;
@@ -41,31 +42,57 @@ export default function UserInfoForm({ center, thisUser }: UserInfoFormProps) {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            firstName: (thisUser) && thisUser.firstName ? thisUser.firstName : "",
-            lastName: (thisUser) && thisUser.lastName ? thisUser.lastName : "",
-            phoneNumber: (thisUser) && thisUser.phoneNumber ? thisUser.phoneNumber : "",
-            email: (thisUser) && thisUser.email ? thisUser.email : "",
-            comments: (thisUser) && thisUser.comments ? thisUser.comments : "",
+            firstName: thisUser && thisUser.firstName ? thisUser.firstName : "",
+            lastName: thisUser && thisUser.lastName ? thisUser.lastName : "",
+            phoneNumber:
+                thisUser && thisUser.phoneNumber ? thisUser.phoneNumber : "",
+            email: thisUser && thisUser.email ? thisUser.email : "",
+            comments: thisUser && thisUser.comments ? thisUser.comments : "",
         },
     });
+    const { toast } = useToast();
     const navigate = useNavigate();
     const { user } = useUser();
+    const { createProfile, editProfile } = useUserProfile();
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             var userId = "";
             if (user && user["id"]) userId = user.id;
             if (userId == "") return;
-            const { createProfile } = useUserProfile();
-            await createProfile({ ...values, role: "USER", userId });
-            navigate("/");
+            if (!thisUser) {
+                await createProfile({ ...values, role: "USER", userId });
+                navigate("/");
+            } else {
+                await editProfile(thisUser.userId, userId, {
+                    ...values,
+                    role: thisUser.role,
+                    userId: thisUser.userId,
+                });
+                toast({
+                    title: "Updated your profile.",
+                    description: "Your new profile has been saved.",
+                });
+            }
         } catch (e) {
             console.log(e);
         }
     }
     return (
         <>
-            <div className= {center ?"flex justify-center items-center mt-28 w-full" : "w-full"}>
-                <Card className={center ? "w-full md:w-1/2 lg:w-1/3 xl:w-1/4 2xl:w-1/5" : ""}>
+            <div
+                className={
+                    center
+                        ? "flex justify-center items-center mt-28 w-full"
+                        : "w-full"
+                }
+            >
+                <Card
+                    className={
+                        center
+                            ? "w-full md:w-1/2 lg:w-1/3 xl:w-1/4 2xl:w-1/5"
+                            : ""
+                    }
+                >
                     <CardHeader className="pl-8 pt-8 pb-0 mb-2">
                         <CardTitle>User Profile</CardTitle>
                         <CardDescription>
@@ -171,8 +198,9 @@ export default function UserInfoForm({ center, thisUser }: UserInfoFormProps) {
                                     />
                                 </div>
                                 <div className="w-full"></div>
-
-                                <Button type="submit">Submit</Button>
+                                <Button type="submit">
+                                    {thisUser ? "Edit" : "Submit"}
+                                </Button>
                             </form>
                         </Form>
                     </CardContent>

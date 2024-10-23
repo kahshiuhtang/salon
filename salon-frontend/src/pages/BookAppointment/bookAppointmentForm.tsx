@@ -72,12 +72,14 @@ interface BookAppointmentFormProps {
     insideCard?: boolean;
     appointment?: Appointment;
     userRole?: SalonRole;
+    forUser?: SalonUser,
 }
 //TODO: Allow for a message to be sent when booking appointment
 export default function BookAppointmentForm({
     insideCard,
     userRole,
     appointment,
+    forUser,
 }: BookAppointmentFormProps) {
     const [employees, setEmployees] = useState<SalonUser[]>([]);
     const { toast } = useToast();
@@ -139,13 +141,21 @@ export default function BookAppointmentForm({
                     ...values,
                     time: values.time.toLocaleTimeString(),
                     state: "REQUESTED",
-                    ownerId: userId,
+                    ownerId: forUser ? forUser.userId : userId,
                 });
-                toast({
-                    title: "Appointment received",
-                    description:
-                        "Check your email for confirmation from staff.",
-                });
+                if(!forUser){
+                    toast({
+                        title: "Appointment received",
+                        description:
+                            "You have booked an appointment for this user. Press X to close.",
+                    });
+                }else{
+                    toast({
+                        title: "Appointment received",
+                        description:
+                            "Check your email for confirmation from staff. Press X to close.",
+                    });
+                }
             }
         } catch (error) {
             console.error("Error submitting appointment:", error);

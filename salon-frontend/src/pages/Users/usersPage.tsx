@@ -292,7 +292,7 @@ export default function UsersPage() {
                                 </p>
                             ) : (
                                 <ul className="space-y-4">
-                                    {filteredUsers.map((currUser) => (
+                                    {filteredUsers.map((currUser: SalonUser) => (
                                         <li
                                             key={currUser.userId}
                                             className={`p-4 rounded-lg shadow-md border ${
@@ -616,7 +616,7 @@ export default function UsersPage() {
                                                                     </DialogTitle>
                                                                 </DialogHeader>
                                                                 <div>
-                                                                    <BookAppointmentForm insideCard={true}/>
+                                                                    <BookAppointmentForm insideCard={true} forUser={currUser}/>
                                                                 </div>
                                                             </DialogContent>
                                                         </Dialog>

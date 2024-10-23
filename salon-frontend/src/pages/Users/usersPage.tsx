@@ -23,6 +23,7 @@ import {
     ChevronDown,
     Calendar,
     UserCheck,
+    Book,
 } from "lucide-react";
 import { useUserProfile } from "@/lib/hooks/useUserProfile";
 import { FullCalendarAppointment, SalonUser } from "@/lib/types/types";
@@ -38,6 +39,7 @@ import { useAppointment } from "@/lib/hooks/useAppointment";
 import { UserForm } from "./userForm";
 import { useAvailability } from "@/lib/hooks/useAvailability";
 import { DateSelectArg, EventInput } from "@fullcalendar/core/index.js";
+import BookAppointmentForm from "../BookAppointment/bookAppointmentForm";
 
 const userSchema = z.object({
     firstName: z.string().min(1, "First name is required"),
@@ -59,6 +61,7 @@ export default function UsersPage() {
     const [isEditUserOpen, setIsEditUserOpen] = useState(false);
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     const [isAvailabiltyOpen, setIsAvailabiltyOpen] = useState(false);
+    const [isBookOpen, setIsBookOpen] = useState(false);
     const [selectedUserCalendar, setSelectedUserCalendar] =
         useState<SalonUser | null>(null);
     const [selectedCalendarEvents, setSelectedCalendarEvents] = useState<
@@ -289,7 +292,7 @@ export default function UsersPage() {
                                 </p>
                             ) : (
                                 <ul className="space-y-4">
-                                    {filteredUsers.map((currUser) => (
+                                    {filteredUsers.map((currUser: SalonUser) => (
                                         <li
                                             key={currUser.userId}
                                             className={`p-4 rounded-lg shadow-md border ${
@@ -429,9 +432,6 @@ export default function UsersPage() {
                                                                                 }
                                                                             );
                                                                         setCurrentAvailabilities(
-                                                                            res
-                                                                        );
-                                                                        console.log(
                                                                             res
                                                                         );
                                                                     }}
@@ -580,6 +580,43 @@ export default function UsersPage() {
                                                                         slotMinTime="7:00"
                                                                         slotMaxTime="22:00"
                                                                     />
+                                                                </div>
+                                                            </DialogContent>
+                                                        </Dialog>
+                                                        <Dialog
+                                                            open={
+                                                                isBookOpen
+                                                            }
+                                                            onOpenChange={
+                                                                setIsBookOpen
+                                                            }
+                                                        >
+                                                            <DialogTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    size="icon"
+                                                                    variant="outline"
+                                                                    onClick={async () => {
+                                                                        setSelectedUserCalendar(
+                                                                            currUser
+                                                                        );
+                                                                        setIsBookOpen(true);
+                                                                    }}
+                                                                    aria-label="View user calendar"
+                                                                    className="bg-white hover:bg-gray-100"
+                                                                >
+                                                                    <Book className="h-4 w-4" />
+                                                                </Button>
+                                                            </DialogTrigger>
+                                                            <DialogContent className="max-w-3xl max-w-[500px]">
+                                                                <DialogHeader>
+                                                                    <DialogTitle>
+                                                                        Book Appointment
+                                                                    </DialogTitle>
+                                                                </DialogHeader>
+                                                                <div>
+                                                                    <BookAppointmentForm insideCard={true} forUser={currUser}/>
                                                                 </div>
                                                             </DialogContent>
                                                         </Dialog>

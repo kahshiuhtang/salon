@@ -25,7 +25,9 @@ interface GetEmployeeFromUserIdReturn {
     lastName: string;
     role: SalonRole;
 }
-
+interface GetUserFromId {
+    userId: string;
+}
 interface FetchAllUsersProps {
     userId: string;
 }
@@ -49,6 +51,9 @@ interface CreateClerkUserResponse {
 }
 
 interface UseUserReturn {
+    getUserFromId: (
+        props: GetUserFromId
+    ) => Promise<SalonUser | null>;
     getNameFromId: (
         props: GetNameFromUserIdProps
     ) => Promise<GetNameFromUserIdReturn>;
@@ -77,6 +82,18 @@ export const useUsers = (): UseUserReturn => {
         const data = userSnapshot.data() as SalonUser;
         return { firstName: data.firstName, lastName: data.lastName };
     };
+    const getUserFromId = async (props: GetNameFromUserIdProps) => {
+        if(!props || !props.userId){
+            return null;
+        }
+        const userId = props.userId;
+        const userDoc = doc(firebaseDb, "users", userId);
+        const userSnapshot = await getDoc(userDoc);
+
+        if (!userSnapshot.exists()) throw new Error("user does not exist");
+        const data = userSnapshot.data() as SalonUser;
+        return data;
+    }
     const createClerkProfile = async (props: CreateClerkProfileProps) => {
         var API_GATEWAY = import.meta.env.VITE_API_GATEWAY;
         if (!API_GATEWAY) {
@@ -216,6 +233,7 @@ export const useUsers = (): UseUserReturn => {
     };
     return {
         getNameFromId,
+        getUserFromId,
         getEmployeeFromId,
         fetchAllUsers,
         fetchUserInfoFromEmailAndPhone,

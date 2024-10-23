@@ -19,28 +19,28 @@ import {
     FormLabel,
     FormMessage,
 } from "@/components/ui/form";
-import { SalonUser } from "@/lib/types/types";
 
 const userSchema = z.object({
     firstName: z.string().min(1, "First name is required"),
     lastName: z.string().min(1, "Last name is required"),
     email: z.string().email("Invalid email address"),
     phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
-    comments: z.string(),
+    comments: z.string().optional(),
+    password: z.string().min(5).optional(),
     role: z.enum(["ADMIN", "USER", "MOD"]),
     userId: z.string().optional(),
 });
 
-type UserFormProps = {
-    onSubmit: (data: SalonUser) => void;
-    initialData?: SalonUser | null;
-};
+type SalonUserForm = z.infer<typeof userSchema>;
 
-export default function UserForm({
+export function UserForm({
     onSubmit,
     initialData = null,
-}: UserFormProps) {
-    const form = useForm<SalonUser>({
+}: {
+    onSubmit: (data: SalonUserForm) => void;
+    initialData?: SalonUserForm | null;
+}) {
+    const form = useForm<SalonUserForm>({
         resolver: zodResolver(userSchema),
         defaultValues: initialData || {
             firstName: "",
@@ -69,7 +69,45 @@ export default function UserForm({
                             </FormItem>
                         )}
                     />
-                    {/* Similar FormField components for lastName, email, phoneNumber */}
+                    <FormField
+                        control={form.control}
+                        name="lastName"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Last Name</FormLabel>
+                                <FormControl>
+                                    <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Email</FormLabel>
+                                <FormControl>
+                                    <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="phoneNumber"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Phone Number</FormLabel>
+                                <FormControl>
+                                    <Input {...field} />
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </div>
                 <FormField
                     control={form.control}
@@ -90,7 +128,10 @@ export default function UserForm({
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel>Role</FormLabel>
-                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <Select
+                                onValueChange={field.onChange}
+                                defaultValue={field.value}
+                            >
                                 <FormControl>
                                     <SelectTrigger>
                                         <SelectValue placeholder="Select a role" />
@@ -98,7 +139,9 @@ export default function UserForm({
                                 </FormControl>
                                 <SelectContent>
                                     <SelectItem value="USER">User</SelectItem>
-                                    <SelectItem value="MOD">Moderator</SelectItem>
+                                    <SelectItem value="MOD">
+                                        Moderator
+                                    </SelectItem>
                                     <SelectItem value="ADMIN">Admin</SelectItem>
                                 </SelectContent>
                             </Select>

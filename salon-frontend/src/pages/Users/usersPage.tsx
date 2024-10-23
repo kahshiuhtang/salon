@@ -14,14 +14,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
+import rrulePlugin from "@fullcalendar/rrule";
 import {
     Plus,
     Search,
@@ -29,33 +22,29 @@ import {
     ChevronUp,
     ChevronDown,
     Calendar,
+    UserCheck,
 } from "lucide-react";
 import { useUserProfile } from "@/lib/hooks/useUserProfile";
 import { FullCalendarAppointment, SalonUser } from "@/lib/types/types";
 import { useUsers } from "@/lib/hooks/useUsers";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
-import {
-    Form,
-    FormControl,
-    FormField,
-    FormItem,
-    FormLabel,
-    FormMessage,
-} from "@/components/ui/form";
 import Navbar from "@/pages/Navbar/navbar";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { useAppointment } from "@/lib/hooks/useAppointment";
+import { UserForm } from "./userForm";
+import { useAvailability } from "@/lib/hooks/useAvailability";
+import { DateSelectArg, EventInput } from "@fullcalendar/core/index.js";
 
 const userSchema = z.object({
     firstName: z.string().min(1, "First name is required"),
     lastName: z.string().min(1, "Last name is required"),
     email: z.string().email("Invalid email address"),
     phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
-    comments: z.string(),
+    comments: z.string().optional(),
     role: z.enum(["ADMIN", "USER", "MOD"]),
     userId: z.string().optional(),
 });
@@ -69,18 +58,24 @@ export default function UsersPage() {
     const [isAddUserOpen, setIsAddUserOpen] = useState(false);
     const [isEditUserOpen, setIsEditUserOpen] = useState(false);
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+    const [isAvailabiltyOpen, setIsAvailabiltyOpen] = useState(false);
     const [selectedUserCalendar, setSelectedUserCalendar] =
         useState<SalonUser | null>(null);
-    const [selectedCalendarEvents, setSelectedCalendarEvents] = useState<FullCalendarAppointment[]>([]);
-    if (!selectedUserCalendar) console.log("...error with useState"); //TODO: figure out how to make this more discreete
+    const [selectedCalendarEvents, setSelectedCalendarEvents] = useState<
+        FullCalendarAppointment[]
+    >([]);
+    const [currentAvailabilities, setCurrentAvailabilities] = useState<
+        EventInput[]
+    >([]);
     const form = useForm<z.infer<typeof userSchema>>({
         resolver: zodResolver(userSchema),
         defaultValues: {
             role: "USER",
         },
     });
-    const { fetchAllUsers } = useUsers();
-    const { createProfile, editProfile } = useUserProfile();
+    const { fetchAllUsers, createClerkProfile } = useUsers();
+    const { editProfile, createProfile } = useUserProfile();
+    const { getAvailability } = useAvailability();
     const navigate = useNavigate();
     const { user } = useUser();
     var userId = "";
@@ -99,27 +94,57 @@ export default function UsersPage() {
     useEffect(() => {
         fetchUsers();
     }, []);
-
+    useEffect(() => {
+        console.log('Current Availabilities:', currentAvailabilities);
+      }, [currentAvailabilities]);
     const onSubmit = async (data: SalonUserForm) => {
         try {
             if (editingUser) {
                 await editProfile(editingUser.userId || "", userId, {
                     ...editingUser,
                     userId: editingUser.userId ? editingUser.userId : "",
+                    comments: data.comments || "",
                 });
                 setUsers(
                     users.map((user) =>
                         user.userId === editingUser.userId
-                            ? { ...data, userId: editingUser.userId }
+                            ? {
+                                  ...data,
+                                  userId: editingUser.userId,
+                                  comments: data.comments || "",
+                              }
                             : user
                     )
                 );
                 setEditingUser(null);
                 setIsEditUserOpen(false);
             } else {
-                const tempUserId = "TEMP" + data.email + data.phoneNumber;
-                await createProfile({ ...data, userId: tempUserId });
-                setUsers([...users, { ...data, userId: tempUserId }]);
+                const res = await createClerkProfile({
+                    firstName: data.firstName,
+                    password: "SUPER-SECURE",
+                    lastName: data.lastName,
+                    email: [data.email],
+                    phoneNumber: [data.phoneNumber],
+                });
+                if (!res || res.message != "Success") {
+                    return;
+                }
+                if (res.userId == "") {
+                    return;
+                }
+                await createProfile({
+                    ...data,
+                    userId: res.userId,
+                    comments: data.comments || "",
+                });
+                setUsers([
+                    ...users,
+                    {
+                        ...data,
+                        userId: res.userId,
+                        comments: data.comments || "",
+                    },
+                ]);
                 setIsAddUserOpen(false);
             }
             form.reset();
@@ -132,7 +157,12 @@ export default function UsersPage() {
         setEditingUser(user);
         setIsEditUserOpen(true);
     };
-
+    function handleTimeframeSelect(selectInfo: DateSelectArg) {
+        const { startStr, endStr } = selectInfo;
+        console.log(new Date(startStr));
+        console.log(new Date(endStr));
+        //setOpen(true);
+    } 
     const handleRoleChange = async (userId: string, increment: number) => {
         const roles: SalonUser["role"][] = ["USER", "MOD", "ADMIN"];
         setUsers(
@@ -200,158 +230,6 @@ export default function UsersPage() {
     const createEventId = () => {
         return String(Math.random() * 100000);
     };
-
-    const UserForm = ({
-        onSubmit,
-        initialData = null,
-    }: {
-        onSubmit: (data: SalonUserForm) => void;
-        initialData?: SalonUserForm | null;
-    }) => (
-        <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                        <FormField
-                            control={form.control}
-                            name="firstName"
-                            render={({ field }) => (
-                                <FormItem className="flex-1 pr-2">
-                                    <FormLabel>First Name</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            defaultValue={
-                                                initialData?.firstName
-                                            }
-                                            placeholder=""
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                    <div>
-                        <FormField
-                            control={form.control}
-                            name="lastName"
-                            render={({ field }) => (
-                                <FormItem className="flex-1 pr-2">
-                                    <FormLabel>Last Name</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            defaultValue={initialData?.lastName}
-                                            placeholder=""
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                    <div>
-                        <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                                <FormItem className="flex-1 pr-2">
-                                    <FormLabel>Email</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            defaultValue={initialData?.email}
-                                            placeholder=""
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                    <div>
-                        <FormField
-                            control={form.control}
-                            name="phoneNumber"
-                            render={({ field }) => (
-                                <FormItem className="flex-1 pr-2">
-                                    <FormLabel>Phone Number</FormLabel>
-                                    <FormControl>
-                                        <Input
-                                            defaultValue={
-                                                initialData?.phoneNumber
-                                            }
-                                            placeholder=""
-                                            {...field}
-                                        />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                    </div>
-                </div>
-                <div>
-                    <FormField
-                        control={form.control}
-                        name="comments"
-                        render={({ field }) => (
-                            <FormItem className="flex-1 pr-2">
-                                <FormLabel>Comments</FormLabel>
-                                <FormControl>
-                                    <Textarea
-                                        placeholder=""
-                                        {...field}
-                                        defaultValue={initialData?.comments}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
-                <div>
-                    <FormField
-                        control={form.control}
-                        name="role"
-                        render={({ field }) => (
-                            <FormItem className="flex-1">
-                                <FormLabel>Role</FormLabel>
-                                <FormControl>
-                                    <Select
-                                        onValueChange={field.onChange}
-                                        defaultValue={
-                                            initialData?.role || "USER"
-                                        }
-                                    >
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select a role" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="USER">
-                                                User
-                                            </SelectItem>
-                                            <SelectItem value="MOD">
-                                                Moderator
-                                            </SelectItem>
-                                            <SelectItem value="ADMIN">
-                                                Admin
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </FormControl>
-                                <FormMessage />
-                            </FormItem>
-                        )}
-                    />
-                </div>
-                <Button type="submit">
-                    {initialData ? "Update User" : "Add User"}
-                </Button>
-            </form>
-        </Form>
-    );
     const { getAppointments, formatAppointments } = useAppointment();
     return (
         <>
@@ -525,6 +403,92 @@ export default function UsersPage() {
                                                         </Dialog>
                                                         <Dialog
                                                             open={
+                                                                isAvailabiltyOpen
+                                                            }
+                                                            onOpenChange={
+                                                                setIsAvailabiltyOpen
+                                                            }
+                                                        >
+                                                            <DialogTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    size="icon"
+                                                                    variant="outline"
+                                                                    onClick={async () => {
+                                                                        setSelectedUserCalendar(
+                                                                            currUser
+                                                                        );
+                                                                        setIsAvailabiltyOpen(
+                                                                            true
+                                                                        );
+                                                                        const res =
+                                                                            await getAvailability(
+                                                                                {
+                                                                                    userId: currUser.userId,
+                                                                                }
+                                                                            );
+                                                                        setCurrentAvailabilities(
+                                                                            res
+                                                                        );
+                                                                        console.log(
+                                                                            res
+                                                                        );
+                                                                    }}
+                                                                    aria-label="View user calendar"
+                                                                    className="bg-white hover:bg-gray-100"
+                                                                >
+                                                                    <UserCheck className="h-4 w-4" />
+                                                                </Button>
+                                                            </DialogTrigger>
+                                                            <DialogContent className="max-w-3xl">
+                                                                <DialogHeader>
+                                                                    <DialogTitle>
+                                                                        {
+                                                                            selectedUserCalendar?.firstName
+                                                                        }{" "}
+                                                                        {
+                                                                            selectedUserCalendar?.lastName
+                                                                        }
+                                                                        's
+                                                                        Availability
+                                                                    </DialogTitle>
+                                                                </DialogHeader>
+                                                                <div className="h-[700px]">
+                                                                    <FullCalendar
+                                                                        plugins={[
+                                                                            dayGridPlugin,
+                                                                            timeGridPlugin,
+                                                                            interactionPlugin,
+                                                                            rrulePlugin,
+                                                                        ]}
+                                                                        headerToolbar={{
+                                                                            left: "prev,next today",
+                                                                            center: "title",
+                                                                            right: "timeGridWeek,timeGridDay",
+                                                                        }}
+                                                                        initialView="timeGridWeek"
+                                                                        editable
+                                                                        selectable
+                                                                        select={handleTimeframeSelect}
+                                                                        selectMirror
+                                                                        dayMaxEvents
+                                                                        weekends
+                                                                        eventClick={(info) => handleEventClick(info)}
+                                                                        events={currentAvailabilities}
+                                                                        eventContent={renderEventContent}
+                                                                        businessHours={{
+                                                                            startTime: "9:30",
+                                                                            endTime: "21:30",
+                                                                        }}
+                                                                        slotMinTime="7:00"
+                                                                        slotMaxTime="22:00"
+                                                                    />
+                                                                </div>
+                                                            </DialogContent>
+                                                        </Dialog>
+                                                        <Dialog
+                                                            open={
                                                                 isCalendarOpen
                                                             }
                                                             onOpenChange={
@@ -544,9 +508,19 @@ export default function UsersPage() {
                                                                         setIsCalendarOpen(
                                                                             true
                                                                         );
-                                                                        const res = await getAppointments({ userId: currUser.userId });
-                                                                        const formatedApps = formatAppointments(res);
-                                                                        setSelectedCalendarEvents(formatedApps);
+                                                                        const res =
+                                                                            await getAppointments(
+                                                                                {
+                                                                                    userId: currUser.userId,
+                                                                                }
+                                                                            );
+                                                                        const formatedApps =
+                                                                            formatAppointments(
+                                                                                res
+                                                                            );
+                                                                        setSelectedCalendarEvents(
+                                                                            formatedApps
+                                                                        );
                                                                     }}
                                                                     aria-label="View user calendar"
                                                                     className="bg-white hover:bg-gray-100"
@@ -585,7 +559,9 @@ export default function UsersPage() {
                                                                         selectMirror
                                                                         dayMaxEvents
                                                                         weekends
-                                                                        events={selectedCalendarEvents} // You would populate this with user-specific events
+                                                                        events={
+                                                                            selectedCalendarEvents
+                                                                        } // You would populate this with user-specific events
                                                                         select={
                                                                             handleDateSelect
                                                                         }

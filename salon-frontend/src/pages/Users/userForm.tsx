@@ -26,6 +26,7 @@ const userSchema = z.object({
     email: z.string().email("Invalid email address"),
     phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
     comments: z.string().optional(),
+    password: z.string().min(5).optional(),
     role: z.enum(["ADMIN", "USER", "MOD"]),
     userId: z.string().optional(),
 });

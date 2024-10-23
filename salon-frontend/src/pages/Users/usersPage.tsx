@@ -14,6 +14,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
+import rrulePlugin from "@fullcalendar/rrule";
 import {
     Plus,
     Search,
@@ -21,6 +22,7 @@ import {
     ChevronUp,
     ChevronDown,
     Calendar,
+    UserCheck,
 } from "lucide-react";
 import { useUserProfile } from "@/lib/hooks/useUserProfile";
 import { FullCalendarAppointment, SalonUser } from "@/lib/types/types";
@@ -34,6 +36,8 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { useAppointment } from "@/lib/hooks/useAppointment";
 import { UserForm } from "./userForm";
+import { useAvailability } from "@/lib/hooks/useAvailability";
+import { DateSelectArg, EventInput } from "@fullcalendar/core/index.js";
 
 const userSchema = z.object({
     firstName: z.string().min(1, "First name is required"),
@@ -54,10 +58,14 @@ export default function UsersPage() {
     const [isAddUserOpen, setIsAddUserOpen] = useState(false);
     const [isEditUserOpen, setIsEditUserOpen] = useState(false);
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+    const [isAvailabiltyOpen, setIsAvailabiltyOpen] = useState(false);
     const [selectedUserCalendar, setSelectedUserCalendar] =
         useState<SalonUser | null>(null);
     const [selectedCalendarEvents, setSelectedCalendarEvents] = useState<
         FullCalendarAppointment[]
+    >([]);
+    const [currentAvailabilities, setCurrentAvailabilities] = useState<
+        EventInput[]
     >([]);
     const form = useForm<z.infer<typeof userSchema>>({
         resolver: zodResolver(userSchema),
@@ -67,6 +75,7 @@ export default function UsersPage() {
     });
     const { fetchAllUsers, createClerkProfile } = useUsers();
     const { editProfile, createProfile } = useUserProfile();
+    const { getAvailability } = useAvailability();
     const navigate = useNavigate();
     const { user } = useUser();
     var userId = "";
@@ -85,7 +94,9 @@ export default function UsersPage() {
     useEffect(() => {
         fetchUsers();
     }, []);
-
+    useEffect(() => {
+        console.log('Current Availabilities:', currentAvailabilities);
+      }, [currentAvailabilities]);
     const onSubmit = async (data: SalonUserForm) => {
         try {
             if (editingUser) {
@@ -109,7 +120,7 @@ export default function UsersPage() {
                 setIsEditUserOpen(false);
             } else {
                 const res = await createClerkProfile({
-                    firstName: data.lastName,
+                    firstName: data.firstName,
                     password: "SUPER-SECURE",
                     lastName: data.lastName,
                     email: [data.email],
@@ -146,7 +157,12 @@ export default function UsersPage() {
         setEditingUser(user);
         setIsEditUserOpen(true);
     };
-
+    function handleTimeframeSelect(selectInfo: DateSelectArg) {
+        const { startStr, endStr } = selectInfo;
+        console.log(new Date(startStr));
+        console.log(new Date(endStr));
+        //setOpen(true);
+    } 
     const handleRoleChange = async (userId: string, increment: number) => {
         const roles: SalonUser["role"][] = ["USER", "MOD", "ADMIN"];
         setUsers(
@@ -383,6 +399,92 @@ export default function UsersPage() {
                                                                         editingUser
                                                                     }
                                                                 />
+                                                            </DialogContent>
+                                                        </Dialog>
+                                                        <Dialog
+                                                            open={
+                                                                isAvailabiltyOpen
+                                                            }
+                                                            onOpenChange={
+                                                                setIsAvailabiltyOpen
+                                                            }
+                                                        >
+                                                            <DialogTrigger
+                                                                asChild
+                                                            >
+                                                                <Button
+                                                                    size="icon"
+                                                                    variant="outline"
+                                                                    onClick={async () => {
+                                                                        setSelectedUserCalendar(
+                                                                            currUser
+                                                                        );
+                                                                        setIsAvailabiltyOpen(
+                                                                            true
+                                                                        );
+                                                                        const res =
+                                                                            await getAvailability(
+                                                                                {
+                                                                                    userId: currUser.userId,
+                                                                                }
+                                                                            );
+                                                                        setCurrentAvailabilities(
+                                                                            res
+                                                                        );
+                                                                        console.log(
+                                                                            res
+                                                                        );
+                                                                    }}
+                                                                    aria-label="View user calendar"
+                                                                    className="bg-white hover:bg-gray-100"
+                                                                >
+                                                                    <UserCheck className="h-4 w-4" />
+                                                                </Button>
+                                                            </DialogTrigger>
+                                                            <DialogContent className="max-w-3xl">
+                                                                <DialogHeader>
+                                                                    <DialogTitle>
+                                                                        {
+                                                                            selectedUserCalendar?.firstName
+                                                                        }{" "}
+                                                                        {
+                                                                            selectedUserCalendar?.lastName
+                                                                        }
+                                                                        's
+                                                                        Availability
+                                                                    </DialogTitle>
+                                                                </DialogHeader>
+                                                                <div className="h-[700px]">
+                                                                    <FullCalendar
+                                                                        plugins={[
+                                                                            dayGridPlugin,
+                                                                            timeGridPlugin,
+                                                                            interactionPlugin,
+                                                                            rrulePlugin,
+                                                                        ]}
+                                                                        headerToolbar={{
+                                                                            left: "prev,next today",
+                                                                            center: "title",
+                                                                            right: "timeGridWeek,timeGridDay",
+                                                                        }}
+                                                                        initialView="timeGridWeek"
+                                                                        editable
+                                                                        selectable
+                                                                        select={handleTimeframeSelect}
+                                                                        selectMirror
+                                                                        dayMaxEvents
+                                                                        weekends
+                                                                        eventClick={(info) => handleEventClick(info)}
+                                                                        events={currentAvailabilities}
+                                                                        eventContent={renderEventContent}
+                                                                        businessHours={{
+                                                                            startTime: "9:30",
+                                                                            endTime: "21:30",
+                                                                        }}
+                                                                        slotMinTime="7:00"
+                                                                        slotMaxTime="22:00"
+                                                                    />
+                                                                </div>
                                                             </DialogContent>
                                                         </Dialog>
                                                         <Dialog

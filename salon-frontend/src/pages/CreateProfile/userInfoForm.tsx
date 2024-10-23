@@ -23,9 +23,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { useUserProfile } from "@/lib/hooks/useUserProfile";
 import { useNavigate } from "react-router-dom";
 import { useUser } from "@clerk/clerk-react";
+import { SalonUser } from "@/lib/types/types";
 
 interface UserInfoFormProps {
     center: boolean;
+    thisUser?: SalonUser;
 }
 
 const formSchema = z.object({
@@ -35,15 +37,15 @@ const formSchema = z.object({
     email: z.string().min(2).max(50),
     comments: z.string(),
 });
-export default function UserInfoForm({ center }: UserInfoFormProps) {
+export default function UserInfoForm({ center, thisUser }: UserInfoFormProps) {
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
-            firstName: "",
-            lastName: "",
-            phoneNumber: "",
-            email: "",
-            comments: "",
+            firstName: (thisUser) && thisUser.firstName ? thisUser.firstName : "",
+            lastName: (thisUser) && thisUser.lastName ? thisUser.lastName : "",
+            phoneNumber: (thisUser) && thisUser.phoneNumber ? thisUser.phoneNumber : "",
+            email: (thisUser) && thisUser.email ? thisUser.email : "",
+            comments: (thisUser) && thisUser.comments ? thisUser.comments : "",
         },
     });
     const navigate = useNavigate();

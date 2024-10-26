@@ -7,10 +7,14 @@ import {
 } from "@/components/ui/card";
 import AvailabilityForm from "@/pages/Settings/availabilityForm";
 import { Availability } from "@/lib/types/types";
-interface AvailabilityCardProps{
+interface AvailabilityCardProps {
     availability?: Availability;
+    updateAvails?: (availId: string, newAvail: Availability) => boolean;
 }
-export default function AvailabilityCard({availability} : AvailabilityCardProps) {
+export default function AvailabilityCard({
+    availability,
+    updateAvails,
+}: AvailabilityCardProps) {
     return (
         <div className="w-full mt-2">
             <Card className={"w-full"}>
@@ -22,7 +26,10 @@ export default function AvailabilityCard({availability} : AvailabilityCardProps)
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <AvailabilityForm availability={availability}/>
+                    <AvailabilityForm
+                        availability={availability}
+                        updateAvails={updateAvails}
+                    />
                 </CardContent>
             </Card>
         </div>

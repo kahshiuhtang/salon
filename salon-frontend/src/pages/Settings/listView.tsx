@@ -10,15 +10,6 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import {
-    Dialog,
-    DialogContent,
-    DialogDescription,
-    DialogHeader,
-    DialogTitle,
-    DialogFooter,
-} from "@/components/ui/dialog";
 import { Availability } from "@/lib/types/types";
 import { useAvailability } from "@/lib/hooks/useAvailability";
 import { useUser } from "@clerk/clerk-react";
@@ -30,9 +21,6 @@ const mockData: Availability[] = [];
 export default function AvailabilityListView() {
     const [availabilities, setAvailabilities] =
         useState<Availability[]>(mockData);
-    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
-    const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
-    const [deletingId, setDeletingId] = useState<string | null>(null);
 
     const { getUnformattedAvailability } = useAvailability();
     const { user } = useUser();
@@ -47,17 +35,18 @@ export default function AvailabilityListView() {
             return `Repeats ${availability.repeatTypeDaily}`;
         return "No repeats";
     };
-
-    const confirmDelete = () => {
-        if (deletingId) {
-            setAvailabilities(
-                availabilities.filter((a) => a.id !== deletingId)
-            );
-            setIsDeleteDialogOpen(false);
-            setDeletingId(null);
-        }
-    };
-
+    function updateAvails(availId: string, newAvail: Availability){
+        const updatedItems = availabilities.map(availability =>
+            availability.id === availId ? { ...newAvail } : availability
+        );
+        setAvailabilities(updatedItems);
+        return true;
+    }
+    function deleteAvails(availId: string){
+        const validAvails = availabilities.filter(availability => availability.id !== availId);
+        setAvailabilities(validAvails);
+        return true;
+    }
     const fetchAvailability = async function () {
         const availability = await getUnformattedAvailability({ userId });
         setAvailabilities(availability);
@@ -104,46 +93,15 @@ export default function AvailabilityListView() {
                             <TableCell className="text-right">
                                 <EditDeleteDropdown
                                     availability={availability}
+                                    userId={userId}
+                                    updateAvails={updateAvails}
+                                    deleteAvails={deleteAvails}
                                 />
                             </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
-
-            <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Edit Availability</DialogTitle>
-                    </DialogHeader>
-                </DialogContent>
-            </Dialog>
-
-            <Dialog
-                open={isDeleteDialogOpen}
-                onOpenChange={setIsDeleteDialogOpen}
-            >
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Confirm Deletion</DialogTitle>
-                        <DialogDescription>
-                            Are you sure you want to delete this availability?
-                            This action cannot be undone.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <DialogFooter>
-                        <Button
-                            variant="outline"
-                            onClick={() => setIsDeleteDialogOpen(false)}
-                        >
-                            Cancel
-                        </Button>
-                        <Button variant="destructive" onClick={confirmDelete}>
-                            Delete
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
         </div>
     );
 }

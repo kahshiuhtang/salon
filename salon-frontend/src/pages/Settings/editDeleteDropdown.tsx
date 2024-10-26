@@ -21,16 +21,25 @@ import {
 
 import AvailabilityCard from "@/pages/Settings/availabilityCard";
 import { Availability } from "@/lib/types/types";
+import { useAvailability } from "@/lib/hooks/useAvailability";
 
 interface EditDeleteDropdownProps {
     availability: Availability;
+    updateAvails: (availId: string, newAvail: Availability) => boolean; 
+    deleteAvails: (availId: string) => boolean; 
+    userId: string;
 }
 export default function EditDeleteDropdown({
     availability,
+    userId,
+    updateAvails,
+    deleteAvails
 }: EditDeleteDropdownProps) {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
     const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+
+    const { deleteAvailability } = useAvailability();
 
     const handleEdit = () => {
         setIsDropdownOpen(false);
@@ -44,6 +53,8 @@ export default function EditDeleteDropdown({
 
     const confirmDelete = () => {
         setIsDeleteDialogOpen(false);
+        deleteAvailability({ userId, availabilityId: availability.id });
+        deleteAvails(availability.id);
     };
 
     return (
@@ -72,7 +83,7 @@ export default function EditDeleteDropdown({
 
             <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
                 <DialogContent className="sm:max-w-[425px]">
-                    <AvailabilityCard availability={availability} />
+                    <AvailabilityCard availability={availability} updateAvails={updateAvails}/>
                 </DialogContent>
             </Dialog>
 

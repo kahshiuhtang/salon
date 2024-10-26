@@ -143,11 +143,11 @@ export default function BookAppointmentForm({
                     state: "REQUESTED",
                     ownerId: forUser ? forUser.userId : userId,
                 });
-                if(!forUser){
+                if(forUser){
                     toast({
                         title: "Appointment received",
                         description:
-                            "You have booked an appointment for this user. Press X to close.",
+                            "You have booked an appointment for this user.",
                     });
                 }else{
                     toast({

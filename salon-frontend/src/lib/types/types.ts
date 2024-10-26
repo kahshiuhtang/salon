@@ -131,3 +131,6 @@ export interface SalonNotification {
     dateSent: Date;
     seen: boolean;
 }
+export interface AppointmentWithClientName extends Appointment {
+    clientName: string;
+}

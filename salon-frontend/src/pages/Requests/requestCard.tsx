@@ -35,7 +35,7 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
 
-import { Appointment, SalonName, SalonRole } from "@/lib/types/types";
+import { Appointment, AppointmentState, SalonName, SalonRole } from "@/lib/types/types";
 import { cn } from "@/lib/utils";
 import { useAppointment } from "@/lib/hooks/useAppointment";
 import { useToast } from "@/hooks/use-toast";
@@ -48,6 +48,8 @@ import BookAppointmentForm from "@/pages/BookAppointment/bookAppointmentForm";
 interface RequestCardProps {
     appointment: Appointment;
     userRole: SalonRole;
+    updateRequests: (appId: string, newStatus: AppointmentState) => boolean; 
+    deleteRequest: (appId: string) => boolean; 
 }
 
 const timeFormat = "hh:mm a";
@@ -55,12 +57,15 @@ const timeFormat = "hh:mm a";
 export default function RequestCard({
     appointment,
     userRole,
+    updateRequests,
+    deleteRequest
 }: RequestCardProps) {
     const [currentAppState, setCurrentAppState] =
         useState<Appointment>(appointment);
     const [usernameCache, setUsernameCache] = useState<{
         [key: string]: SalonName;
     }>({});
+    const [isDialogOpen, setIsDialogOpen] = useState(false)
     const [hours, minutes] = appointment.appLength
         ? appointment.appLength.split(/:(.*)/s)
         : ["", ""];
@@ -111,6 +116,7 @@ export default function RequestCard({
                 newStatus: "CONFIRMED",
             });
             setCurrentAppState({ ...currentAppState, state: "CONFIRMED" });
+            updateRequests(appointment.id, "CONFIRMED");
             toast({
                 title: "Appointment Confirmed",
                 description: "The appointment has been successfully confirmed.",
@@ -129,11 +135,13 @@ export default function RequestCard({
         try {
             const docRef = doc(firebaseDb, "appointments", appointment.id);
             await deleteDoc(docRef);
+            deleteRequest(appointment.id);
             toast({
                 title: "Appointment Deleted",
                 description:
                     "The appointment has been successfully removed for all users.",
             });
+            setIsDialogOpen(false);
         } catch (e) {
             console.error("Error deleting appointment:", e);
             toast({
@@ -285,7 +293,7 @@ export default function RequestCard({
                                         />
                                     </DialogContent>
                                 </Dialog>
-                                <Dialog>
+                                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                     <DialogTrigger asChild>
                                         <Button variant="destructive">Cancel Appointment</Button>
                                     </DialogTrigger>

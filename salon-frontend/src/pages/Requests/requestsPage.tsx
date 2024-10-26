@@ -1,7 +1,7 @@
 "use client";
 
 import { useAppointment } from "@/lib/hooks/useAppointment";
-import { Appointment, AppointmentState } from "@/lib/types/types";
+import { AppointmentState, AppointmentWithClientName } from "@/lib/types/types";
 import { useRole } from "@/lib/hooks/useRole";
 import { SalonRole } from "@/lib/types/types";
 import Navbar from "@/pages/Navbar/navbar";
@@ -19,10 +19,6 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { useUsers } from "@/lib/hooks/useUsers";
-
-interface AppointmentWithClientName extends Appointment {
-    clientName: string;
-}
 
 export default function RequestsPage() {
     const [currRole, setCurrRole] = useState<SalonRole>("USER");
@@ -46,7 +42,18 @@ export default function RequestsPage() {
     }, [user, navigate]);
 
     const userId = user?.id || "";
-
+    function updateRequests(appId: string, newStatus: AppointmentState){
+        const updatedItems = requests.map(request =>
+            request.id === appId ? { ...request, state: newStatus } : request
+        );
+        setRequests(updatedItems);
+        return true;
+    }
+    function deleteRequest(appId: string){
+        const validRequests = requests.filter(request => request.id !== appId);
+        setRequests(validRequests);
+        return true;
+    }
     async function fetchRoleAndRequests() {
         try {
             const role = await getRole({ userId });
@@ -178,6 +185,8 @@ export default function RequestsPage() {
                                             key={index}
                                             userRole={currRole}
                                             appointment={appointment}
+                                            updateRequests={updateRequests}
+                                            deleteRequest={deleteRequest}
                                         />
                                     )
                                 )}

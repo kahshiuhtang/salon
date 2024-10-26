@@ -6,15 +6,17 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import AvailabilityForm from "@/pages/Settings/availabilityForm";
-import { Toaster } from "@/components/ui/toaster"
 import { Availability } from "@/lib/types/types";
-interface AvailabilityCardProps{
+interface AvailabilityCardProps {
     availability?: Availability;
+    updateAvails?: (availId: string, newAvail: Availability) => boolean;
 }
-export default function AvailabilityCard({availability} : AvailabilityCardProps) {
+export default function AvailabilityCard({
+    availability,
+    updateAvails,
+}: AvailabilityCardProps) {
     return (
         <div className="w-full mt-2">
-            <Toaster/>
             <Card className={"w-full"}>
                 <CardHeader className="pl-8 pt-8 pb-0 mb-2">
                     <CardTitle>Create Availability Block</CardTitle>
@@ -24,7 +26,10 @@ export default function AvailabilityCard({availability} : AvailabilityCardProps)
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <AvailabilityForm availability={availability}/>
+                    <AvailabilityForm
+                        availability={availability}
+                        updateAvails={updateAvails}
+                    />
                 </CardContent>
             </Card>
         </div>

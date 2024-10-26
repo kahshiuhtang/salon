@@ -42,11 +42,15 @@ const formSchema = z.object({
     repeatDaily: z.string().optional(),
 });
 const timeFormat = "hh:mm a";
-interface AvailabilityFormProps{
+interface AvailabilityFormProps {
     availability?: Availability;
+    updateAvails?: (availId: string, newAvail: Availability) => boolean; // TODO: Fix this prop drilling
 }
-export default function AvailabilityForm({ availability } : AvailabilityFormProps) {
-    const today = new Date().toISOString().split('T')[0]; // Get current date in YYYY-MM-DD format
+export default function AvailabilityForm({
+    availability,
+    updateAvails,
+}: AvailabilityFormProps) {
+    const today = new Date().toISOString().split("T")[0]; // Get current date in YYYY-MM-DD format
     const startTimeString = `${today} ${availability?.startTime}`;
     const endTimeString = `${today} ${availability?.endTime}`;
     const form = useForm<z.infer<typeof formSchema>>({
@@ -55,22 +59,28 @@ export default function AvailabilityForm({ availability } : AvailabilityFormProp
             startTime: availability ? new Date(startTimeString) : new Date(),
             endTime: availability ? new Date(endTimeString) : new Date(),
             date: availability ? availability.date : new Date(),
-            repeatDaily: availability ? (availability.repeatTypeDaily ? availability.repeatTypeDaily : "") : "",
-            repeatWeekly: availability ? (availability.repeatTypeWeekly ? availability.repeatTypeWeekly : "")  : "",
+            repeatDaily: availability
+                ? availability.repeatTypeDaily
+                    ? availability.repeatTypeDaily
+                    : ""
+                : "",
+            repeatWeekly: availability
+                ? availability.repeatTypeWeekly
+                    ? availability.repeatTypeWeekly
+                    : ""
+                : "",
         },
     });
     const { user } = useUser();
     const { toast } = useToast();
-    const { addAvailability, updateAvailability } = useAvailability(); 
+    const { addAvailability, updateAvailability } = useAvailability();
     const navigate = useNavigate();
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             var userId = "";
             if (user && user["id"]) userId = user.id;
             if (userId == "") navigate("/sign-in");
-            if (
-                isEndTimeBeforeStartTime(values.startTime, values.endTime)
-            ) {
+            if (isEndTimeBeforeStartTime(values.startTime, values.endTime)) {
                 console.log("Error: End time must be after start time");
                 toast({
                     title: "Error",
@@ -92,7 +102,7 @@ export default function AvailabilityForm({ availability } : AvailabilityFormProp
                 timeFormatOptions
             );
 
-            if(availability){
+            if (availability) {
                 await updateAvailability({
                     userId: userId,
                     availability: {
@@ -112,7 +122,21 @@ export default function AvailabilityForm({ availability } : AvailabilityFormProp
                     title: "Edited existing availability",
                     description: `From ${startTimeStr} - ${endTimeStr}`,
                 });
-            }else{
+                if(updateAvails){
+                    updateAvails(availability.id, {
+                        ...values,
+                        id: availability.id,
+                        startTime: startTimeStr,
+                        endTime: endTimeStr,
+                        repeatTypeDaily: values.repeatDaily as RepeatTypeDay, //TODO: how to fix this to be more clear...
+                        repeatTypeWeekly: values.repeatWeekly as RepeatTypeWeek,
+                        repeat:
+                            values.repeatDaily || values.repeatWeekly
+                                ? true
+                                : false,
+                    },);
+                }
+            } else {
                 await addAvailability({
                     userId: userId,
                     availability: {
@@ -289,9 +313,7 @@ export default function AvailabilityForm({ availability } : AvailabilityFormProp
                         render={({ field }) => {
                             return (
                                 <FormItem className="w-1/2">
-                                    <FormLabel>
-                                        Weekly Repeat
-                                    </FormLabel>
+                                    <FormLabel>Weekly Repeat</FormLabel>
                                     <Select
                                         onValueChange={field.onChange}
                                         defaultValue={field.value}

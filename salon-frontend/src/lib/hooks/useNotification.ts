@@ -64,8 +64,7 @@ export const useNotification = (): UseNotificationReturn => {
     const getNotifications = async function (props: GetNotifProps) {
         var res: SalonNotification[] = [];
         if(props.userId == "") return res;
-        console.log(`users/${props.userId}/notifications/`);
-        const notificationsRef = collection(
+        const notificationsRef = collection( 
             firebaseDb,
             `users/${props.userId}/notifications/`
         );

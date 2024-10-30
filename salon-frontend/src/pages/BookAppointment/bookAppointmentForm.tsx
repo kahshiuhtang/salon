@@ -50,6 +50,7 @@ import {
     SalonUser,
 } from "@/lib/types/types";
 import { useEffect, useState } from "react";
+import { useNotification } from "@/lib/hooks/useNotification";
 
 const timeFormat = "hh:mm a";
 
@@ -72,7 +73,7 @@ interface BookAppointmentFormProps {
     insideCard?: boolean;
     appointment?: Appointment;
     userRole?: SalonRole;
-    forUser?: SalonUser,
+    forUser?: SalonUser;
 }
 //TODO: Allow for a message to be sent when booking appointment
 export default function BookAppointmentForm({
@@ -86,7 +87,10 @@ export default function BookAppointmentForm({
     const { user } = useUser();
     const navigate = useNavigate();
     const { getAllEmployees } = useUsers();
-    const [hours, minutes] = (appointment && appointment.appLength) ? appointment.appLength.split(/:(.*)/s) : ["", ""];
+    const [hours, minutes] =
+        appointment && appointment.appLength
+            ? appointment.appLength.split(/:(.*)/s)
+            : ["", ""];
 
     if (!user || !user.id) {
         navigate("/sign-in");
@@ -113,7 +117,35 @@ export default function BookAppointmentForm({
     });
 
     const { addAppointment, updateAppointment } = useAppointment();
-
+    const { notify } = useNotification();
+    function sendNotifsToAllParties(
+        senderId: string,
+        senderTitle: string,
+        senderMessage: string,
+        recipients: string[],
+        receipientTitle: string,
+        recipientMessage: string
+    ) {
+        try {
+            const notif = {
+                id: "",
+                title: senderTitle,
+                description: senderMessage,
+                senderId: senderId,
+                type: "Appointment",
+                dateSent: new Date(),
+                seen: false,
+            };
+            notify({ userId: senderId, notif: notif });
+            for (var i = 0; i < recipients.length; i++) {
+                notif.title = receipientTitle;
+                notif.description = recipientMessage;
+                notify({ userId: recipients[i], notif: notif });
+            }
+        } catch (e) {
+            console.log("sendNotifsToAllParties(): " + e);
+        }
+    }
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             if (appointment) {
@@ -127,7 +159,10 @@ export default function BookAppointmentForm({
                 updateAppointment({
                     ...values,
                     id: appointment.id,
-                    appLength: values.hoursLength || values.minutesLength ? values.hoursLength + ":" + values.minutesLength : "0",
+                    appLength:
+                        values.hoursLength || values.minutesLength
+                            ? values.hoursLength + ":" + values.minutesLength
+                            : "0",
                     involvedEmployees: uniqueTechSet,
                     time: values.time.toLocaleTimeString(),
                     state: status,
@@ -137,24 +172,74 @@ export default function BookAppointmentForm({
                     title: "Updated appointment.",
                 });
             } else {
+                const techSet = new Set<string>(); // set of people concerned with this appointment
+                values.services.forEach((service) => {
+                    techSet.add(service.tech);
+                });
+                const uniqueTechSet = Array.from(techSet); // TODO: move this tech set inside addAppointment
                 await addAppointment({
                     ...values,
                     time: values.time.toLocaleTimeString(),
                     state: "REQUESTED",
                     ownerId: forUser ? forUser.userId : userId,
                 });
-                if(forUser){
+                if (forUser) {
                     toast({
                         title: "Appointment received",
                         description:
                             "You have booked an appointment for this user.",
                     });
-                }else{
+
+                    sendNotifsToAllParties(
+                        forUser.userId,
+                        "Appointment Created",
+                        "An appointment has been booked for you on " +
+                            values.time.toLocaleString("en-US", {
+                                month: "long",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: false,
+                            }),
+                        uniqueTechSet,
+                        "New appointment created",
+                        "You have a new appointment on " +
+                            values.time.toLocaleString("en-US", {
+                                month: "long",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: false,
+                            })
+                    );
+                } else {
                     toast({
                         title: "Appointment received",
                         description:
                             "Check your email for confirmation from staff. Press X to close.",
                     });
+                    sendNotifsToAllParties(
+                        userId,
+                        "Appointment created",
+                        "You have booked a new appointment on " +
+                            values.time.toLocaleString("en-US", {
+                                month: "long",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: false,
+                            }),
+                        uniqueTechSet,
+                        "New appointment created",
+                        "You have a new appointment on " +
+                            values.time.toLocaleString("en-US", {
+                                month: "long",
+                                day: "numeric",
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: false,
+                            })
+                    );
                 }
             }
         } catch (error) {
@@ -231,7 +316,7 @@ export default function BookAppointmentForm({
                                                             className={cn(
                                                                 "w-[200px] pl-3 text-left font-normal",
                                                                 !field.value &&
-                                                                "text-muted-foreground"
+                                                                    "text-muted-foreground"
                                                             )}
                                                         >
                                                             {field.value ? (
@@ -263,7 +348,7 @@ export default function BookAppointmentForm({
                                                                 new Date();
                                                             yesterday.setDate(
                                                                 yesterday.getDate() -
-                                                                1
+                                                                    1
                                                             );
                                                             return (
                                                                 date < yesterday
@@ -369,7 +454,9 @@ export default function BookAppointmentForm({
                                                                     ) => {
                                                                         return (
                                                                             <SelectItem
-                                                                                key={index}
+                                                                                key={
+                                                                                    index
+                                                                                }
                                                                                 value={
                                                                                     employee.userId
                                                                                 }
@@ -417,8 +504,7 @@ export default function BookAppointmentForm({
                                         )}
                                 </div>
                             ))}
-                            {
-                                appointment && userRole == "ADMIN" &&
+                            {appointment && userRole == "ADMIN" && (
                                 <div className="flex space-x-4">
                                     <FormField
                                         control={form.control}
@@ -427,16 +513,32 @@ export default function BookAppointmentForm({
                                             <FormItem className="flex-1">
                                                 <FormLabel>Hours</FormLabel>
                                                 <FormControl>
-                                                    <Select onValueChange={field.onChange} value={field.value}>
+                                                    <Select
+                                                        onValueChange={
+                                                            field.onChange
+                                                        }
+                                                        value={field.value}
+                                                    >
                                                         <SelectTrigger>
                                                             <SelectValue placeholder="Select hours" />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            {Array.from({ length: 5 }, (_, i) => (
-                                                                <SelectItem key={i} value={i.toString()}>
-                                                                    {i.toString().padStart(2, '0')}
-                                                                </SelectItem>
-                                                            ))}
+                                                            {Array.from(
+                                                                { length: 5 },
+                                                                (_, i) => (
+                                                                    <SelectItem
+                                                                        key={i}
+                                                                        value={i.toString()}
+                                                                    >
+                                                                        {i
+                                                                            .toString()
+                                                                            .padStart(
+                                                                                2,
+                                                                                "0"
+                                                                            )}
+                                                                    </SelectItem>
+                                                                )
+                                                            )}
                                                         </SelectContent>
                                                     </Select>
                                                 </FormControl>
@@ -452,68 +554,29 @@ export default function BookAppointmentForm({
                                             <FormItem className="flex-1">
                                                 <FormLabel>Minutes</FormLabel>
                                                 <FormControl>
-                                                    <Select onValueChange={field.onChange} value={field.value}>
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="Select minutes"/>
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {[0, 15, 30, 45].map((minute) => (
-                                                                <SelectItem key={minute} value={minute.toString()}>
-                                                                    {minute.toString().padStart(2, '0')}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-                                </div>
-                            }
-                            {
-                                appointment && userRole == "USER" && appointment.appLength &&
-                                <div className="flex space-x-4">
-                                    <FormField
-                                        control={form.control}
-                                        name="hoursLength"
-                                        render={({ field }) => (
-                                            <FormItem className="flex-1">
-                                                <FormLabel>Expected Hours</FormLabel>
-                                                <FormControl>
-                                                    <Select onValueChange={field.onChange} value={field.value} disabled>
-                                                        <SelectTrigger>
-                                                            <SelectValue placeholder="Select hours" />
-                                                        </SelectTrigger>
-                                                        <SelectContent>
-                                                            {Array.from({ length: 5 }, (_, i) => (
-                                                                <SelectItem key={i} value={i.toString()}>
-                                                                    {i.toString().padStart(2, '0')}
-                                                                </SelectItem>
-                                                            ))}
-                                                        </SelectContent>
-                                                    </Select>
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
-
-                                    <FormField
-                                        control={form.control}
-                                        name="minutesLength"
-                                        render={({ field }) => (
-                                            <FormItem className="flex-1">
-                                                <FormLabel>Expected Mins.</FormLabel>
-                                                <FormControl>
-                                                    <Select onValueChange={field.onChange} value={field.value} disabled>
+                                                    <Select
+                                                        onValueChange={
+                                                            field.onChange
+                                                        }
+                                                        value={field.value}
+                                                    >
                                                         <SelectTrigger>
                                                             <SelectValue placeholder="Select minutes" />
                                                         </SelectTrigger>
                                                         <SelectContent>
-                                                            {[0, 15, 30, 45].map((minute) => (
-                                                                <SelectItem key={minute} value={minute.toString()}>
-                                                                    {minute.toString().padStart(2, '0')}
+                                                            {[
+                                                                0, 15, 30, 45,
+                                                            ].map((minute) => (
+                                                                <SelectItem
+                                                                    key={minute}
+                                                                    value={minute.toString()}
+                                                                >
+                                                                    {minute
+                                                                        .toString()
+                                                                        .padStart(
+                                                                            2,
+                                                                            "0"
+                                                                        )}
                                                                 </SelectItem>
                                                             ))}
                                                         </SelectContent>
@@ -524,7 +587,110 @@ export default function BookAppointmentForm({
                                         )}
                                     />
                                 </div>
-                            }
+                            )}
+                            {appointment &&
+                                userRole == "USER" &&
+                                appointment.appLength && (
+                                    <div className="flex space-x-4">
+                                        <FormField
+                                            control={form.control}
+                                            name="hoursLength"
+                                            render={({ field }) => (
+                                                <FormItem className="flex-1">
+                                                    <FormLabel>
+                                                        Expected Hours
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Select
+                                                            onValueChange={
+                                                                field.onChange
+                                                            }
+                                                            value={field.value}
+                                                            disabled
+                                                        >
+                                                            <SelectTrigger>
+                                                                <SelectValue placeholder="Select hours" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {Array.from(
+                                                                    {
+                                                                        length: 5,
+                                                                    },
+                                                                    (_, i) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                i
+                                                                            }
+                                                                            value={i.toString()}
+                                                                        >
+                                                                            {i
+                                                                                .toString()
+                                                                                .padStart(
+                                                                                    2,
+                                                                                    "0"
+                                                                                )}
+                                                                        </SelectItem>
+                                                                    )
+                                                                )}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+
+                                        <FormField
+                                            control={form.control}
+                                            name="minutesLength"
+                                            render={({ field }) => (
+                                                <FormItem className="flex-1">
+                                                    <FormLabel>
+                                                        Expected Mins.
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Select
+                                                            onValueChange={
+                                                                field.onChange
+                                                            }
+                                                            value={field.value}
+                                                            disabled
+                                                        >
+                                                            <SelectTrigger>
+                                                                <SelectValue placeholder="Select minutes" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {[
+                                                                    0, 15, 30,
+                                                                    45,
+                                                                ].map(
+                                                                    (
+                                                                        minute
+                                                                    ) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                minute
+                                                                            }
+                                                                            value={minute.toString()}
+                                                                        >
+                                                                            {minute
+                                                                                .toString()
+                                                                                .padStart(
+                                                                                    2,
+                                                                                    "0"
+                                                                                )}
+                                                                        </SelectItem>
+                                                                    )
+                                                                )}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                )}
                             <div className="w-full flex justify-between">
                                 <div>
                                     <Button type="submit">Submit</Button>

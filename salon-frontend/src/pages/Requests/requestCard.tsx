@@ -35,7 +35,12 @@ import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
 
-import { Appointment, AppointmentState, SalonName, SalonRole } from "@/lib/types/types";
+import {
+    Appointment,
+    AppointmentState,
+    SalonName,
+    SalonRole,
+} from "@/lib/types/types";
 import { cn } from "@/lib/utils";
 import { useAppointment } from "@/lib/hooks/useAppointment";
 import { useToast } from "@/hooks/use-toast";
@@ -44,12 +49,14 @@ import { useUsers } from "@/lib/hooks/useUsers";
 
 import RequestField from "@/pages/Requests/requestField";
 import BookAppointmentForm from "@/pages/BookAppointment/bookAppointmentForm";
+import { useUser } from "@clerk/clerk-react";
+import { useNotification } from "@/lib/hooks/useNotification";
 
 interface RequestCardProps {
     appointment: Appointment;
     userRole: SalonRole;
-    updateRequests: (appId: string, newStatus: AppointmentState) => boolean; 
-    deleteRequest: (appId: string) => boolean; 
+    updateRequests: (appId: string, newStatus: AppointmentState) => boolean;
+    deleteRequest: (appId: string) => boolean;
 }
 
 const timeFormat = "hh:mm a";
@@ -58,14 +65,14 @@ export default function RequestCard({
     appointment,
     userRole,
     updateRequests,
-    deleteRequest
+    deleteRequest,
 }: RequestCardProps) {
     const [currentAppState, setCurrentAppState] =
         useState<Appointment>(appointment);
     const [usernameCache, setUsernameCache] = useState<{
         [key: string]: SalonName;
     }>({});
-    const [isDialogOpen, setIsDialogOpen] = useState(false)
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [hours, minutes] = appointment.appLength
         ? appointment.appLength.split(/:(.*)/s)
         : ["", ""];
@@ -76,8 +83,11 @@ export default function RequestCard({
     const appDate = new Date(dateTimeString);
     const [date, setDate] = useState<Date>(appDate);
     const { updateAppointmentStatus } = useAppointment();
+    const { notify } = useNotification();
     const { toast } = useToast();
     const { getNameFromId } = useUsers();
+    const { user } = useUser();
+    const userId = user?.id || "";
     if (!setDate) console.log("...no set date");
     const getName = async function () {
         try {
@@ -89,7 +99,8 @@ export default function RequestCard({
             console.error("Error fetching user name:", e);
             toast({
                 title: "Error",
-                description: "Unable to fetch user name. Please try again later.",
+                description:
+                    "Unable to fetch user name. Please try again later.",
                 variant: "destructive",
             });
         }
@@ -121,11 +132,23 @@ export default function RequestCard({
                 title: "Appointment Confirmed",
                 description: "The appointment has been successfully confirmed.",
             });
+            const notif = {
+                id: "",
+                title: "Appointment Approved",
+                description:
+                    "Your appointment has been seen and approved by a staff member.",
+                senderId: userId,
+                type: "Appointment",
+                dateSent: new Date(),
+                seen: false,
+            };
+            notify({ userId: appointment.ownerId, notif: notif });
         } catch (e) {
             console.error("Error confirming appointment:", e);
             toast({
                 title: "Confirmation Error",
-                description: "Unable to confirm the appointment. Please try again.",
+                description:
+                    "Unable to confirm the appointment. Please try again.",
                 variant: "destructive",
             });
         }
@@ -141,12 +164,24 @@ export default function RequestCard({
                 description:
                     "The appointment has been successfully removed for all users.",
             });
+            const notif = {
+                id: "",
+                title: "Appointment has been deleted.",
+                description:
+                    "A staff member has canceled your appointment. If this was unintentional, please submit another appointment request.",
+                senderId: userId,
+                type: "Appointment",
+                dateSent: new Date(),
+                seen: false,
+            };
+            notify({ userId: appointment.ownerId, notif: notif });
             setIsDialogOpen(false);
         } catch (e) {
             console.error("Error deleting appointment:", e);
             toast({
                 title: "Deletion Error",
-                description: "Unable to delete this appointment. Please try again.",
+                description:
+                    "Unable to delete this appointment. Please try again.",
                 variant: "destructive",
             });
         }
@@ -213,18 +248,25 @@ export default function RequestCard({
                                             <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                                         </Button>
                                     </PopoverTrigger>
-                                    <PopoverContent className="w-auto p-0" align="start">
+                                    <PopoverContent
+                                        className="w-auto p-0"
+                                        align="start"
+                                    >
                                         <Calendar
                                             mode="single"
                                             selected={appDate}
-                                            disabled={(date) => date < new Date()}
+                                            disabled={(date) =>
+                                                date < new Date()
+                                            }
                                             initialFocus
                                         />
                                     </PopoverContent>
                                 </Popover>
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="appointment-time">Start Time</Label>
+                                <Label htmlFor="appointment-time">
+                                    Start Time
+                                </Label>
                                 <TimePicker
                                     id="appointment-time"
                                     value={dayjs(date)}
@@ -239,21 +281,26 @@ export default function RequestCard({
                             </div>
                         </div>
                         <div className="grid gap-4">
-                            <h3 className="text-lg font-semibold">Requested Services</h3>
+                            <h3 className="text-lg font-semibold">
+                                Requested Services
+                            </h3>
                             {appointment.services.map((service, index) => (
                                 <RequestField
                                     key={index}
                                     service={service.service}
                                     technician={
                                         usernameCache[service.tech]
-                                            ? usernameCache[service.tech].firstName
+                                            ? usernameCache[service.tech]
+                                                  .firstName
                                             : "AAA"
                                     }
                                     index={index + 1}
                                 />
                             ))}
                         </div>
-                        <h3 className="text-lg font-semibold">Expected Duration</h3>
+                        <h3 className="text-lg font-semibold">
+                            Expected Duration
+                        </h3>
                         <div className="grid sm:grid-cols-2 gap-4">
                             <div className="grid gap-2">
                                 <Label>Hours</Label>
@@ -265,11 +312,15 @@ export default function RequestCard({
                             </div>
                         </div>
                         <div className="grid gap-2">
-                            <Label htmlFor="appointment-status">Current Status </Label>
+                            <Label htmlFor="appointment-status">
+                                Current Status{" "}
+                            </Label>
                             <Input
                                 id="appointment-status"
                                 value={
-                                    currentAppState.state.charAt(0).toUpperCase() +
+                                    currentAppState.state
+                                        .charAt(0)
+                                        .toUpperCase() +
                                     currentAppState.state.slice(1).toLowerCase()
                                 }
                                 disabled
@@ -278,12 +329,17 @@ export default function RequestCard({
                         </div>
                         {(userRole === "ADMIN" || userRole === "MOD") && (
                             <div className="flex flex-wrap gap-4">
-                                <Button variant="secondary" onClick={handleApprove}>
+                                <Button
+                                    variant="secondary"
+                                    onClick={handleApprove}
+                                >
                                     Approve Appointment
                                 </Button>
                                 <Dialog>
                                     <DialogTrigger asChild>
-                                        <Button variant="outline">Suggest Changes</Button>
+                                        <Button variant="outline">
+                                            Suggest Changes
+                                        </Button>
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-[425px]">
                                         <BookAppointmentForm
@@ -293,21 +349,32 @@ export default function RequestCard({
                                         />
                                     </DialogContent>
                                 </Dialog>
-                                <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                                <Dialog
+                                    open={isDialogOpen}
+                                    onOpenChange={setIsDialogOpen}
+                                >
                                     <DialogTrigger asChild>
-                                        <Button variant="destructive">Cancel Appointment</Button>
+                                        <Button variant="destructive">
+                                            Cancel Appointment
+                                        </Button>
                                     </DialogTrigger>
                                     <DialogContent className="sm:max-w-[425px]">
                                         <DialogHeader>
-                                            <DialogTitle>Cancel Appointment</DialogTitle>
+                                            <DialogTitle>
+                                                Cancel Appointment
+                                            </DialogTitle>
                                             <DialogDescription>
-                                                Are you sure you want to cancel this appointment? This
-                                                action cannot be undone.
+                                                Are you sure you want to cancel
+                                                this appointment? This action
+                                                cannot be undone.
                                             </DialogDescription>
                                         </DialogHeader>
                                         <DialogFooter className="sm:justify-start">
                                             <DialogClose asChild>
-                                                <Button type="button" variant="secondary">
+                                                <Button
+                                                    type="button"
+                                                    variant="secondary"
+                                                >
                                                     No, Keep Appointment
                                                 </Button>
                                             </DialogClose>

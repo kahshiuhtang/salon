@@ -23,6 +23,8 @@ export interface SalonNotification {
 
 export default function NotificationDropdown() {
     const [notifications, setNotifications] = useState<SalonNotification[]>([]);
+    const [isOpen, setIsOpen] = useState(false);
+    const [updatedSeen, setUpdatedSeen] = useState(false);
     const { getNotifications, setNotifToSeen } = useNotification();
     const { user } = useUser();
     const userId = user?.id || "";
@@ -46,13 +48,21 @@ export default function NotificationDropdown() {
                 .filter((notification) => !notification.seen)
                 .map((notification) => notification.id);
             await setNotifToSeen({ userId: userId, notifIds: notifIds });
+            setUpdatedSeen(true);
         } catch (e) {
             console.log("setViewed(): " + e);
         }
     };
+    
+    useEffect(() => {
+        if (isOpen && !updatedSeen) {
+            setViewed();
+        }
+    }, [isOpen]);
+
     return (
-        <DropdownMenu>
-            <DropdownMenuTrigger asChild onClick={setViewed}>
+        <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
+            <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
                     <Bell className="h-5 w-5" />
                     {unseenNotifications.length > 0 && (
@@ -85,7 +95,14 @@ export default function NotificationDropdown() {
                                                 notification.dateSent as any as Timestamp
                                             )
                                                 .toDate()
-                                                .toLocaleString()}
+                                                .toLocaleString('en-US', {
+                                                    weekday: 'long',
+                                                    month: 'long',
+                                                    day: 'numeric',
+                                                    hour: '2-digit',
+                                                    minute: '2-digit',
+                                                    hour12: false // 24-hour format
+                                                  })}
                                         </span>
                                     </div>
                                 </div>

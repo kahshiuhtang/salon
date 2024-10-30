@@ -169,8 +169,27 @@ export default function BookAppointmentForm({
                     ownerId: appointment.ownerId,
                 });
                 toast({
-                    title: "Updated appointment.",
+                    title: "Request to update appointment has been sent.",
                 });
+                if(appointment.ownerId == userId){
+                    sendNotifsToAllParties(
+                        userId,
+                        "Appointment update attempted",
+                        "Salon staff will be notified of this update. An update will arrive soon.",
+                        uniqueTechSet,
+                        "Appointment update attempted",
+                        "User has attempted to update on their appointments with you involved. Please approve or counter this request."
+                    );
+                }else{
+                    sendNotifsToAllParties(
+                        userId,
+                        "Appointment update",
+                        "A salon staff member has updated your appointment, please apporve or counter this request.",
+                        uniqueTechSet,
+                        "Appointment update attempted",
+                        "User has been notified of your attempted changes"
+                    );
+                }
             } else {
                 const techSet = new Set<string>(); // set of people concerned with this appointment
                 values.services.forEach((service) => {

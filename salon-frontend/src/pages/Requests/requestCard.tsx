@@ -44,6 +44,8 @@ import { useUsers } from "@/lib/hooks/useUsers";
 
 import RequestField from "@/pages/Requests/requestField";
 import BookAppointmentForm from "@/pages/BookAppointment/bookAppointmentForm";
+import { useUser } from "@clerk/clerk-react";
+import { useNotification } from "@/lib/hooks/useNotification";
 
 interface RequestCardProps {
     appointment: Appointment;
@@ -76,8 +78,11 @@ export default function RequestCard({
     const appDate = new Date(dateTimeString);
     const [date, setDate] = useState<Date>(appDate);
     const { updateAppointmentStatus } = useAppointment();
+    const { notify } = useNotification();
     const { toast } = useToast();
     const { getNameFromId } = useUsers();
+    const {user} = useUser();
+    const userId = user?.id || "";
     if (!setDate) console.log("...no set date");
     const getName = async function () {
         try {
@@ -121,6 +126,16 @@ export default function RequestCard({
                 title: "Appointment Confirmed",
                 description: "The appointment has been successfully confirmed.",
             });
+            const notif = {
+                id: "",
+                title: "Appointment Approved",
+                description: "Your appointment has been seen and approved by a staff member.",
+                senderId: userId,
+                type: "Appointment",
+                dateSent: new Date(),
+                seen: false,
+            };
+            notify({ userId: appointment.ownerId, notif: notif });
         } catch (e) {
             console.error("Error confirming appointment:", e);
             toast({
@@ -141,6 +156,16 @@ export default function RequestCard({
                 description:
                     "The appointment has been successfully removed for all users.",
             });
+            const notif = {
+                id: "",
+                title: "Appointment has been deleted.",
+                description: "A staff member has canceled your appointment. If this was unintentional, please submit another appointment request.",
+                senderId: userId,
+                type: "Appointment",
+                dateSent: new Date(),
+                seen: false,
+            };
+            notify({ userId: appointment.ownerId, notif: notif });
             setIsDialogOpen(false);
         } catch (e) {
             console.error("Error deleting appointment:", e);

@@ -63,8 +63,8 @@ export const useNotification = (): UseNotificationReturn => {
 
     const getNotifications = async function (props: GetNotifProps) {
         var res: SalonNotification[] = [];
-        if(props.userId == "") return res;
-        const notificationsRef = collection( 
+        if (props.userId == "") return res;
+        const notificationsRef = collection(
             firebaseDb,
             `users/${props.userId}/notifications/`
         );
@@ -74,13 +74,13 @@ export const useNotification = (): UseNotificationReturn => {
             orderBy("dateSent", "desc"),
             limit(7)
         );
-    
+
         const unseenSnapshot = await getDocs(unseenQuery);
         res = unseenSnapshot.docs.map((doc) => ({
             ...(doc.data() as SalonNotification),
             id: doc.id,
         }));
-    
+
         // If no unseen notifications, fetch the most recent notifications
         if (res.length === 0) {
             const recentQuery = query(
@@ -88,14 +88,14 @@ export const useNotification = (): UseNotificationReturn => {
                 orderBy("dateSent", "desc"),
                 limit(7)
             );
-    
+
             const recentSnapshot = await getDocs(recentQuery);
             res = recentSnapshot.docs.map((doc) => ({
                 ...(doc.data() as SalonNotification),
                 id: doc.id,
             }));
         }
-    
+
         return res;
     };
 
@@ -165,10 +165,14 @@ export const useNotification = (): UseNotificationReturn => {
     const setNotifToSeen = async function (props: SetSeenProps) {
         try {
             const updatePromises = props.notifIds.map(async (notifId) => {
-                const notifDocRef = doc(firebaseDb, `users/${props.userId}/notifications`, notifId);
+                const notifDocRef = doc(
+                    firebaseDb,
+                    `users/${props.userId}/notifications`,
+                    notifId
+                );
                 await updateDoc(notifDocRef, { seen: true });
             });
-    
+
             console.log(await Promise.all(updatePromises));
         } catch (error) {
             console.error("Error deleting notification:", error);

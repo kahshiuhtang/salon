@@ -53,7 +53,7 @@ export default function NotificationDropdown() {
             console.log("setViewed(): " + e);
         }
     };
-    
+
     useEffect(() => {
         if (isOpen && !updatedSeen) {
             setViewed();
@@ -95,14 +95,14 @@ export default function NotificationDropdown() {
                                                 notification.dateSent as any as Timestamp
                                             )
                                                 .toDate()
-                                                .toLocaleString('en-US', {
-                                                    weekday: 'long',
-                                                    month: 'long',
-                                                    day: 'numeric',
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                    hour12: false // 24-hour format
-                                                  })}
+                                                .toLocaleString("en-US", {
+                                                    weekday: "long",
+                                                    month: "long",
+                                                    day: "numeric",
+                                                    hour: "2-digit",
+                                                    minute: "2-digit",
+                                                    hour12: false, // 24-hour format
+                                                })}
                                         </span>
                                     </div>
                                 </div>

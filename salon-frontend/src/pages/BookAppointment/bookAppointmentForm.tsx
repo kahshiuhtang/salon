@@ -171,7 +171,7 @@ export default function BookAppointmentForm({
                 toast({
                     title: "Request to update appointment has been sent.",
                 });
-                if(appointment.ownerId == userId){
+                if (appointment.ownerId == userId) {
                     sendNotifsToAllParties(
                         userId,
                         "Appointment update attempted",
@@ -180,7 +180,7 @@ export default function BookAppointmentForm({
                         "Appointment update attempted",
                         "User has attempted to update on their appointments with you involved. Please approve or counter this request."
                     );
-                }else{
+                } else {
                     sendNotifsToAllParties(
                         userId,
                         "Appointment update",

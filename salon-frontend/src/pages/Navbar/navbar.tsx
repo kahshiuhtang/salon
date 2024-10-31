@@ -1,4 +1,4 @@
-import { UserButton } from "@clerk/clerk-react";
+import { UserButton, useUser } from "@clerk/clerk-react";
 import {
     Book,
     FileText,
@@ -9,7 +9,22 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import NotificationDropdown from "@/pages/Navbar/Notifications/notificationPopover";
+import { SalonRole } from "@/lib/types/types";
+import { useEffect, useState } from "react";
+import { useRole } from "@/lib/hooks/useRole";
 export default function Navbar() {
+    const { user } = useUser();
+    const [role, setRole] = useState<SalonRole>("USER");
+    const { getRole } = useRole();
+    const fetchUserRole = async function () {
+        const userId = user?.id || "";
+        if (userId == "") return;
+        const userRole = await getRole({ userId });
+        setRole(userRole);
+    };
+    useEffect(() => {
+        fetchUserRole();
+    }, [user]);
     return (
         <nav className="bg-primary text-primary-foreground p-4">
             <div className="container mx-auto flex justify-between items-center">
@@ -32,13 +47,15 @@ export default function Navbar() {
                         <Book className="mr-1 h-4 w-4" />
                         Book
                     </Link>
-                    <Link
-                        to="/users"
-                        className="flex items-center hover:text-primary-foreground/80"
-                    >
-                        <Users className="mr-1 h-4 w-4" />
-                        Users
-                    </Link>
+                    {role !== "USER" && (
+                        <Link
+                            to="/users"
+                            className="flex items-center hover:text-primary-foreground/80"
+                        >
+                            <Users className="mr-1 h-4 w-4" />
+                            Users
+                        </Link>
+                    )}
                     <Link
                         to="/requests"
                         className="flex items-center hover:text-primary-foreground/80"

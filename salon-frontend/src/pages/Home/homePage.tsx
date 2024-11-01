@@ -90,9 +90,9 @@ export default function HomePage() {
                 </Card>
 
                 {userType === "USER" ? (
-                    <CustomerDashboard dailyCalendarApps={dailyCalendarApps} appointments={appointments}/>
+                    <CustomerDashboard dailyCalendarApps={dailyCalendarApps} appointments={appointments} />
                 ) : (
-                    <EmployeeDashboard appointments={dailyCalendarApps} role={userType} />
+                    <EmployeeDashboard dailyCalendarApps={dailyCalendarApps} appointments={appointments} role={userType} />
                 )}
 
                 {userType === "USER" && (

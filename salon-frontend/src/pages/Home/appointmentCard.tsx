@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/dialog";
 import BookAppointmentForm from "../BookAppointment/bookAppointmentForm";
 import { useAppointment } from "@/lib/hooks/useAppointment";
+import { useToast } from "@/hooks/use-toast";
 
 interface AppointmentCardProps {
     dailyCalendarApp: DailyCalendarAppointment;
@@ -42,6 +43,8 @@ export default function AppointmentCard({
 
     const { getNameFromId } = useUsers();
     const { deleteAppointment } = useAppointment();
+    const {toast } = useToast();
+    const [isDeleteDialogOpen, setisDeleteDialogOpen] = useState<boolean>(false);
     const getUsername = async (id: string) => {
         try {
             if (usernameCache[id]) {
@@ -69,6 +72,12 @@ export default function AppointmentCard({
     }, []);
     const handleDelete = async function () {
         deleteAppointment({ appId: appointment.id });
+        setisDeleteDialogOpen(false);
+        toast({
+            title: "Appointment deleted",
+            description:
+                "You have successfully deleted your appointment.",
+        });
     };
     //TODO: add AM/PM to appointment time
     return (
@@ -111,7 +120,7 @@ export default function AppointmentCard({
                             </Dialog>
                         )}
                         {!isPast && userType === "USER" && (
-                            <Dialog>
+                            <Dialog open={isDeleteDialogOpen} onOpenChange={setisDeleteDialogOpen}>
                                 <DialogTrigger asChild>
                                     <Button variant="outline">Delete</Button>
                                 </DialogTrigger>

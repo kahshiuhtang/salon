@@ -171,7 +171,9 @@ export default function BookAppointmentForm({
                     ownerId: appointment.ownerId,
                 });
                 toast({
-                    title: "Request to update appointment has been sent.",
+                    title: "Update received",
+                    description:
+                        "Your requested change has been received. Please wait for confirmation from Salon staff.",
                 });
                 if (appointment.ownerId == userId) {
                     sendNotifsToAllParties(

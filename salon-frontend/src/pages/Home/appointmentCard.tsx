@@ -10,8 +10,18 @@ import {
 } from "@/lib/types/types";
 import { useEffect, useState } from "react";
 import { useUsers } from "@/lib/hooks/useUsers";
-import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import {
+    Dialog,
+    DialogClose,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog";
 import BookAppointmentForm from "../BookAppointment/bookAppointmentForm";
+import { useAppointment } from "@/lib/hooks/useAppointment";
 
 interface AppointmentCardProps {
     dailyCalendarApp: DailyCalendarAppointment;
@@ -31,21 +41,22 @@ export default function AppointmentCard({
     }>({});
 
     const { getNameFromId } = useUsers();
+    const { deleteAppointment } = useAppointment();
     const getUsername = async (id: string) => {
-        try{
+        try {
             if (usernameCache[id]) {
                 console.log("Username from cache:", usernameCache[id]);
                 return usernameCache[id];
             }
-    
+
             const fetchedUsername = await getNameFromId({ userId: id });
-    
+
             setUsernameCache((prevCache) => ({
                 ...prevCache,
                 [id]: fetchedUsername,
             }));
             return fetchedUsername;
-        }catch(e){
+        } catch (e) {
             console.log("getUsername(): " + e);
         }
     };
@@ -56,6 +67,9 @@ export default function AppointmentCard({
         }
         getUsername(dailyCalendarApp.client);
     }, []);
+    const handleDelete = async function () {
+        deleteAppointment({ appId: appointment.id });
+    };
     //TODO: add AM/PM to appointment time
     return (
         <Card className="mb-4">
@@ -63,7 +77,9 @@ export default function AppointmentCard({
                 <div className="flex justify-between items-start mb-2">
                     <div>
                         <p className="font-semibold">
-                            {dailyCalendarApp.services.map((s) => s.name).join(", ")}
+                            {dailyCalendarApp.services
+                                .map((s) => s.name)
+                                .join(", ")}
                         </p>
                         <div className="flex items-center text-sm text-gray-500">
                             <CalendarDays className="mr-2 h-4 w-4" />
@@ -71,30 +87,71 @@ export default function AppointmentCard({
                         </div>
                         <div className="flex items-center text-sm text-gray-500">
                             <Clock className="mr-2 h-4 w-4" />
-                            {dailyCalendarApp.time.split(":").slice(0, 2).join(":")}
+                            {dailyCalendarApp.time
+                                .split(":")
+                                .slice(0, 2)
+                                .join(":")}
                         </div>
                     </div>
-                    {!isPast && userType === "USER" && (
-                        <Dialog>
-                        <DialogTrigger asChild>
-                            <Button variant="outline">
-                                Edit
+                    <div className="flex">
+                        {!isPast && userType === "USER" && (
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline" className="mr-2">
+                                        Edit
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <BookAppointmentForm
+                                        insideCard={true}
+                                        userRole={userType}
+                                        appointment={appointment}
+                                    />
+                                </DialogContent>
+                            </Dialog>
+                        )}
+                        {!isPast && userType === "USER" && (
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline">Delete</Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                        <DialogTitle>
+                                            Cancel Appointment
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                            Are you sure you want to cancel this
+                                            appointment? This action cannot be
+                                            undone.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter className="sm:justify-start">
+                                        <DialogClose asChild>
+                                            <Button
+                                                type="button"
+                                                variant="secondary"
+                                            >
+                                                No, Keep Appointment
+                                            </Button>
+                                        </DialogClose>
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            onClick={handleDelete}
+                                        >
+                                            Yes, Cancel Appointment
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                        )}
+                        {userType !== "USER" && (
+                            <Button variant="outline" size="sm">
+                                View Details
                             </Button>
-                        </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
-                            <BookAppointmentForm
-                                insideCard={true}
-                                userRole={userType}
-                                appointment={appointment}
-                            />
-                        </DialogContent>
-                    </Dialog>
-                    )}
-                    {userType !== "USER" && (
-                        <Button variant="outline" size="sm">
-                            View Details
-                        </Button>
-                    )}
+                        )}
+                    </div>
                 </div>
                 {userType !== "USER" && (
                     <div className="flex items-center text-sm text-gray-500">

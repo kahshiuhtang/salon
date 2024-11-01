@@ -156,9 +156,8 @@ export default function BookAppointmentForm({
                     techSet.add(service.tech);
                 });
                 const uniqueTechSet = Array.from(techSet);
-                if(!values.minutesLength) values.minutesLength = ""
-                if(!values.hoursLength) values.hoursLength = ""
-                console.log(values)
+                if (!values.minutesLength) values.minutesLength = "";
+                if (!values.hoursLength) values.hoursLength = "";
                 updateAppointment({
                     ...values,
                     id: appointment.id,

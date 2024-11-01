@@ -8,6 +8,7 @@ import {
     Timestamp,
     addDoc,
     updateDoc,
+    deleteDoc,
 } from "firebase/firestore";
 import {
     ACPService,
@@ -52,6 +53,9 @@ interface GetAllSalonAppsThisWeekProps {
     startDate: Date;
     endDate: Date;
 }
+interface DeleteAppointmentProps {
+    appId: string;
+}
 interface UseAppointmentReturn {
     addAppointment: (appointmentProps: AddAppointmentProps) => Promise<void>;
     getAppointments: (
@@ -79,6 +83,7 @@ interface UseAppointmentReturn {
     getAllSalonAppsThisWeek: (
         props: GetAllSalonAppsThisWeekProps
     ) => Promise<Appointment[]>;
+    deleteAppointment: (props: DeleteAppointmentProps) => Promise<void>;
 }
 export const useAppointment = (): UseAppointmentReturn => {
     const addAppointment = async (appointmentProps: AddAppointmentProps) => {
@@ -92,6 +97,11 @@ export const useAppointment = (): UseAppointmentReturn => {
             ...appointmentProps,
             involvedEmployees: uniqueTechSet,
         });
+    };
+    const deleteAppointment = async (props: DeleteAppointmentProps) => {
+        if (!props || !props.appId) return;
+        const docRef = doc(firebaseDb, "appointments", props.appId);
+        await deleteDoc(docRef);
     };
     const getAllSalonAppsThisWeek = async (
         props: GetAllSalonAppsThisWeekProps
@@ -422,5 +432,6 @@ export const useAppointment = (): UseAppointmentReturn => {
         getPreviousAppointments,
         getFutureAppointments,
         getAllSalonAppsThisWeek,
+        deleteAppointment,
     };
 };

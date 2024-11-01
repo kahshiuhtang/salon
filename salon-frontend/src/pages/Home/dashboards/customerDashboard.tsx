@@ -5,11 +5,13 @@ import AppointmentCard from "../appointmentCard";
 interface CustomerDashboardProps {
     dailyCalendarApps: DailyCalendarAppointment[];
     appointments: Appointment[];
+    deleteAppLocally: (appId: string) => boolean;
 }
 
 export default function CustomerDashboard({
     appointments,
-    dailyCalendarApps
+    dailyCalendarApps,
+    deleteAppLocally
 }: CustomerDashboardProps) {
     const currentDate = new Date();
     const upcomingAppointments = dailyCalendarApps.filter(
@@ -33,6 +35,7 @@ export default function CustomerDashboard({
                     {upcomingAppointments.map((appointment) => (
                         <AppointmentCard
                             key={appointment.id}
+                            deleteAppLocally={deleteAppLocally}
                             dailyCalendarApp={appointment}
                             appointment={idToApp[appointment.id]}
                             userType={"USER"}
@@ -46,6 +49,7 @@ export default function CustomerDashboard({
                     {pastAppointments.map((appointment) => (
                         <AppointmentCard
                             key={appointment.id}
+                            deleteAppLocally={deleteAppLocally}
                             dailyCalendarApp={appointment}
                             appointment={idToApp[appointment.id]}
                             userType={"USER"}

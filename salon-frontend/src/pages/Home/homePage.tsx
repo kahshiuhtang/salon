@@ -58,7 +58,13 @@ export default function HomePage() {
     useEffect(() => {
         fetchNameAndRole();
     }, []);
-
+    const deleteAppLocally = function(appId: string) {
+        const validApps = appointments.filter(appointment => appointment.id !== appId);
+        const validDailyApps = dailyCalendarApps.filter(appointment => appointment.id !== appId);
+        setAppointments(validApps);
+        setDailyCalendarApps(validDailyApps);
+        return true;
+    }
     useEffect(() => {
         fetchRelevantAppointments();
     }, [user?.id, userType]);
@@ -90,7 +96,7 @@ export default function HomePage() {
                 </Card>
 
                 {userType === "USER" ? (
-                    <CustomerDashboard dailyCalendarApps={dailyCalendarApps} appointments={appointments} />
+                    <CustomerDashboard deleteAppLocally={deleteAppLocally} dailyCalendarApps={dailyCalendarApps} appointments={appointments} />
                 ) : (
                     <EmployeeDashboard dailyCalendarApps={dailyCalendarApps} appointments={appointments} role={userType} />
                 )}

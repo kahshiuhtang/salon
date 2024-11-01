@@ -239,7 +239,7 @@ export default function BookAppointmentForm({
                     toast({
                         title: "Appointment received",
                         description:
-                            "Check your email for confirmation from staff. Press X to close.",
+                            "Check your email for confirmation from staff.",
                     });
                     sendNotifsToAllParties(
                         userId,

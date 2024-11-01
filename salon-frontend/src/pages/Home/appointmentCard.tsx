@@ -29,12 +29,14 @@ interface AppointmentCardProps {
     appointment: Appointment;
     isPast: boolean | undefined;
     userType: SalonRole;
+    deleteAppLocally?: (appId: string) => boolean;
 }
 
 export default function AppointmentCard({
     dailyCalendarApp,
     appointment,
     userType,
+    deleteAppLocally,
     isPast = false,
 }: AppointmentCardProps) {
     const [usernameCache, setUsernameCache] = useState<{
@@ -43,8 +45,9 @@ export default function AppointmentCard({
 
     const { getNameFromId } = useUsers();
     const { deleteAppointment } = useAppointment();
-    const {toast } = useToast();
-    const [isDeleteDialogOpen, setisDeleteDialogOpen] = useState<boolean>(false);
+    const { toast } = useToast();
+    const [isDeleteDialogOpen, setisDeleteDialogOpen] =
+        useState<boolean>(false);
     const getUsername = async (id: string) => {
         try {
             if (usernameCache[id]) {
@@ -71,12 +74,12 @@ export default function AppointmentCard({
         getUsername(dailyCalendarApp.client);
     }, []);
     const handleDelete = async function () {
-        deleteAppointment({ appId: appointment.id });
+        await deleteAppointment({ appId: appointment.id });
+        if(deleteAppLocally) deleteAppLocally(appointment.id);
         setisDeleteDialogOpen(false);
         toast({
             title: "Appointment deleted",
-            description:
-                "You have successfully deleted your appointment.",
+            description: "You have successfully deleted your appointment.",
         });
     };
     //TODO: add AM/PM to appointment time
@@ -120,7 +123,10 @@ export default function AppointmentCard({
                             </Dialog>
                         )}
                         {!isPast && userType === "USER" && (
-                            <Dialog open={isDeleteDialogOpen} onOpenChange={setisDeleteDialogOpen}>
+                            <Dialog
+                                open={isDeleteDialogOpen}
+                                onOpenChange={setisDeleteDialogOpen}
+                            >
                                 <DialogTrigger asChild>
                                     <Button variant="outline">Delete</Button>
                                 </DialogTrigger>

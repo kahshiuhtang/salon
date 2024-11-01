@@ -6,17 +6,22 @@ import {
     SalonRole,
     DailyCalendarAppointment,
     SalonName,
+    Appointment,
 } from "@/lib/types/types";
 import { useEffect, useState } from "react";
 import { useUsers } from "@/lib/hooks/useUsers";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
+import BookAppointmentForm from "../BookAppointment/bookAppointmentForm";
 
 interface AppointmentCardProps {
-    appointment: DailyCalendarAppointment;
+    dailyCalendarApp: DailyCalendarAppointment;
+    appointment: Appointment;
     isPast: boolean | undefined;
     userType: SalonRole;
 }
 
 export default function AppointmentCard({
+    dailyCalendarApp,
     appointment,
     userType,
     isPast = false,
@@ -45,11 +50,11 @@ export default function AppointmentCard({
         }
     };
     useEffect(() => {
-        for (var i = 0; i < appointment.services.length; i++) {
-            const currServices = appointment.services[i];
+        for (var i = 0; i < dailyCalendarApp.services.length; i++) {
+            const currServices = dailyCalendarApp.services[i];
             getUsername(currServices.technician);
         }
-        getUsername(appointment.client);
+        getUsername(dailyCalendarApp.client);
     }, []);
     //TODO: add AM/PM to appointment time
     return (
@@ -58,21 +63,32 @@ export default function AppointmentCard({
                 <div className="flex justify-between items-start mb-2">
                     <div>
                         <p className="font-semibold">
-                            {appointment.services.map((s) => s.name).join(", ")}
+                            {dailyCalendarApp.services.map((s) => s.name).join(", ")}
                         </p>
                         <div className="flex items-center text-sm text-gray-500">
                             <CalendarDays className="mr-2 h-4 w-4" />
-                            {appointment.date}
+                            {dailyCalendarApp.date}
                         </div>
                         <div className="flex items-center text-sm text-gray-500">
                             <Clock className="mr-2 h-4 w-4" />
-                            {appointment.time.split(":").slice(0, 2).join(":")}
+                            {dailyCalendarApp.time.split(":").slice(0, 2).join(":")}
                         </div>
                     </div>
                     {!isPast && userType === "USER" && (
-                        <Button variant="outline" size="sm">
-                            Reschedule
-                        </Button>
+                        <Dialog>
+                        <DialogTrigger asChild>
+                            <Button variant="outline">
+                                Edit
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <BookAppointmentForm
+                                insideCard={true}
+                                userRole={userType}
+                                appointment={appointment}
+                            />
+                        </DialogContent>
+                    </Dialog>
                     )}
                     {userType !== "USER" && (
                         <Button variant="outline" size="sm">
@@ -83,15 +99,15 @@ export default function AppointmentCard({
                 {userType !== "USER" && (
                     <div className="flex items-center text-sm text-gray-500">
                         <User className="mr-2 h-4 w-4" />
-                        {usernameCache[appointment.client]
-                            ? usernameCache[appointment.client].firstName
+                        {usernameCache[dailyCalendarApp.client]
+                            ? usernameCache[dailyCalendarApp.client].firstName
                             : ""}
                     </div>
                 )}
                 <div className="mt-2">
                     <p className="text-sm font-semibold">Services:</p>
                     <ul className="list-disc list-inside text-sm text-gray-600">
-                        {appointment.services.map((service, index) => (
+                        {dailyCalendarApp.services.map((service, index) => (
                             <li key={index}>
                                 {service.name} with{" "}
                                 {usernameCache[service.technician]

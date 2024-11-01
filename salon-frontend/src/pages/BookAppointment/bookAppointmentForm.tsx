@@ -156,13 +156,16 @@ export default function BookAppointmentForm({
                     techSet.add(service.tech);
                 });
                 const uniqueTechSet = Array.from(techSet);
+                if(!values.minutesLength) values.minutesLength = ""
+                if(!values.hoursLength) values.hoursLength = ""
+                console.log(values)
                 updateAppointment({
                     ...values,
                     id: appointment.id,
                     appLength:
-                        values.hoursLength || values.minutesLength
+                        values.hoursLength && values.minutesLength
                             ? values.hoursLength + ":" + values.minutesLength
-                            : "0",
+                            : "",
                     involvedEmployees: uniqueTechSet,
                     time: values.time.toLocaleTimeString(),
                     state: status,

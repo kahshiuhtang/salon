@@ -66,6 +66,7 @@ export default function RequestsPage() {
                     return { ...app, clientName: `${firstName} ${lastName}` };
                 })
             );
+            console.log(apps);
             setCurrRole(role);
             setRequests(appsWithNames);
             setFilteredRequests(appsWithNames);
@@ -210,10 +211,29 @@ export default function RequestsPage() {
                         <h1 className="text-3xl font-bold mb-4">
                             User Dashboard
                         </h1>
-                        <p className="text-gray-600">
+                        {filteredRequests.length === 0 ? (
+                            <p className="text-gray-600">
                             Welcome, User. Your appointments and requests will
                             be displayed here.
                         </p>
+                        ) : (
+                            <div className="grid gap-6">
+                                {filteredRequests.map(
+                                    (
+                                        appointment: AppointmentWithClientName,
+                                        index
+                                    ) => (
+                                        <RequestCard
+                                            key={index}
+                                            userRole={currRole}
+                                            appointment={appointment}
+                                            updateRequests={updateRequests}
+                                            deleteRequest={deleteRequest}
+                                        />
+                                    )
+                                )}
+                            </div>
+                        )}
                     </div>
                 )}
             </main>

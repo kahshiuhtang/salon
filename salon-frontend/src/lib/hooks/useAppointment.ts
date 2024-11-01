@@ -69,16 +69,16 @@ interface UseAppointmentReturn {
     updateAppointmentStatus: (
         statusProps: UpdateAppointmentStatusProps
     ) => Promise<void>;
-    updateAppointment: (
-        appointment: Appointment
-    ) => Promise<void>;
+    updateAppointment: (appointment: Appointment) => Promise<void>;
     getPreviousAppointments: (
         props: GetPreviousAppointmentsProp
     ) => Promise<Appointment[]>;
     getFutureAppointments: (
         props: GetFutureAppointmentsProp
     ) => Promise<Appointment[]>;
-    getAllSalonAppsThisWeek: (props: GetAllSalonAppsThisWeekProps) => Promise<Appointment[]>;
+    getAllSalonAppsThisWeek: (
+        props: GetAllSalonAppsThisWeekProps
+    ) => Promise<Appointment[]>;
 }
 export const useAppointment = (): UseAppointmentReturn => {
     const addAppointment = async (appointmentProps: AddAppointmentProps) => {
@@ -93,26 +93,28 @@ export const useAppointment = (): UseAppointmentReturn => {
             involvedEmployees: uniqueTechSet,
         });
     };
-    const getAllSalonAppsThisWeek = async (props: GetAllSalonAppsThisWeekProps): Promise<Appointment[]> => {
+    const getAllSalonAppsThisWeek = async (
+        props: GetAllSalonAppsThisWeekProps
+    ): Promise<Appointment[]> => {
         const res: Appointment[] = [];
-        try{
-            if(!props || !props.startDate || !props.endDate || !props.userId){
+        try {
+            if (!props || !props.startDate || !props.endDate || !props.userId) {
                 return res;
             }
             const userDoc = doc(firebaseDb, "users", props.userId);
             const userSnapshot = await getDoc(userDoc);
-    
+
             if (!userSnapshot.exists()) {
                 throw new Error("User does not exist");
             }
             const userRole = userSnapshot.data().role;
-            if(userRole == "USER") return res;
-            
-            const appointmentsRef = collection(firebaseDb, 'appointments'); // Replace with your Firebase collection
+            if (userRole == "USER") return res;
+
+            const appointmentsRef = collection(firebaseDb, "appointments"); // Replace with your Firebase collection
             const q = query(
                 appointmentsRef,
-                where('date', '>=', props.startDate),
-                where('date', '<=', props.endDate)
+                where("date", ">=", props.startDate),
+                where("date", "<=", props.endDate)
             );
             const querySnapshot = await getDocs(q);
             querySnapshot.forEach((doc) => {
@@ -124,17 +126,16 @@ export const useAppointment = (): UseAppointmentReturn => {
                 res.push(app);
             });
             return res;
-        }catch(e){
+        } catch (e) {
             console.log("getAllSalonAppsThisWeek(): " + e);
         }
         return [];
     };
-
     const getAppointments = async (
         appProps: GetAllAppointmentsProps
     ): Promise<Appointment[]> => {
         const userId = appProps.userId;
-        if(!userId){
+        if (!userId) {
             return [];
         }
         const userDoc = doc(firebaseDb, "users", userId);
@@ -186,7 +187,7 @@ export const useAppointment = (): UseAppointmentReturn => {
         appProps: GetAllAppointmentsProps
     ): Promise<Appointment[]> => {
         const userId = appProps.userId;
-        if(!userId){
+        if (!userId) {
             return [];
         }
         const userDoc = doc(firebaseDb, "users", userId);
@@ -204,7 +205,7 @@ export const useAppointment = (): UseAppointmentReturn => {
             const appointmentsRef = collection(firebaseDb, "appointments");
             const q = query(
                 appointmentsRef,
-                where("involvedEmployees", "array-contains", userId),
+                where("involvedEmployees", "array-contains", userId)
             );
             const querySnapshot = await getDocs(q);
 
@@ -221,7 +222,7 @@ export const useAppointment = (): UseAppointmentReturn => {
         } else {
             var appointmentsQuery = query(
                 collection(firebaseDb, "appointments"),
-                where("ownerId", "==", userId),
+                where("ownerId", "==", userId)
             );
             const querySnapshot = await getDocs(appointmentsQuery);
             const appointments: Appointment[] = [];
@@ -269,18 +270,23 @@ export const useAppointment = (): UseAppointmentReturn => {
                 console.log("no date found");
                 continue;
             }
-            const appDateObject = new Date(
-                (currApp.date)
-            );
+            const appDateObject = new Date(currApp.date);
             const dateString = appDateObject.toISOString().split("T")[0];
             const dateTimeString = `${dateString} ${currApp.time}`;
             const startDateObject = new Date(dateTimeString);
             const endDateObject = new Date(dateTimeString);
-            if(currApp.appLength){
-                const [hours, minutes] = (currApp && currApp.appLength) ? currApp.appLength.split(/:(.*)/s) : ["", ""];
-                endDateObject.setHours(endDateObject.getHours() + parseInt(hours));
-                endDateObject.setMinutes(endDateObject.getMinutes() + parseInt(minutes));
-            }else{
+            if (currApp.appLength) {
+                const [hours, minutes] =
+                    currApp && currApp.appLength
+                        ? currApp.appLength.split(/:(.*)/s)
+                        : ["", ""];
+                endDateObject.setHours(
+                    endDateObject.getHours() + parseInt(hours)
+                );
+                endDateObject.setMinutes(
+                    endDateObject.getMinutes() + parseInt(minutes)
+                );
+            } else {
                 endDateObject.setHours(endDateObject.getHours() + 1);
                 endDateObject.setMinutes(endDateObject.getMinutes() + 30);
             }
@@ -353,17 +359,19 @@ export const useAppointment = (): UseAppointmentReturn => {
     };
     const updateAppointment = async (appointment: Appointment) => {
         if (!appointment.id) {
-            throw new Error("Appointment ID is required to update the document.");
-          }
-        
-          const appointmentRef = doc(firebaseDb, "appointments", appointment.id);
-        
-          try {
+            throw new Error(
+                "Appointment ID is required to update the document."
+            );
+        }
+
+        const appointmentRef = doc(firebaseDb, "appointments", appointment.id);
+
+        try {
             await updateDoc(appointmentRef, { ...appointment });
-          } catch (error) {
+        } catch (error) {
             console.error("Error updating appointment: ", error);
-          }
-    }
+        }
+    };
     const getFutureAppointments = async (props: GetFutureAppointmentsProp) => {
         if (!props || !props.userId || !props.role || !props.userFirstName) {
             throw new Error("Arguments invalid");
@@ -413,6 +421,6 @@ export const useAppointment = (): UseAppointmentReturn => {
         updateAppointment,
         getPreviousAppointments,
         getFutureAppointments,
-        getAllSalonAppsThisWeek
+        getAllSalonAppsThisWeek,
     };
 };

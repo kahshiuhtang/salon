@@ -1,21 +1,29 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DailyCalendarAppointment } from "@/lib/types/types";
+import { Appointment, DailyCalendarAppointment } from "@/lib/types/types";
 import AppointmentCard from "../appointmentCard";
 
 interface CustomerDashboardProps {
-    appointments: DailyCalendarAppointment[];
+    dailyCalendarApps: DailyCalendarAppointment[];
+    appointments: Appointment[];
+    deleteAppLocally: (appId: string) => boolean;
 }
 
 export default function CustomerDashboard({
     appointments,
+    dailyCalendarApps,
+    deleteAppLocally
 }: CustomerDashboardProps) {
     const currentDate = new Date();
-    const upcomingAppointments = appointments.filter(
+    const upcomingAppointments = dailyCalendarApps.filter(
         (a) => new Date(a.date) >= currentDate
     );
-    const pastAppointments = appointments.filter(
+    const pastAppointments = dailyCalendarApps.filter(
         (a) => new Date(a.date) < currentDate
     );
+    const idToApp = appointments.reduce<Record<string, Appointment>>((acc, obj: Appointment) => {
+        acc[obj.id] = obj;
+        return acc;
+      }, {});
     return (
         <Tabs defaultValue="upcoming" className="w-full">
             <TabsList>
@@ -27,7 +35,9 @@ export default function CustomerDashboard({
                     {upcomingAppointments.map((appointment) => (
                         <AppointmentCard
                             key={appointment.id}
-                            appointment={appointment}
+                            deleteAppLocally={deleteAppLocally}
+                            dailyCalendarApp={appointment}
+                            appointment={idToApp[appointment.id]}
                             userType={"USER"}
                             isPast={false} //TODO: fix this what should it be
                         />
@@ -39,7 +49,9 @@ export default function CustomerDashboard({
                     {pastAppointments.map((appointment) => (
                         <AppointmentCard
                             key={appointment.id}
-                            appointment={appointment}
+                            deleteAppLocally={deleteAppLocally}
+                            dailyCalendarApp={appointment}
+                            appointment={idToApp[appointment.id]}
                             userType={"USER"}
                             isPast={true}
                         />

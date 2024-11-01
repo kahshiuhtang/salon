@@ -327,8 +327,7 @@ export default function RequestCard({
                                 aria-label="Appointment Status"
                             />
                         </div>
-                        {(userRole === "ADMIN" || userRole === "MOD") && (
-                            <div className="flex flex-wrap gap-4">
+                        <div className="flex flex-wrap gap-4">
                                 <Button
                                     variant="secondary"
                                     onClick={handleApprove}
@@ -389,7 +388,6 @@ export default function RequestCard({
                                     </DialogContent>
                                 </Dialog>
                             </div>
-                        )}
                     </div>
                 </CardContent>
             </Card>

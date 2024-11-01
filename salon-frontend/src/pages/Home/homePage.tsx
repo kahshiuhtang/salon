@@ -13,16 +13,17 @@ import { useUser } from "@clerk/clerk-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useUsers } from "@/lib/hooks/useUsers";
 import { useRole } from "@/lib/hooks/useRole";
-import { SalonRole, DailyCalendarAppointment } from "@/lib/types/types";
+import { SalonRole, DailyCalendarAppointment, Appointment } from "@/lib/types/types";
 import { useAppointment } from "@/lib/hooks/useAppointment";
 import CustomerDashboard from "@/pages/Home/dashboards/customerDashboard";
 import EmployeeDashboard from "@/pages/Home/dashboards/employeeDashboard";
-const tempApps: DailyCalendarAppointment[] = [];
+import { Toaster } from "@/components/ui/toaster";
 export default function HomePage() {
     const [userType, setUserType] = useState<SalonRole>("USER");
     const [role, setRole] = useState<SalonRole>("USER");
     const [firstName, setFirstName] = useState("");
-    const [appointments, setAppointments] = useState(tempApps);
+    const [appointments, setAppointments] = useState<Appointment[]>([]);
+    const [dailyCalendarApps, setDailyCalendarApps] = useState<DailyCalendarAppointment[]>([]);
     const { user } = useUser();
     const navigate = useNavigate();
     if (!user || !user.id) {
@@ -48,7 +49,8 @@ export default function HomePage() {
         try {
             const apps = await getAppointments({ userId });
             const formattedApps = convertAppsForHomePage(apps);
-            setAppointments(formattedApps);
+            setAppointments(apps);
+            setDailyCalendarApps(formattedApps);
         } catch (e) {
             console.log("fetchRelevantAppointments(): " + e);
         }
@@ -56,13 +58,20 @@ export default function HomePage() {
     useEffect(() => {
         fetchNameAndRole();
     }, []);
-
+    const deleteAppLocally = function(appId: string) {
+        const validApps = appointments.filter(appointment => appointment.id !== appId);
+        const validDailyApps = dailyCalendarApps.filter(appointment => appointment.id !== appId);
+        setAppointments(validApps);
+        setDailyCalendarApps(validDailyApps);
+        return true;
+    }
     useEffect(() => {
         fetchRelevantAppointments();
     }, [user?.id, userType]);
     return (
         <div className="min-h-screen flex flex-col">
             <Navbar />
+            <Toaster />
             <div className="container mx-auto p-4 flex-grow">
                 <div className="mb-6 flex justify-between items-center">
                     <h1 className="text-3xl font-bold">Dashboard</h1>
@@ -87,9 +96,9 @@ export default function HomePage() {
                 </Card>
 
                 {userType === "USER" ? (
-                    <CustomerDashboard appointments={appointments} />
+                    <CustomerDashboard deleteAppLocally={deleteAppLocally} dailyCalendarApps={dailyCalendarApps} appointments={appointments} />
                 ) : (
-                    <EmployeeDashboard appointments={appointments} role={userType} />
+                    <EmployeeDashboard dailyCalendarApps={dailyCalendarApps} appointments={appointments} role={userType} />
                 )}
 
                 {userType === "USER" && (

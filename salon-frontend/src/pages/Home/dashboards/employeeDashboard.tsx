@@ -1,17 +1,19 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DailyCalendarAppointment, SalonRole } from "@/lib/types/types";
+import { Appointment, DailyCalendarAppointment, SalonRole } from "@/lib/types/types";
 import DailyCalendar from "@/pages/Home/dailyCalendar";
 import AppointmentCard from "@/pages/Home/appointmentCard";
 import { useState } from "react";
 import WeeklySalonCalendar from "@/pages/Home/weeklySalonCalendar";
 
 interface EmployeeDashboardProps {
-    appointments: DailyCalendarAppointment[];
+    dailyCalendarApps: DailyCalendarAppointment[];
+    appointments: Appointment[];
     role: SalonRole;
 }
 
 export default function EmployeeDashboard({
     appointments,
+    dailyCalendarApps,
     role,
 }: EmployeeDashboardProps) {
     const [_, setSelectedDate] = useState(
@@ -42,11 +44,14 @@ export default function EmployeeDashboard({
     // }, []);
 
     const today = new Date().toISOString().split("T")[0];
-    const todayAppointments = appointments
+    const todayAppointments = dailyCalendarApps
         .filter(appointment => appointment.date == today) 
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); 
 
-
+    const idToApp = appointments.reduce<Record<string, Appointment>>((acc, obj: Appointment) => {
+        acc[obj.id] = obj;
+        return acc;
+        }, {});
     return (
         <Tabs defaultValue="today" className="w-full">
             <TabsList>
@@ -68,7 +73,8 @@ export default function EmployeeDashboard({
                     {todayAppointments.length > 0 && todayAppointments.map((appointment) => (
                         <AppointmentCard
                             key={appointment.id}
-                            appointment={appointment}
+                            dailyCalendarApp={appointment}
+                            appointment={idToApp[appointment.id]}
                             userType={role}
                             isPast={new Date(appointment.date) < new Date()}
                         />

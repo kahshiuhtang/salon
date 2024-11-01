@@ -156,20 +156,24 @@ export default function BookAppointmentForm({
                     techSet.add(service.tech);
                 });
                 const uniqueTechSet = Array.from(techSet);
+                if (!values.minutesLength) values.minutesLength = "";
+                if (!values.hoursLength) values.hoursLength = "";
                 updateAppointment({
                     ...values,
                     id: appointment.id,
                     appLength:
-                        values.hoursLength || values.minutesLength
+                        values.hoursLength && values.minutesLength
                             ? values.hoursLength + ":" + values.minutesLength
-                            : "0",
+                            : "",
                     involvedEmployees: uniqueTechSet,
                     time: values.time.toLocaleTimeString(),
                     state: status,
                     ownerId: appointment.ownerId,
                 });
                 toast({
-                    title: "Request to update appointment has been sent.",
+                    title: "Update received",
+                    description:
+                        "Your requested change has been received. Please wait for confirmation from Salon staff.",
                 });
                 if (appointment.ownerId == userId) {
                     sendNotifsToAllParties(
@@ -235,7 +239,7 @@ export default function BookAppointmentForm({
                     toast({
                         title: "Appointment received",
                         description:
-                            "Check your email for confirmation from staff. Press X to close.",
+                            "Check your email for confirmation from staff.",
                     });
                     sendNotifsToAllParties(
                         userId,

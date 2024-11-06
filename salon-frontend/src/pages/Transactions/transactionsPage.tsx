@@ -50,6 +50,7 @@ const initialAppointments: Appointment[] = [
         involvedEmployees: ["Alice", "Bob"],
         state: "CONFIRMED",
         ownerId: "user1",
+        hasTransaction: true,
     },
     {
         id: "2",
@@ -63,6 +64,7 @@ const initialAppointments: Appointment[] = [
         involvedEmployees: ["Charlie", "Diana"],
         state: "CONFIRMED",
         ownerId: "user2",
+        hasTransaction: true,
     },
 ];
 

@@ -28,6 +28,7 @@ export interface Appointment {
     involvedEmployees: string[];
     state: AppointmentState;
     ownerId: string;
+    hasTransaction: boolean;
 }
 export interface SalonEmployee {
     id: string;
@@ -142,4 +143,6 @@ export interface SalonTransaction {
     totalCost: string;
     tip: number;
     taxRate: number;
+    userId: string;
+    involvedEmployees: string[];
 }

@@ -134,3 +134,12 @@ export interface SalonNotification {
 export interface AppointmentWithClientName extends Appointment {
     clientName: string;
 }
+
+export interface SalonTransaction {
+    id: string;
+    dateCreated: Date;
+    appId: string;
+    totalCost: string;
+    tip: number;
+    taxRate: number;
+}

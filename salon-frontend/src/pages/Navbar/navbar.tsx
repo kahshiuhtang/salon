@@ -1,5 +1,6 @@
 import { UserButton, useUser } from "@clerk/clerk-react";
 import {
+    BadgeDollarSign,
     Book,
     FileText,
     Home,
@@ -62,6 +63,13 @@ export default function Navbar() {
                     >
                         <FileText className="mr-1 h-4 w-4" />
                         Requests
+                    </Link>
+                    <Link
+                        to="/transactions"
+                        className="flex items-center hover:text-primary-foreground/80"
+                    >
+                        <BadgeDollarSign className="mr-1 h-4 w-4" />
+                        Transactions
                     </Link>
                     <Link
                         to="/settings"

@@ -29,6 +29,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Appointment } from "@/lib/types/types";
 import Navbar from "@/pages/Navbar/navbar";
+import { useTransaction } from "@/lib/hooks/useTransaction";
 
 interface Transaction extends Omit<Appointment, "state" | "ownerId"> {
     totalCost: number;
@@ -37,38 +38,6 @@ interface Transaction extends Omit<Appointment, "state" | "ownerId"> {
     total: number;
 }
 
-const initialAppointments: Appointment[] = [
-    {
-        id: "1",
-        time: "10:00 AM",
-        appLength: "60",
-        date: new Date("2023-06-01"),
-        services: [
-            { service: "Manicure", tech: "Alice" },
-            { service: "Pedicure", tech: "Bob" },
-        ],
-        involvedEmployees: ["Alice", "Bob"],
-        state: "CONFIRMED",
-        ownerId: "user1",
-        hasTransaction: true,
-    },
-    {
-        id: "2",
-        time: "2:00 PM",
-        appLength: "90",
-        date: new Date("2023-06-02"),
-        services: [
-            { service: "Full Set", tech: "Charlie" },
-            { service: "Gel Polish", tech: "Diana" },
-        ],
-        involvedEmployees: ["Charlie", "Diana"],
-        state: "CONFIRMED",
-        ownerId: "user2",
-        hasTransaction: true,
-    },
-];
-
-// Mock service prices
 const servicePrices: { [key: string]: number } = {
     Manicure: 30,
     Pedicure: 40,
@@ -77,8 +46,7 @@ const servicePrices: { [key: string]: number } = {
 };
 
 export default function TransactionsPage() {
-    const [appointments, setAppointments] =
-        useState<Appointment[]>(initialAppointments);
+    const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [transactions, setTransactions] = useState<Transaction[]>([]);
     const [selectedItem, setSelectedItem] = useState<
         Appointment | Transaction | null
@@ -90,7 +58,15 @@ export default function TransactionsPage() {
     const [taxRate, setTaxRate] = useState(0.08); // 8% tax rate
     const [filter, setFilter] = useState("");
     const [activeTab, setActiveTab] = useState("transactions");
-
+    const { getUnprocessedApps, getTransactions } = useTransaction();
+    const fetchUnprocessedApps = async function () {
+        const apps = await getUnprocessedApps();
+        setAppointments(apps);
+    };
+    const fetchTransactions = async function() {
+        const trans = await getTransactions();
+        console.log(trans);
+    }
     useEffect(() => {
         if (selectedItem) {
             const costs: { [key: string]: number } = {};
@@ -100,7 +76,13 @@ export default function TransactionsPage() {
             setServiceCosts(costs);
         }
     }, [selectedItem]);
-
+    useEffect(() => {
+        setSelectedItem(null);
+    }, [activeTab]);
+    useEffect(() => {
+        fetchUnprocessedApps();
+        fetchTransactions();
+    }, []);
     const handleItemSelect = (item: Appointment | Transaction) => {
         setSelectedItem(item);
         setTip(0);
@@ -197,11 +179,11 @@ export default function TransactionsPage() {
                     className="mb-6"
                 >
                     <TabsList>
-                        <TabsTrigger value="appointments">
-                            Appointments
-                        </TabsTrigger>
                         <TabsTrigger value="transactions">
                             Transactions
+                        </TabsTrigger>
+                        <TabsTrigger value="appointments">
+                            Appointments
                         </TabsTrigger>
                     </TabsList>
                     <TabsContent value="appointments">
@@ -253,7 +235,7 @@ export default function TransactionsPage() {
                                                             )
                                                         }
                                                     >
-                                                        Select
+                                                        View
                                                     </Button>
                                                 </TableCell>
                                             </TableRow>

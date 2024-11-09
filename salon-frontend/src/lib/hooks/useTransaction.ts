@@ -94,7 +94,7 @@ export const useTransaction = (): UseTransactionReturn => {
         }
         const res: SalonTransaction =
             transactionSnapshot.data() as any as SalonTransaction;
-        res.dateCreated = (res.dateCreated as unknown as Timestamp).toDate();
+        res.dateTransCreated = (res.dateTransCreated as unknown as Timestamp).toDate();
         res.id = transactionSnapshot.id;
         return res;
     };

@@ -16,7 +16,7 @@ import { Appointment, SalonTransaction } from "@/lib/types/types";
 
 export default function CreateTransactionForm({
     appointment,
-    onCreateSubmit
+    onCreateSubmit,
 }: {
     appointment: Appointment;
     onCreateSubmit: (newTransaction: SalonTransaction) => void;
@@ -27,8 +27,10 @@ export default function CreateTransactionForm({
             defaultValues: {
                 transId: appointment.id,
                 dateTransCreated: new Date(),
-                totalCost: appointment.services
-                    .reduce((total, service) => total + (service ? 10 : 20), 0),
+                totalCost: appointment.services.reduce(
+                    (total, service) => total + (service ? 10 : 20),
+                    0
+                ),
                 tip: 0,
                 taxRate: defaultTaxRate,
                 involvedEmployees: appointment.involvedEmployees,
@@ -47,7 +49,7 @@ export default function CreateTransactionForm({
     };
 
     const onSubmit = (data: SalonTransaction) => {
-        onCreateSubmit({ ...data, ...appointment});
+        onCreateSubmit({ ...data, ...appointment });
     };
 
     return (

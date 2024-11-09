@@ -19,7 +19,6 @@ import CreateTransactionForm from "./createTransactionForm";
 import TransactionDetails from "@/pages/Transactions/transactionDetails";
 import { Appointment, SalonTransaction } from "@/lib/types/types";
 
-
 export default function TransactionsPage() {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [transactions, setTransactions] = useState<SalonTransaction[]>([]);
@@ -28,7 +27,8 @@ export default function TransactionsPage() {
     >(null);
     const [filter, setFilter] = useState("");
     const [activeTab, setActiveTab] = useState("transactions");
-    const { getUnprocessedApps, getTransactions, createTransaction } = useTransaction();
+    const { getUnprocessedApps, getTransactions, createTransaction } =
+        useTransaction();
 
     const fetchUnprocessedApps = async function () {
         const apps = await getUnprocessedApps();
@@ -53,12 +53,12 @@ export default function TransactionsPage() {
         setSelectedItem(item);
     };
 
-    const handleCreateTransaction = async (newTransaction: SalonTransaction) => {
-        const trans = await createTransaction({transaction: newTransaction});
+    const handleCreateTransaction = async (
+        newTransaction: SalonTransaction
+    ) => {
+        const trans = await createTransaction({ transaction: newTransaction });
         setTransactions([...transactions, trans]);
-        setAppointments(
-            appointments.filter((apt) => apt.id !== trans.id)
-        );
+        setAppointments(appointments.filter((apt) => apt.id !== trans.id));
         setSelectedItem(null);
     };
 
@@ -216,7 +216,12 @@ export default function TransactionsPage() {
                                                     )}
                                                 </TableCell>
                                                 <TableCell>
-                                                    ${"totalCost" in trans ? trans.totalCost.toFixed(2) : "0"}
+                                                    $
+                                                    {"totalCost" in trans
+                                                        ? trans.totalCost.toFixed(
+                                                              2
+                                                          )
+                                                        : "0"}
                                                 </TableCell>
                                                 <TableCell>
                                                     <Button

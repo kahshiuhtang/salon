@@ -47,7 +47,7 @@ export default function CreateTransactionForm({
     };
 
     const onSubmit = (data: SalonTransaction) => {
-        onCreateSubmit(data);
+        onCreateSubmit({ ...data, ...appointment});
     };
 
     return (

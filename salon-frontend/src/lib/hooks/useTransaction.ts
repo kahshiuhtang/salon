@@ -1,11 +1,11 @@
 import {
+    addDoc,
     collection,
     deleteDoc,
     doc,
     getDoc,
     getDocs,
     query,
-    setDoc,
     Timestamp,
     updateDoc,
     where,
@@ -29,7 +29,7 @@ interface DeleteTransactionProps {
 interface UseTransactionReturn {
     getTransaction: (props: GetTransactionProps) => Promise<SalonTransaction>;
     getTransactions: () => Promise<SalonTransaction[]>;
-    createTransaction: (props: CreateTransactionProps) => Promise<void>;
+    createTransaction: (props: CreateTransactionProps) => Promise<SalonTransaction>;
     updateTransaction: (props: UpdateTransactionProps) => Promise<void>;
     deleteTransaction: (props: DeleteTransactionProps) => Promise<void>;
     getUnprocessedApps: () => Promise<Appointment[]>;
@@ -100,17 +100,16 @@ export const useTransaction = (): UseTransactionReturn => {
     };
     const createTransaction = async (
         props: CreateTransactionProps
-    ): Promise<void> => {
+    ): Promise<SalonTransaction> => {
         try {
-            const transactionRef = doc(
-                firebaseDb,
-                "transactions",
-                props.transaction.id
-            );
-            await setDoc(transactionRef, props.transaction);
+            const transactionCollectionRef = collection(firebaseDb, 'transactions');
+
+            const docRef = await addDoc(transactionCollectionRef, props.transaction);
+            props.transaction.transId = docRef.id;
         } catch (error) {
             console.error("Error creating transaction: ", error);
         }
+        return props.transaction;
     };
 
     const updateTransaction = async (

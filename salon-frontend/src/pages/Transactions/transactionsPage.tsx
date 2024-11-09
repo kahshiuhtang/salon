@@ -28,7 +28,7 @@ export default function TransactionsPage() {
     >(null);
     const [filter, setFilter] = useState("");
     const [activeTab, setActiveTab] = useState("transactions");
-    const { getUnprocessedApps, getTransactions } = useTransaction();
+    const { getUnprocessedApps, getTransactions, createTransaction } = useTransaction();
 
     const fetchUnprocessedApps = async function () {
         const apps = await getUnprocessedApps();
@@ -53,10 +53,11 @@ export default function TransactionsPage() {
         setSelectedItem(item);
     };
 
-    const handleCreateTransaction = (newTransaction: SalonTransaction) => {
-        setTransactions([...transactions, newTransaction]);
+    const handleCreateTransaction = async (newTransaction: SalonTransaction) => {
+        const trans = await createTransaction({transaction: newTransaction});
+        setTransactions([...transactions, trans]);
         setAppointments(
-            appointments.filter((apt) => apt.id !== newTransaction.id)
+            appointments.filter((apt) => apt.id !== trans.id)
         );
         setSelectedItem(null);
     };

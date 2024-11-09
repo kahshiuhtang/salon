@@ -3,14 +3,6 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-    Select,
-    SelectContent,
-    SelectItem,
-    SelectTrigger,
-    SelectValue,
-} from "@/components/ui/select";
 import {
     Table,
     TableBody,
@@ -19,128 +11,63 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Appointment } from "@/lib/types/types";
 import Navbar from "@/pages/Navbar/navbar";
 import { useTransaction } from "@/lib/hooks/useTransaction";
+import CreateTransactionForm from "./createTransactionForm";
+import TransactionDetails from "@/pages/Transactions/transactionDetails";
+import { Appointment, SalonTransaction } from "@/lib/types/types";
 
-interface Transaction extends Omit<Appointment, "state" | "ownerId"> {
-    totalCost: number;
-    tip: number;
-    taxRate: number;
-    total: number;
-}
-
-const servicePrices: { [key: string]: number } = {
-    Manicure: 30,
-    Pedicure: 40,
-    "Full Set": 60,
-    "Gel Polish": 35,
-};
 
 export default function TransactionsPage() {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
-    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [transactions, setTransactions] = useState<SalonTransaction[]>([]);
     const [selectedItem, setSelectedItem] = useState<
-        Appointment | Transaction | null
+        Appointment | SalonTransaction | null
     >(null);
-    const [serviceCosts, setServiceCosts] = useState<{ [key: string]: number }>(
-        {}
-    );
-    const [tip, setTip] = useState(0);
-    const [taxRate, setTaxRate] = useState(0.08); // 8% tax rate
     const [filter, setFilter] = useState("");
     const [activeTab, setActiveTab] = useState("transactions");
     const { getUnprocessedApps, getTransactions } = useTransaction();
+
     const fetchUnprocessedApps = async function () {
         const apps = await getUnprocessedApps();
         setAppointments(apps);
     };
-    const fetchTransactions = async function() {
+
+    const fetchTransactions = async function () {
         const trans = await getTransactions();
-        console.log(trans);
-    }
-    useEffect(() => {
-        if (selectedItem) {
-            const costs: { [key: string]: number } = {};
-            selectedItem.services.forEach((service) => {
-                costs[service.service] = servicePrices[service.service] || 0;
-            });
-            setServiceCosts(costs);
-        }
-    }, [selectedItem]);
-    useEffect(() => {
-        setSelectedItem(null);
-    }, [activeTab]);
+        setTransactions(trans);
+    };
+
     useEffect(() => {
         fetchUnprocessedApps();
         fetchTransactions();
     }, []);
-    const handleItemSelect = (item: Appointment | Transaction) => {
+
+    useEffect(() => {
+        setSelectedItem(null);
+    }, [activeTab]);
+
+    const handleItemSelect = (item: Appointment | SalonTransaction) => {
         setSelectedItem(item);
-        setTip(0);
     };
 
-    const calculateTotal = () => {
-        const subtotal = Object.values(serviceCosts).reduce(
-            (sum, cost) => sum + cost,
-            0
+    const handleCreateTransaction = (newTransaction: SalonTransaction) => {
+        setTransactions([...transactions, newTransaction]);
+        setAppointments(
+            appointments.filter((apt) => apt.id !== newTransaction.id)
         );
-        const taxAmount = subtotal * taxRate;
-        return subtotal + tip + taxAmount;
+        setSelectedItem(null);
     };
 
-    const handleCreateTransaction = () => {
-        if (selectedItem && "state" in selectedItem) {
-            const newTransaction: Transaction = {
-                ...selectedItem,
-                totalCost: Object.values(serviceCosts).reduce(
-                    (sum, cost) => sum + cost,
-                    0
-                ),
-                tip: tip,
-                taxRate: taxRate,
-                total: calculateTotal(),
-            };
-            setTransactions([...transactions, newTransaction]);
-            setAppointments(
-                appointments.filter((apt) => apt.id !== selectedItem.id)
-            );
-            setSelectedItem(null);
-            setServiceCosts({});
-            setTip(0);
-        }
-    };
-
-    const handleUpdateTransaction = () => {
-        if (selectedItem && !("state" in selectedItem)) {
-            const updatedTransactions = transactions.map((trans) =>
-                trans.id === selectedItem.id
-                    ? {
-                          ...trans,
-                          totalCost: Object.values(serviceCosts).reduce(
-                              (sum, cost) => sum + cost,
-                              0
-                          ),
-                          tip: tip,
-                          taxRate: taxRate,
-                          total: calculateTotal(),
-                      }
-                    : trans
-            );
-            setTransactions(updatedTransactions);
-            setSelectedItem(null);
-            setServiceCosts({});
-            setTip(0);
-        }
-    };
+    // const handleUpdateTransaction = (updatedTransaction: SalonTransaction) => {
+    //     const updatedTransactions = transactions.map((trans) =>
+    //         trans.id === updatedTransaction.id ? updatedTransaction : trans
+    //     );
+    //     setTransactions(updatedTransactions);
+    //     setSelectedItem(null);
+    // };
 
     const filteredItems =
         activeTab === "appointments"
@@ -235,7 +162,7 @@ export default function TransactionsPage() {
                                                             )
                                                         }
                                                     >
-                                                        View
+                                                        Close Appointment
                                                     </Button>
                                                 </TableCell>
                                             </TableRow>
@@ -287,7 +214,9 @@ export default function TransactionsPage() {
                                                         ", "
                                                     )}
                                                 </TableCell>
-                                                <TableCell>$ 100</TableCell>
+                                                <TableCell>
+                                                    ${"totalCost" in trans ? trans.totalCost.toFixed(2) : "0"}
+                                                </TableCell>
                                                 <TableCell>
                                                     <Button
                                                         onClick={() =>
@@ -296,7 +225,7 @@ export default function TransactionsPage() {
                                                             )
                                                         }
                                                     >
-                                                        Edit
+                                                        View Details
                                                     </Button>
                                                 </TableCell>
                                             </TableRow>
@@ -308,94 +237,15 @@ export default function TransactionsPage() {
                     </TabsContent>
                 </Tabs>
 
-                {selectedItem && (
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>Payment Details</CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid gap-4">
-                                {selectedItem.services.map((service, index) => (
-                                    <div
-                                        key={index}
-                                        className="grid grid-cols-4 items-center gap-4"
-                                    >
-                                        <Label
-                                            htmlFor={`service-cost-${index}`}
-                                        >
-                                            {service.service} Cost
-                                        </Label>
-                                        <Input
-                                            id={`service-cost-${index}`}
-                                            type="number"
-                                            value={
-                                                serviceCosts[service.service] ||
-                                                0
-                                            }
-                                            onChange={(e) =>
-                                                setServiceCosts({
-                                                    ...serviceCosts,
-                                                    [service.service]: Number(
-                                                        e.target.value
-                                                    ),
-                                                })
-                                            }
-                                            className="col-span-3"
-                                        />
-                                    </div>
-                                ))}
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="tip">Tip</Label>
-                                    <Input
-                                        id="tip"
-                                        type="number"
-                                        value={tip}
-                                        onChange={(e) =>
-                                            setTip(Number(e.target.value))
-                                        }
-                                        className="col-span-3"
-                                    />
-                                </div>
-                                <div className="grid grid-cols-4 items-center gap-4">
-                                    <Label htmlFor="tax-rate">Tax Rate</Label>
-                                    <Select
-                                        onValueChange={(value) =>
-                                            setTaxRate(Number(value))
-                                        }
-                                    >
-                                        <SelectTrigger className="col-span-3">
-                                            <SelectValue placeholder="Select tax rate" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="0.08">
-                                                8%
-                                            </SelectItem>
-                                            <SelectItem value="0.10">
-                                                10%
-                                            </SelectItem>
-                                            <SelectItem value="0.12">
-                                                12%
-                                            </SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-                        </CardContent>
-                        <CardFooter className="flex justify-between">
-                            <div className="text-2xl font-bold">
-                                Total: ${calculateTotal().toFixed(2)}
-                            </div>
-                            {activeTab === "appointments" ? (
-                                <Button onClick={handleCreateTransaction}>
-                                    Create Transaction
-                                </Button>
-                            ) : (
-                                <Button onClick={handleUpdateTransaction}>
-                                    Update Transaction
-                                </Button>
-                            )}
-                        </CardFooter>
-                    </Card>
+                {selectedItem && "state" in selectedItem && (
+                    <CreateTransactionForm
+                        appointment={selectedItem}
+                        onCreateSubmit={handleCreateTransaction}
+                    />
+                )}
+
+                {selectedItem && !("state" in selectedItem) && (
+                    <TransactionDetails transaction={selectedItem} />
                 )}
             </div>
         </div>

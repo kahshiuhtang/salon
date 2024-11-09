@@ -136,13 +136,11 @@ export interface AppointmentWithClientName extends Appointment {
     clientName: string;
 }
 
-export interface SalonTransaction {
-    id: string;
-    dateCreated: Date;
-    appId: string;
-    totalCost: string;
+export interface SalonTransaction extends Omit<Appointment, "state" | "ownerId"> {
+    transId: string;
+    dateTransCreated: Date;
+    totalCost: number;
     tip: number;
     taxRate: number;
-    userId: string;
-    involvedEmployees: string[];
+    total: number;
 }

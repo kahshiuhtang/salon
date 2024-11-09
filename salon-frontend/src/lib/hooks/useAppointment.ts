@@ -96,6 +96,7 @@ export const useAppointment = (): UseAppointmentReturn => {
         await addDoc(appCollectionRef, {
             ...appointmentProps,
             involvedEmployees: uniqueTechSet,
+            hasTransaction: false,
         });
     };
     const deleteAppointment = async (props: DeleteAppointmentProps) => {

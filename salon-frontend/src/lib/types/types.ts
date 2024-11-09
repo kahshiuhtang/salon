@@ -28,6 +28,7 @@ export interface Appointment {
     involvedEmployees: string[];
     state: AppointmentState;
     ownerId: string;
+    hasTransaction: boolean;
 }
 export interface SalonEmployee {
     id: string;
@@ -133,4 +134,13 @@ export interface SalonNotification {
 }
 export interface AppointmentWithClientName extends Appointment {
     clientName: string;
+}
+
+export interface SalonTransaction extends Omit<Appointment, "state" | "ownerId"> {
+    transId: string;
+    dateTransCreated: Date;
+    totalCost: number;
+    tip: number;
+    taxRate: number;
+    total: number;
 }

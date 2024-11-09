@@ -14,7 +14,7 @@ import HomePage from "@/pages/Home/homePage";
 import UsersPage from "@/pages/Users/usersPage";
 import LandingPage from "@/pages/Landing/landingPage";
 import ServicesPage from "@/pages/Services/servicesPage";
-// Import the functions you need from the SDKs you need
+import TranscationsPage from "@/pages/Transactions/transactionsPage";
 const router = createBrowserRouter([
     {
         element: <RootLayout />,
@@ -29,6 +29,7 @@ const router = createBrowserRouter([
             { path: "/settings", element: <SettingsPage /> },
             { path: "/sign-in/*", element: <SignInPage /> },
             { path: "/register/*", element: <RegisterPage /> },
+            { path: "/transactions", element: <TranscationsPage /> },
             { path: "/services", element: <ServicesPage /> },
         ],
     },

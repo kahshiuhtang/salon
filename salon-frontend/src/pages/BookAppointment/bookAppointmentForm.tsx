@@ -169,6 +169,7 @@ export default function BookAppointmentForm({
                     time: values.time.toLocaleTimeString(),
                     state: status,
                     ownerId: appointment.ownerId,
+                    hasTransaction: appointment.hasTransaction,
                 });
                 toast({
                     title: "Update received",

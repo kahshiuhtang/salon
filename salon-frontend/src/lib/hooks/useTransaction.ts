@@ -29,7 +29,9 @@ interface DeleteTransactionProps {
 interface UseTransactionReturn {
     getTransaction: (props: GetTransactionProps) => Promise<SalonTransaction>;
     getTransactions: () => Promise<SalonTransaction[]>;
-    createTransaction: (props: CreateTransactionProps) => Promise<SalonTransaction>;
+    createTransaction: (
+        props: CreateTransactionProps
+    ) => Promise<SalonTransaction>;
     updateTransaction: (props: UpdateTransactionProps) => Promise<void>;
     deleteTransaction: (props: DeleteTransactionProps) => Promise<void>;
     getUnprocessedApps: () => Promise<Appointment[]>;
@@ -39,16 +41,16 @@ export const useTransaction = (): UseTransactionReturn => {
         const transRef = collection(firebaseDb, "transactions");
         const q = query(transRef);
         const querySnapshot = await getDocs(q);
-        const trans: SalonTransaction[] = querySnapshot.docs.map(
-            (doc) =>
-                ({
-                    id: doc.id,
-                    ...doc.data(),
-                    dateCreated: (
-                        doc.data().dateCreated as unknown as Timestamp
-                    ).toDate(),
-                } as unknown as SalonTransaction)
-        );
+        const trans: SalonTransaction[] = querySnapshot.docs.map((doc) => {
+            return {
+                id: doc.id,
+                ...doc.data(),
+                date: (doc.data().date as unknown as Timestamp).toDate(),
+                dateTransCreated: (
+                    doc.data().dateTransCreated as unknown as Timestamp
+                ).toDate(),
+            } as unknown as SalonTransaction;
+        });
         return trans;
     };
     const getUnprocessedApps = async () => {
@@ -94,7 +96,9 @@ export const useTransaction = (): UseTransactionReturn => {
         }
         const res: SalonTransaction =
             transactionSnapshot.data() as any as SalonTransaction;
-        res.dateTransCreated = (res.dateTransCreated as unknown as Timestamp).toDate();
+        res.dateTransCreated = (
+            res.dateTransCreated as unknown as Timestamp
+        ).toDate();
         res.id = transactionSnapshot.id;
         return res;
     };
@@ -102,9 +106,15 @@ export const useTransaction = (): UseTransactionReturn => {
         props: CreateTransactionProps
     ): Promise<SalonTransaction> => {
         try {
-            const transactionCollectionRef = collection(firebaseDb, 'transactions');
+            const transactionCollectionRef = collection(
+                firebaseDb,
+                "transactions"
+            );
 
-            const docRef = await addDoc(transactionCollectionRef, props.transaction);
+            const docRef = await addDoc(
+                transactionCollectionRef,
+                props.transaction
+            );
             props.transaction.transId = docRef.id;
         } catch (error) {
             console.error("Error creating transaction: ", error);

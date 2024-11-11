@@ -2,20 +2,26 @@
 import {
     Select,
     SelectContent,
+    SelectGroup,
     SelectItem,
+    SelectLabel,
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { groupByType } from "@/lib/utils";
+import { SalonService } from "@/lib/types/types";
 interface RequestFieldProps {
     service: string;
     technician: string;
     index: number;
+    allServices: SalonService[];
 }
 export default function RequestField({
     service,
     technician,
     index,
+    allServices,
 }: RequestFieldProps) {
     return (
         <div>
@@ -26,8 +32,21 @@ export default function RequestField({
                         <SelectValue></SelectValue>
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="gel-mani">Gel Manicure</SelectItem>
-                        <SelectItem value="gel-pedi">Gel Pedicure</SelectItem>
+                        {Array.from(groupByType(allServices).entries()).map(
+                            ([type, services]) => (
+                                <SelectGroup key={type}>
+                                    <SelectLabel>{type}</SelectLabel>
+                                    {services.map((service) => (
+                                        <SelectItem
+                                            key={service.id}
+                                            value={service.id}
+                                        >
+                                            {service.name}
+                                        </SelectItem>
+                                    ))}
+                                </SelectGroup>
+                            )
+                        )}
                     </SelectContent>
                 </Select>
                 <Select defaultValue={technician}>

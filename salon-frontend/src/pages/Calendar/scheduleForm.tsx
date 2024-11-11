@@ -14,7 +14,9 @@ import {
 import {
     Select,
     SelectContent,
+    SelectGroup,
     SelectItem,
+    SelectLabel,
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
@@ -28,13 +30,16 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { cn, groupByType } from "@/lib/utils";
 import { CalendarIcon, PlusIcon, MinusIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { useToast } from "@/hooks/use-toast";
 import { Toaster } from "@/components/ui/toaster";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { SalonService } from "@/lib/types/types";
+import { useService } from "@/lib/hooks/useService";
 
 const timeFormat = "hh:mm a";
 
@@ -55,9 +60,11 @@ interface ScheduleFormProps {
     setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 export default function ScheduleForm({ setIsDialogOpen }: ScheduleFormProps) {
+    const [allServices, setAllServices] = useState<SalonService[]>([]);
     const { toast } = useToast();
     const { user } = useUser();
     const navigate = useNavigate();
+    const { getServices } = useService();
     if (!user || !user.id) {
         navigate("/sign-in");
     }
@@ -99,6 +106,17 @@ export default function ScheduleForm({ setIsDialogOpen }: ScheduleFormProps) {
             remove(index);
         }
     };
+    const fetchServices = async () => {
+        try {
+            const allServs = await getServices();
+            setAllServices(allServs);
+        } catch (e) {
+            console.log("fetchServices(): " + e);
+        }
+    };
+    useEffect(() => {
+        fetchServices();
+    }, []);
     return (
         <div>
             <Toaster />
@@ -210,12 +228,42 @@ export default function ScheduleForm({ setIsDialogOpen }: ScheduleFormProps) {
                                                         <SelectValue placeholder="Select a service" />
                                                     </SelectTrigger>
                                                     <SelectContent>
-                                                        <SelectItem value="gel-mani">
-                                                            Gel Manicure
-                                                        </SelectItem>
-                                                        <SelectItem value="gel-pedi">
-                                                            Gel Pedicure
-                                                        </SelectItem>
+                                                        {Array.from(
+                                                            groupByType(
+                                                                allServices
+                                                            ).entries()
+                                                        ).map(
+                                                            ([
+                                                                type,
+                                                                services,
+                                                            ]) => (
+                                                                <SelectGroup
+                                                                    key={type}
+                                                                >
+                                                                    <SelectLabel>
+                                                                        {type}
+                                                                    </SelectLabel>
+                                                                    {services.map(
+                                                                        (
+                                                                            service
+                                                                        ) => (
+                                                                            <SelectItem
+                                                                                key={
+                                                                                    service.id
+                                                                                }
+                                                                                value={
+                                                                                    service.id
+                                                                                }
+                                                                            >
+                                                                                {
+                                                                                    service.name
+                                                                                }
+                                                                            </SelectItem>
+                                                                        )
+                                                                    )}
+                                                                </SelectGroup>
+                                                            )
+                                                        )}
                                                     </SelectContent>
                                                 </Select>
                                             </FormControl>

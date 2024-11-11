@@ -40,6 +40,7 @@ import {
     AppointmentState,
     SalonName,
     SalonRole,
+    SalonService,
 } from "@/lib/types/types";
 import { cn } from "@/lib/utils";
 import { useAppointment } from "@/lib/hooks/useAppointment";
@@ -51,6 +52,7 @@ import RequestField from "@/pages/Requests/requestField";
 import BookAppointmentForm from "@/pages/BookAppointment/bookAppointmentForm";
 import { useUser } from "@clerk/clerk-react";
 import { useNotification } from "@/lib/hooks/useNotification";
+import { useService } from "@/lib/hooks/useService";
 
 interface RequestCardProps {
     appointment: Appointment;
@@ -69,6 +71,7 @@ export default function RequestCard({
 }: RequestCardProps) {
     const [currentAppState, setCurrentAppState] =
         useState<Appointment>(appointment);
+        const [allServices, setAllServices] = useState<SalonService[]>([]);
     const [usernameCache, setUsernameCache] = useState<{
         [key: string]: SalonName;
     }>({});
@@ -77,6 +80,7 @@ export default function RequestCard({
         ? appointment.appLength.split(/:(.*)/s)
         : ["", ""];
     const [name, setName] = useState("");
+    const { getServices } = useService();
     const appDateObject = new Date(appointment.date);
     const dateString = appDateObject.toISOString().split("T")[0];
     const dateTimeString = `${dateString} ${appointment.time}`;
@@ -105,14 +109,23 @@ export default function RequestCard({
             });
         }
     };
-
+    const fetchServices = async () => {
+        try {
+            const allServs = await getServices();
+            setAllServices(allServs);
+        } catch (e) {
+            console.log("fetchServices(): " + e);
+        }
+    };
     useEffect(() => {
         getName();
+        fetchServices();
         for (var i = 0; i < appointment.services.length; i++) {
             const currServices = appointment.services[i];
             getUsername(currServices.tech);
         }
     }, []);
+    
     const handleApprove = async function () {
         try {
             if (currentAppState.state === "CONFIRMED") {
@@ -295,6 +308,7 @@ export default function RequestCard({
                                             : "AAA"
                                     }
                                     index={index + 1}
+                                    allServices={allServices}
                                 />
                             ))}
                         </div>

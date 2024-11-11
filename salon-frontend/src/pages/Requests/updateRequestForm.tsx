@@ -13,7 +13,9 @@ import {
 import {
     Select,
     SelectContent,
+    SelectGroup,
     SelectItem,
+    SelectLabel,
     SelectTrigger,
 } from "@/components/ui/select";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -39,15 +41,16 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
+import { cn, groupByType } from "@/lib/utils";
 import { CalendarIcon } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import { SelectValue } from "@/components/ui/select";
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 const timeFormat = "hh:mm a";
-import { Appointment, ServiceRequest } from "@/lib/types/types";
+import { Appointment, SalonService, ServiceRequest } from "@/lib/types/types";
 import { useUser } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
+import { useService } from "@/lib/hooks/useService";
 
 interface UpdateRequestFormProps {
     appointment: Appointment;
@@ -56,6 +59,7 @@ interface UpdateRequestFormProps {
 export default function UpdateRequestForm({
     appointment,
 }: UpdateRequestFormProps) {
+    const [allServices, setAllServices] = useState<SalonService[]>([]);
     const { user } = useUser();
     const navigate = useNavigate();
     if (!user || !user.id) {
@@ -78,6 +82,7 @@ export default function UpdateRequestForm({
         },
     });
     const { addAppointment } = useAppointment();
+    const { getServices } = useService();
     async function onSubmit(values: z.infer<typeof formSchema>) {
         await addAppointment({
             ...values,
@@ -105,6 +110,18 @@ export default function UpdateRequestForm({
             }
         }
     };
+
+    const fetchServices = async () => {
+        try {
+            const allServs = await getServices();
+            setAllServices(allServs);
+        } catch (e) {
+            console.log("fetchServices(): " + e);
+        }
+    };
+    useEffect(() => {
+        fetchServices();
+    }, []);
     //TODO: unify all the forms, kind of a pain to updae appointemtns struct
     return (
         <Form {...form}>
@@ -206,12 +223,39 @@ export default function UpdateRequestForm({
                                                     <SelectValue placeholder="Select a service" />
                                                 </SelectTrigger>
                                                 <SelectContent>
-                                                    <SelectItem value="gel-mani">
-                                                        Gel Manicure
-                                                    </SelectItem>
-                                                    <SelectItem value="gel-pedi">
-                                                        Gel Pedicure
-                                                    </SelectItem>
+                                                    {Array.from(
+                                                        groupByType(
+                                                            allServices
+                                                        ).entries()
+                                                    ).map(
+                                                        ([type, services]) => (
+                                                            <SelectGroup
+                                                                key={type}
+                                                            >
+                                                                <SelectLabel>
+                                                                    {type}
+                                                                </SelectLabel>
+                                                                {services.map(
+                                                                    (
+                                                                        service
+                                                                    ) => (
+                                                                        <SelectItem
+                                                                            key={
+                                                                                service.id
+                                                                            }
+                                                                            value={
+                                                                                service.id
+                                                                            }
+                                                                        >
+                                                                            {
+                                                                                service.name
+                                                                            }
+                                                                        </SelectItem>
+                                                                    )
+                                                                )}
+                                                            </SelectGroup>
+                                                        )
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                         </FormControl>

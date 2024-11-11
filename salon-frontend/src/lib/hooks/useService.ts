@@ -1,4 +1,4 @@
-import { doc } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
 import { SalonGood, SalonService } from "@/lib/types/types";
 import { deleteDoc } from "firebase/firestore";
@@ -15,15 +15,30 @@ interface DefaultGoodProp {
     goodId: string;
     good: SalonGood;
 }
+interface GetServiceProps {
+    serviceId: string;
+}
 interface UseServiceReturn {
     getServices: () => Promise<SalonService[]>;
     getGoods: () => Promise<SalonGood[]>;
+    getService: (props: GetServiceProps) => Promise<SalonService>;
     modifyService: (props: DefaultServiceProp) => Promise<void>;
     modifyGood: (props: DefaultGoodProp) => Promise<void>;
     removeService: (props: DefaultServiceProp) => Promise<void>;
     removeGood: (props: DefaultGoodProp) => Promise<void>;
 }
 export const useService = (): UseServiceReturn => {
+    const getService = async (props: GetServiceProps): Promise<SalonService> => {
+        const docRef = doc(firebaseDb, "services", props.serviceId);
+        const docSnap = await getDoc(docRef);
+
+        if (!docSnap.exists()) 
+            throw new Error("doc does not exist");
+        return {
+            ...((docSnap.data() as unknown as SalonService)),
+            id: docSnap.id,
+        };
+    };
     const getServices = async (): Promise<SalonService[]> => {
         const servicesRef = collection(firebaseDb, "services");
         const servicesSnapshot = await getDocs(servicesRef);
@@ -92,5 +107,6 @@ export const useService = (): UseServiceReturn => {
         modifyService,
         removeService,
         removeGood,
+        getService
     };
 };

@@ -1,6 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
-import { Availability, SalonRRule } from "@/lib//types/types";
+import { Availability, SalonRRule, SalonService } from "@/lib//types/types";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -38,7 +38,7 @@ export function isEndTimeBeforeStartTime(startTime: Date, endTime: Date) {
 export function generateRRule(
     availability: Availability,
     startDate: Date
-): (SalonRRule | null) {
+): SalonRRule | null {
     const { repeatTypeWeekly, repeatTypeDaily } = availability;
     const lastYear = new Date(
         startDate.setFullYear(startDate.getFullYear() - 1)
@@ -104,7 +104,7 @@ export function generateRRule(
                 break;
         }
     }
-    if(!found){
+    if (!found) {
         return null;
     }
     return rruleOptions;
@@ -144,8 +144,8 @@ export function getDateOnlyFromDate(date: Date) {
     return `${month}-${day}-${year}`;
 }
 
-export function getStartAndEndDate(date: Date){
-    try{
+export function getStartAndEndDate(date: Date) {
+    try {
         const resultDate = new Date(date);
         const DAYS_IN_WEEK = 7;
         const dayOfWeek = resultDate.getDay();
@@ -155,7 +155,7 @@ export function getStartAndEndDate(date: Date){
         const endDate = new Date(resultDate);
         endDate.setDate(resultDate.getDate() + DAYS_IN_WEEK - 1);
         return { startDate: resultDate, endDate };
-    }catch(e){
+    } catch (e) {
         console.log("getStartAndEndDate(): " + e);
     }
     return { startDate: new Date(), endDate: new Date() };
@@ -187,4 +187,19 @@ export function convertTimeToDateObject(timeString: string) {
 
     currentDate.setHours(adjustedHours, minutes, seconds);
     return currentDate;
+}
+export function groupByType(
+    services: SalonService[]
+): Map<string, SalonService[]> {
+    const grouped = new Map<string, SalonService[]>();
+
+    services.forEach((service) => {
+        const type = service.type;
+        if (!grouped.has(type)) {
+            grouped.set(type, []);
+        }
+        grouped.get(type)?.push(service);
+    });
+
+    return grouped;
 }

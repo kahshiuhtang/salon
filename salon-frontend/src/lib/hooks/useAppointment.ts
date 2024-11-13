@@ -20,7 +20,7 @@ import {
     ServiceRequest,
 } from "@/lib/types/types";
 import { firebaseDb } from "@/lib/firebase";
-import { getDateOnlyFromDate } from "../utils";
+import { getDateOnlyFromDate } from "@/lib/utils";
 interface GetAllAppointmentsProps {
     userId: string;
 }

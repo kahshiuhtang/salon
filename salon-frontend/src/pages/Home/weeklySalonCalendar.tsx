@@ -22,7 +22,7 @@ import {
     SalonRole,
 } from "@/lib/types/types";
 import { getStartAndEndDate } from "@/lib/utils";
-import BookAppointmentForm from "../BookAppointment/bookAppointmentForm";
+import BookAppointmentForm from "@/pages/BookAppointment/bookAppointmentForm";
 import { useRole } from "@/lib/hooks/useRole";
 
 function renderEventContent(eventInfo: any) {

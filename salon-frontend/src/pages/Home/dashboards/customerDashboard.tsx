@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Appointment, DailyCalendarAppointment } from "@/lib/types/types";
-import AppointmentCard from "../appointmentCard";
+import AppointmentCard from "@/pages/Home/appointmentCard";
 
 interface CustomerDashboardProps {
     dailyCalendarApps: DailyCalendarAppointment[];

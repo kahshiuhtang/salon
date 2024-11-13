@@ -20,7 +20,7 @@ import {
     DialogTitle,
     DialogTrigger,
 } from "@/components/ui/dialog";
-import BookAppointmentForm from "../BookAppointment/bookAppointmentForm";
+import BookAppointmentForm from "@/pages/BookAppointment/bookAppointmentForm";
 import { useAppointment } from "@/lib/hooks/useAppointment";
 import { useToast } from "@/hooks/use-toast";
 

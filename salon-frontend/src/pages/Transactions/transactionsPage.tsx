@@ -15,8 +15,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navbar from "@/pages/Navbar/navbar";
 import { useTransaction } from "@/lib/hooks/useTransaction";
-import CreateTransactionForm from "./createTransactionForm";
-import TransactionEditor from "./transactionEditor";
+import CreateTransactionForm from "@/pages/Transactions/createTransactionForm";
+import TransactionEditor from "@/pages/Transactions/transactionEditor";
 import { Appointment, SalonTransaction } from "@/lib/types/types";
 
 export default function TransactionsPage() {

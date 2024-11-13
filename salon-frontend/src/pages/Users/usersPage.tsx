@@ -36,10 +36,10 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import { useAppointment } from "@/lib/hooks/useAppointment";
-import { UserForm } from "./userForm";
+import { UserForm } from "@/pages/Users/userForm";
 import { useAvailability } from "@/lib/hooks/useAvailability";
 import { DateSelectArg, EventInput } from "@fullcalendar/core/index.js";
-import BookAppointmentForm from "../BookAppointment/bookAppointmentForm";
+import BookAppointmentForm from "@/pages/BookAppointment/bookAppointmentForm";
 
 const userSchema = z.object({
     firstName: z.string().min(1, "First name is required"),

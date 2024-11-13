@@ -1,4 +1,4 @@
-import { doc, getDoc } from "firebase/firestore";
+import { doc, getDoc, query, where } from "firebase/firestore";
 import { firebaseDb } from "@/lib/firebase";
 import { SalonGood, SalonService } from "@/lib/types/types";
 import { deleteDoc } from "firebase/firestore";
@@ -18,8 +18,14 @@ interface DefaultGoodProp {
 interface GetServiceProps {
     serviceId: string;
 }
+interface GetSelectServicesProps {
+    serviceIds: string[];
+}
 interface UseServiceReturn {
     getServices: () => Promise<SalonService[]>;
+    getSelectServices: (
+        props: GetSelectServicesProps
+    ) => Promise<Map<string, SalonService>>;
     getGoods: () => Promise<SalonGood[]>;
     getService: (props: GetServiceProps) => Promise<SalonService>;
     modifyService: (props: DefaultServiceProp) => Promise<void>;
@@ -28,14 +34,44 @@ interface UseServiceReturn {
     removeGood: (props: DefaultGoodProp) => Promise<void>;
 }
 export const useService = (): UseServiceReturn => {
-    const getService = async (props: GetServiceProps): Promise<SalonService> => {
+    const getSelectServices = async (
+        props: GetSelectServicesProps
+    ): Promise<Map<string, SalonService>> => {
+        if (props.serviceIds.length === 0) {
+            return new Map();
+        }
+
+        const servicesCollection = collection(firebaseDb, "services");
+
+        const q = query(
+            servicesCollection,
+            where("__name__", "in", props.serviceIds)
+        );
+
+        try {
+            const querySnapshot = await getDocs(q);
+            const resultMap = new Map<string, SalonService>();
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data() as SalonService;
+                resultMap.set(doc.id, { ...data, id: doc.id });
+            });
+
+            return resultMap;
+        } catch (error) {
+            console.error("Error fetching services:", error);
+            throw new Error("Failed to fetch services.");
+        }
+    };
+    const getService = async (
+        props: GetServiceProps
+    ): Promise<SalonService> => {
         const docRef = doc(firebaseDb, "services", props.serviceId);
         const docSnap = await getDoc(docRef);
 
-        if (!docSnap.exists()) 
-            throw new Error("doc does not exist");
+        if (!docSnap.exists()) throw new Error("doc does not exist");
         return {
-            ...((docSnap.data() as unknown as SalonService)),
+            ...(docSnap.data() as unknown as SalonService),
             id: docSnap.id,
         };
     };
@@ -107,6 +143,7 @@ export const useService = (): UseServiceReturn => {
         modifyService,
         removeService,
         removeGood,
-        getService
+        getService,
+        getSelectServices,
     };
 };

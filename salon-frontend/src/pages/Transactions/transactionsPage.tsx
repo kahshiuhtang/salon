@@ -16,19 +16,24 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Navbar from "@/pages/Navbar/navbar";
 import { useTransaction } from "@/lib/hooks/useTransaction";
 import CreateTransactionForm from "./createTransactionForm";
-import TransactionDetails from "@/pages/Transactions/transactionDetails";
+import TransactionEditor from "./transactionEditor";
 import { Appointment, SalonTransaction } from "@/lib/types/types";
 
 export default function TransactionsPage() {
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [transactions, setTransactions] = useState<SalonTransaction[]>([]);
-    const [selectedItem, setSelectedItem] = useState<
-        Appointment | SalonTransaction | null
-    >(null);
+    const [selectedApp, setSelectedApp] = useState<Appointment | null>(null);
+    const [selectedTrans, setSelectedTrans] = useState<SalonTransaction | null>(
+        null
+    );
     const [filter, setFilter] = useState("");
     const [activeTab, setActiveTab] = useState("transactions");
-    const { getUnprocessedApps, getTransactions, createTransaction } =
-        useTransaction();
+    const {
+        getUnprocessedApps,
+        getTransactions,
+        createTransaction,
+        updateTransaction,
+    } = useTransaction();
 
     const fetchUnprocessedApps = async function () {
         const apps = await getUnprocessedApps();
@@ -46,11 +51,17 @@ export default function TransactionsPage() {
     }, []);
 
     useEffect(() => {
-        setSelectedItem(null);
+        setSelectedTrans(null);
+        setSelectedApp(null);
     }, [activeTab]);
 
-    const handleItemSelect = (item: Appointment | SalonTransaction) => {
-        setSelectedItem(item);
+    const handleAppSelect = (item: Appointment) => {
+        setSelectedApp(item);
+        setSelectedTrans(null);
+    };
+    const handlTransSelect = (item: SalonTransaction) => {
+        setSelectedApp(null);
+        setSelectedTrans(item);
     };
 
     const handleCreateTransaction = async (
@@ -59,16 +70,24 @@ export default function TransactionsPage() {
         const trans = await createTransaction({ transaction: newTransaction });
         setTransactions([...transactions, trans]);
         setAppointments(appointments.filter((apt) => apt.id !== trans.id));
-        setSelectedItem(null);
+        setSelectedTrans(null);
+        setSelectedApp(null);
     };
 
-    // const handleUpdateTransaction = (updatedTransaction: SalonTransaction) => {
-    //     const updatedTransactions = transactions.map((trans) =>
-    //         trans.id === updatedTransaction.id ? updatedTransaction : trans
-    //     );
-    //     setTransactions(updatedTransactions);
-    //     setSelectedItem(null);
-    // };
+    const handleUpdateTransaction = async (
+        updatedTransaction: SalonTransaction
+    ) => {
+        await updateTransaction({
+            updatedTransaction: updatedTransaction,
+            transactionId: updatedTransaction.id,
+        });
+        const updatedTransactions = transactions.map((trans) =>
+            trans.transId === updatedTransaction.id ? updatedTransaction : trans
+        );
+        setTransactions(updatedTransactions);
+        setSelectedTrans(updatedTransaction);
+        setSelectedApp(null);
+    };
 
     const filteredItems =
         activeTab === "appointments"
@@ -157,13 +176,26 @@ export default function TransactionsPage() {
                                                 </TableCell>
                                                 <TableCell>
                                                     <Button
-                                                        onClick={() =>
-                                                            handleItemSelect(
-                                                                apt
-                                                            )
-                                                        }
+                                                        onClick={() => {
+                                                            if (
+                                                                !(
+                                                                    "totalCost" in
+                                                                    apt
+                                                                )
+                                                            ) {
+                                                                handleAppSelect(
+                                                                    apt
+                                                                );
+                                                            } else {
+                                                                handlTransSelect(
+                                                                    apt
+                                                                );
+                                                            }
+                                                        }}
                                                     >
-                                                        Close Appointment
+                                                        {!("totalCost" in apt)
+                                                            ? "Close Appointment"
+                                                            : "View Details"}
                                                     </Button>
                                                 </TableCell>
                                             </TableRow>
@@ -199,39 +231,57 @@ export default function TransactionsPage() {
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
-                                        {filteredItems.map((trans) => (
-                                            <TableRow key={trans.id}>
+                                        {filteredItems.map((item) => (
+                                            <TableRow
+                                                key={
+                                                    "transId" in item
+                                                        ? item.transId
+                                                        : item.id
+                                                }
+                                            >
                                                 <TableCell>
-                                                    {trans.date.toLocaleDateString()}{" "}
-                                                    {trans.time}
+                                                    {item.date.toLocaleDateString()}{" "}
+                                                    {item.time}
                                                 </TableCell>
                                                 <TableCell>
-                                                    {trans.services
+                                                    {item.services
                                                         .map((s) => s.service)
                                                         .join(", ")}
                                                 </TableCell>
                                                 <TableCell>
-                                                    {trans.involvedEmployees.join(
+                                                    {item.involvedEmployees.join(
                                                         ", "
                                                     )}
                                                 </TableCell>
                                                 <TableCell>
-                                                    $
-                                                    {"totalCost" in trans
-                                                        ? trans.totalCost.toFixed(
+                                                    {"totalCost" in item
+                                                        ? `$${item.totalCost.toFixed(
                                                               2
-                                                          )
-                                                        : "0"}
+                                                          )}`
+                                                        : "$0.00"}
                                                 </TableCell>
                                                 <TableCell>
                                                     <Button
-                                                        onClick={() =>
-                                                            handleItemSelect(
-                                                                trans
-                                                            )
-                                                        }
+                                                        onClick={() => {
+                                                            if (
+                                                                !(
+                                                                    "totalCost" in
+                                                                    item
+                                                                )
+                                                            ) {
+                                                                handleAppSelect(
+                                                                    item
+                                                                );
+                                                            } else {
+                                                                handlTransSelect(
+                                                                    item
+                                                                );
+                                                            }
+                                                        }}
                                                     >
-                                                        View Details
+                                                        {!("totalCost" in item)
+                                                            ? "Close Appointment"
+                                                            : "View Details"}
                                                     </Button>
                                                 </TableCell>
                                             </TableRow>
@@ -243,15 +293,18 @@ export default function TransactionsPage() {
                     </TabsContent>
                 </Tabs>
 
-                {selectedItem && "state" in selectedItem && (
+                {selectedApp && activeTab !== "transactions" && (
                     <CreateTransactionForm
-                        appointment={selectedItem}
+                        appointment={selectedApp}
                         onCreateSubmit={handleCreateTransaction}
                     />
                 )}
 
-                {selectedItem && !("state" in selectedItem) && (
-                    <TransactionDetails transaction={selectedItem} />
+                {selectedTrans && activeTab == "transactions" && (
+                    <TransactionEditor
+                        transaction={selectedTrans}
+                        onEditSubmit={handleUpdateTransaction}
+                    />
                 )}
             </div>
         </div>

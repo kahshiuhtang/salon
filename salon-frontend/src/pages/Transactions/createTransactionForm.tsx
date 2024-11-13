@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -13,6 +13,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { Appointment, SalonTransaction } from "@/lib/types/types";
+import { useService } from "@/lib/hooks/useService";
 
 export default function CreateTransactionForm({
     appointment,
@@ -22,21 +23,41 @@ export default function CreateTransactionForm({
     onCreateSubmit: (newTransaction: SalonTransaction) => void;
 }) {
     const [defaultTaxRate] = useState(0.08); // 8% default tax rate
-    const { register, handleSubmit, control, watch } =
+    const [total, setTotal] = useState(0);
+    const { getSelectServices } = useService();
+    const getCostMap = async function () {
+        const serviceIds: string[] = appointment.services.map((service) => {
+            return service.service;
+        });
+        const costMap = await getSelectServices({ serviceIds });
+        console.log(costMap);
+        const tot = appointment.services.reduce((curTotal, service) => {
+            const serviceCost = costMap.get(service.service)?.price || 0;
+            return curTotal + serviceCost;
+        }, 0);
+        setTotal(tot);
+    };
+    useEffect(() => {
+        getCostMap();
+    }, []);
+    const { register, handleSubmit, control, watch, reset } =
         useForm<SalonTransaction>({
             defaultValues: {
                 transId: appointment.id,
                 dateTransCreated: new Date(),
-                totalCost: appointment.services.reduce(
-                    (total, service) => total + (service ? 10 : 20),
-                    0
-                ),
+                totalCost: total,
                 tip: 0,
                 taxRate: defaultTaxRate,
                 involvedEmployees: appointment.involvedEmployees,
             },
         });
 
+    useEffect(() => {
+        reset((formValues) => ({
+            ...formValues,
+            totalCost: total,
+        }));
+    }, [total, reset]);
     const watchTotalCost = watch("totalCost");
     const watchTip = watch("tip");
     const watchTaxRate = watch("taxRate");

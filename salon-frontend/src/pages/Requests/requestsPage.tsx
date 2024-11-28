@@ -42,15 +42,17 @@ export default function RequestsPage() {
     }, [user, navigate]);
 
     const userId = user?.id || "";
-    function updateRequests(appId: string, newStatus: AppointmentState){
-        const updatedItems = requests.map(request =>
+    function updateRequests(appId: string, newStatus: AppointmentState) {
+        const updatedItems = requests.map((request) =>
             request.id === appId ? { ...request, state: newStatus } : request
         );
         setRequests(updatedItems);
         return true;
     }
-    function deleteRequest(appId: string){
-        const validRequests = requests.filter(request => request.id !== appId);
+    function deleteRequest(appId: string) {
+        const validRequests = requests.filter(
+            (request) => request.id !== appId
+        );
         setRequests(validRequests);
         return true;
     }
@@ -213,9 +215,9 @@ export default function RequestsPage() {
                         </h1>
                         {filteredRequests.length === 0 ? (
                             <p className="text-gray-600">
-                            Welcome, User. Your appointments and requests will
-                            be displayed here.
-                        </p>
+                                Welcome, User. Your appointments and requests
+                                will be displayed here.
+                            </p>
                         ) : (
                             <div className="grid gap-6">
                                 {filteredRequests.map(

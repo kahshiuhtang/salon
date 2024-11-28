@@ -71,7 +71,7 @@ export default function RequestCard({
 }: RequestCardProps) {
     const [currentAppState, setCurrentAppState] =
         useState<Appointment>(appointment);
-        const [allServices, setAllServices] = useState<SalonService[]>([]);
+    const [allServices, setAllServices] = useState<SalonService[]>([]);
     const [usernameCache, setUsernameCache] = useState<{
         [key: string]: SalonName;
     }>({});
@@ -125,13 +125,23 @@ export default function RequestCard({
             getUsername(currServices.tech);
         }
     }, []);
-    
+
     const handleApprove = async function () {
         try {
             if (currentAppState.state === "CONFIRMED") {
                 toast({
                     title: "Already Confirmed",
                     description: "This appointment has already been confirmed.",
+                });
+                return;
+            } else if (
+                currentAppState.state !== "REQUESTED" &&
+                currentAppState.state !== "COUNTERED-USER"
+            ) {
+                toast({
+                    title: "Cannot approve appointment from this state.",
+                    description:
+                        "Appointment needs to either have been requested by user or countered by the user.",
                 });
                 return;
             }
@@ -318,11 +328,11 @@ export default function RequestCard({
                         <div className="grid sm:grid-cols-2 gap-4">
                             <div className="grid gap-2">
                                 <Label>Hours</Label>
-                                <Input value={hours} />
+                                <Input value={hours} disabled />
                             </div>
                             <div className="grid gap-2">
                                 <Label>Minutes</Label>
-                                <Input value={minutes} />
+                                <Input value={minutes} disabled />
                             </div>
                         </div>
                         <div className="grid gap-2">
@@ -342,66 +352,63 @@ export default function RequestCard({
                             />
                         </div>
                         <div className="flex flex-wrap gap-4">
-                                <Button
-                                    variant="secondary"
-                                    onClick={handleApprove}
-                                >
-                                    Approve Appointment
-                                </Button>
-                                <Dialog>
-                                    <DialogTrigger asChild>
-                                        <Button variant="outline">
-                                            Suggest Changes
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-[425px]">
-                                        <BookAppointmentForm
-                                            insideCard={true}
-                                            userRole={userRole}
-                                            appointment={appointment}
-                                        />
-                                    </DialogContent>
-                                </Dialog>
-                                <Dialog
-                                    open={isDialogOpen}
-                                    onOpenChange={setIsDialogOpen}
-                                >
-                                    <DialogTrigger asChild>
-                                        <Button variant="destructive">
+                            <Button variant="secondary" onClick={handleApprove}>
+                                Approve Appointment
+                            </Button>
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline">
+                                        Suggest Changes
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <BookAppointmentForm
+                                        insideCard={true}
+                                        userRole={userRole}
+                                        appointment={appointment}
+                                    />
+                                </DialogContent>
+                            </Dialog>
+                            <Dialog
+                                open={isDialogOpen}
+                                onOpenChange={setIsDialogOpen}
+                            >
+                                <DialogTrigger asChild>
+                                    <Button variant="destructive">
+                                        Cancel Appointment
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                        <DialogTitle>
                                             Cancel Appointment
-                                        </Button>
-                                    </DialogTrigger>
-                                    <DialogContent className="sm:max-w-[425px]">
-                                        <DialogHeader>
-                                            <DialogTitle>
-                                                Cancel Appointment
-                                            </DialogTitle>
-                                            <DialogDescription>
-                                                Are you sure you want to cancel
-                                                this appointment? This action
-                                                cannot be undone.
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <DialogFooter className="sm:justify-start">
-                                            <DialogClose asChild>
-                                                <Button
-                                                    type="button"
-                                                    variant="secondary"
-                                                >
-                                                    No, Keep Appointment
-                                                </Button>
-                                            </DialogClose>
+                                        </DialogTitle>
+                                        <DialogDescription>
+                                            Are you sure you want to cancel this
+                                            appointment? This action cannot be
+                                            undone.
+                                        </DialogDescription>
+                                    </DialogHeader>
+                                    <DialogFooter className="sm:justify-start">
+                                        <DialogClose asChild>
                                             <Button
                                                 type="button"
-                                                variant="destructive"
-                                                onClick={handleDelete}
+                                                variant="secondary"
                                             >
-                                                Yes, Cancel Appointment
+                                                No, Keep Appointment
                                             </Button>
-                                        </DialogFooter>
-                                    </DialogContent>
-                                </Dialog>
-                            </div>
+                                        </DialogClose>
+                                        <Button
+                                            type="button"
+                                            variant="destructive"
+                                            onClick={handleDelete}
+                                        >
+                                            Yes, Cancel Appointment
+                                        </Button>
+                                    </DialogFooter>
+                                </DialogContent>
+                            </Dialog>
+                        </div>
                     </div>
                 </CardContent>
             </Card>

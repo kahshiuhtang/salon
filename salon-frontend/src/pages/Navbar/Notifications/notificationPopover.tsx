@@ -70,7 +70,7 @@ export default function NotificationDropdown() {
                     )}
                 </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-80" align="end">
+            <DropdownMenuContent className="w-96" align="end">
                 <div className="p-4">
                     <h3 className="font-semibold mb-2">Notifications</h3>
                     <ScrollArea className="h-[300px]">
@@ -80,31 +80,31 @@ export default function NotificationDropdown() {
                                     key={notification.id}
                                     className="mb-2 p-2 rounded bg-secondary"
                                 >
-                                    <h4 className="text-sm font-medium">
-                                        {notification.title}
-                                    </h4>
+                                    <div className="flex justify-between items-center mt-1">
+                                        <h4 className="text-sm font-medium">
+                                            {"["}
+                                            {notification.type}
+                                            {"]: "}
+                                            {notification.title}
+                                        </h4>
+                                    </div>
                                     <p className="text-sm">
                                         {notification.description}
                                     </p>
-                                    <div className="flex justify-between items-center mt-1">
-                                        <span className="text-xs text-muted-foreground">
-                                            {notification.type}
-                                        </span>
-                                        <span className="text-xs text-muted-foreground">
-                                            {(
-                                                notification.dateSent as any as Timestamp
-                                            )
-                                                .toDate()
-                                                .toLocaleString("en-US", {
-                                                    weekday: "long",
-                                                    month: "long",
-                                                    day: "numeric",
-                                                    hour: "2-digit",
-                                                    minute: "2-digit",
-                                                    hour12: false, // 24-hour format
-                                                })}
-                                        </span>
-                                    </div>
+                                    <span className="text-xs text-muted-foreground">
+                                        {(
+                                            notification.dateSent as any as Timestamp
+                                        )
+                                            .toDate()
+                                            .toLocaleString("en-US", {
+                                                weekday: "long",
+                                                month: "long",
+                                                day: "numeric",
+                                                hour: "2-digit",
+                                                minute: "2-digit",
+                                                hour12: false, // 24-hour format
+                                            })}
+                                    </span>
                                 </div>
                             ))
                         ) : (

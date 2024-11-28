@@ -177,11 +177,19 @@ export default function BookAppointmentForm({
                     ownerId: appointment.ownerId,
                     hasTransaction: appointment.hasTransaction,
                 });
-                toast({
-                    title: "Update received",
-                    description:
-                        "Your requested change has been received. Please wait for confirmation from Salon staff.",
-                });
+                if (userRole !== "USER") {
+                    toast({
+                        title: "Update received",
+                        description:
+                            "Your requested change has been received and the user has been notified. Please wait for a response from the user before proceding.",
+                    });
+                } else {
+                    toast({
+                        title: "Update received",
+                        description:
+                            "Your requested change has been received. Please wait for confirmation from Salon staff.",
+                    });
+                }
                 if (appointment.ownerId == userId) {
                     sendNotifsToAllParties(
                         userId,

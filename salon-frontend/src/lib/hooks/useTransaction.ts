@@ -42,14 +42,15 @@ export const useTransaction = (): UseTransactionReturn => {
         const q = query(transRef);
         const querySnapshot = await getDocs(q);
         const trans: SalonTransaction[] = querySnapshot.docs.map((doc) => {
-            return {
-                id: doc.id,
+            let res = {
                 ...doc.data(),
                 date: (doc.data().date as unknown as Timestamp).toDate(),
                 dateTransCreated: (
                     doc.data().dateTransCreated as unknown as Timestamp
                 ).toDate(),
             } as unknown as SalonTransaction;
+            res.id = doc.id;
+            return res;
         });
         return trans;
     };

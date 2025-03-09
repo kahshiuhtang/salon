@@ -32,13 +32,14 @@ export default function TransactionsPage() {
     useEffect(() => {
         fetchUnprocessedApps();
         fetchTransactions();
+        console.log("AD")
     }, []);
 
     useEffect(() => {
         setSelectedTrans(null);
         setSelectedApp(null);
+        console.log("AC")
     }, [activeTab]);
-
     const {
         getUnprocessedApps,
         getTransactions,

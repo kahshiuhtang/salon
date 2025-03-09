@@ -23,7 +23,7 @@ export default function TransactionEditor({
     onEditSubmit: (editedTransaction: SalonTransaction) => void;
 }) {
     const [isEditing, setIsEditing] = useState(false);
-    const [employeeNames, setEmployeeNames] = useState<string []>([]);
+    const [employeeNames, setEmployeeNames] = useState<string[]>([]);
 
     const { register, handleSubmit, control, watch, reset } =
         useForm<SalonTransaction>({
@@ -31,13 +31,21 @@ export default function TransactionEditor({
         });
     const { getEmployeeFromId } = useUsers();
 
-    useEffect(() => {
-        reset(transaction);
-    }, [transaction, reset]);
-
     const watchTotalCost = watch("totalCost");
     const watchTip = watch("tip");
     const watchTaxRate = watch("taxRate");
+    useEffect(() => {
+        async function getInvolvedEmployees(){
+            const employees: string[] = [];
+            for(const employeeId of transaction.involvedEmployees){
+                const employee = await getEmployeeFromId({"userId": employeeId});
+                employees.push(employee.firstName);
+            }
+            setEmployeeNames(employees);
+        }
+        
+        getInvolvedEmployees();
+    }, [transaction]);
 
     function calculateTotal(){
         const subtotal = watchTotalCost;
@@ -45,20 +53,16 @@ export default function TransactionEditor({
         const tax = subtotal * watchTaxRate;
         return (subtotal + tip + tax).toFixed(2);
     };
-    async function getInvolvedEmployees(){
-        let employees: string[] = [];
-        for(const employeeId of transaction.involvedEmployees){
-            let employee = await getEmployeeFromId({"userId": employeeId});
-            employees.push(employee.firstName);
-        }
-        setEmployeeNames(employees)
-    }
+
     function onSubmit(data: SalonTransaction){
         onEditSubmit({ ...data, total: parseFloat(calculateTotal()) });
         setIsEditing(false);
     };
 
-    getInvolvedEmployees();
+    function handleCancel() {
+        reset();
+        setIsEditing(false);
+    }
 
     return (
         <Card className="w-full max-w-md mx-auto">
@@ -168,7 +172,7 @@ export default function TransactionEditor({
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={() => setIsEditing(false)}
+                                onClick={handleCancel}
                             >
                                 Cancel
                             </Button>
@@ -176,7 +180,10 @@ export default function TransactionEditor({
                     ) : (
                         <Button
                             type="button"
-                            onClick={() => setIsEditing(true)}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setIsEditing(true);
+                            }}
                         >
                             Edit Transaction
                         </Button>

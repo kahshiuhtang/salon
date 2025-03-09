@@ -26,6 +26,7 @@ export default function CreateTransactionForm({
     const [total, setTotal] = useState(0);
 
     useEffect(() => {
+        console.log("AL")
         getCostMap();
     }, []);
     
@@ -44,6 +45,7 @@ export default function CreateTransactionForm({
             },
         });
     useEffect(() => {
+        console.log("AB")
         reset((formValues) => ({
             ...formValues,
             totalCost: total,

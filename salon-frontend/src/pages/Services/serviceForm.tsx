@@ -68,7 +68,7 @@ export default function ServiceForm({
     const [activeTab, setActiveTab] = useState<"service" | "good">("service");
     const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-    const serviceForm = useForm<SalonService>({
+    const servicesForm = useForm<SalonService>({
         resolver: zodResolver(salonServiceSchema),
         defaultValues: {
             id: "",
@@ -79,7 +79,7 @@ export default function ServiceForm({
         },
     });
 
-    const goodForm = useForm<SalonGood>({
+    const goodsForm = useForm<SalonGood>({
         resolver: zodResolver(salonGoodSchema),
         defaultValues: {
             id: "",
@@ -104,7 +104,7 @@ export default function ServiceForm({
                 } added successfully`,
             });
             setIsDialogOpen(false);
-            activeTab === "service" ? serviceForm.reset() : goodForm.reset();
+            activeTab === "service" ? servicesForm.reset() : goodsForm.reset();
             if (activeTab === "service") {
                 setServices([...services, data as SalonService]);
             } else {
@@ -144,15 +144,15 @@ export default function ServiceForm({
                             <TabsTrigger value="good">Good</TabsTrigger>
                         </TabsList>
                         <TabsContent value="service">
-                            <Form {...serviceForm}>
+                            <Form {...servicesForm}>
                                 <form
-                                    onSubmit={serviceForm.handleSubmit(
+                                    onSubmit={servicesForm.handleSubmit(
                                         onSubmit
                                     )}
                                     className="space-y-8"
                                 >
                                     <FormField
-                                        control={serviceForm.control}
+                                        control={servicesForm.control}
                                         name="name"
                                         render={({ field }) => (
                                             <FormItem>
@@ -168,7 +168,7 @@ export default function ServiceForm({
                                         )}
                                     />
                                     <FormField
-                                        control={serviceForm.control}
+                                        control={servicesForm.control}
                                         name="type"
                                         render={({ field }) => (
                                             <FormItem>
@@ -207,7 +207,7 @@ export default function ServiceForm({
                                         )}
                                     />
                                     <FormField
-                                        control={serviceForm.control}
+                                        control={servicesForm.control}
                                         name="price"
                                         render={({ field }) => (
                                             <FormItem>
@@ -231,7 +231,7 @@ export default function ServiceForm({
                                         )}
                                     />
                                     <FormField
-                                        control={serviceForm.control}
+                                        control={servicesForm.control}
                                         name="time"
                                         render={({ field }) => (
                                             <FormItem>
@@ -261,13 +261,13 @@ export default function ServiceForm({
                             </Form>
                         </TabsContent>
                         <TabsContent value="good">
-                            <Form {...goodForm}>
+                            <Form {...goodsForm}>
                                 <form
-                                    onSubmit={goodForm.handleSubmit(onSubmit)}
+                                    onSubmit={goodsForm.handleSubmit(onSubmit)}
                                     className="space-y-8"
                                 >
                                     <FormField
-                                        control={goodForm.control}
+                                        control={goodsForm.control}
                                         name="name"
                                         render={({ field }) => (
                                             <FormItem>
@@ -283,7 +283,7 @@ export default function ServiceForm({
                                         )}
                                     />
                                     <FormField
-                                        control={goodForm.control}
+                                        control={goodsForm.control}
                                         name="price"
                                         render={({ field }) => (
                                             <FormItem>

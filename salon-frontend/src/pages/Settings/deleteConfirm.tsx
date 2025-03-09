@@ -35,7 +35,7 @@ const DeleteConfirmation = forwardRef<
         closeModal,
     }));
 
-    const handleDelete = () => {
+    function handleDelete(){
         onDelete();
         closeModal();
     };

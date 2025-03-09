@@ -32,13 +32,11 @@ export default function TransactionsPage() {
     useEffect(() => {
         fetchUnprocessedApps();
         fetchTransactions();
-        console.log("AD")
     }, []);
 
     useEffect(() => {
         setSelectedTrans(null);
         setSelectedApp(null);
-        console.log("AC")
     }, [activeTab]);
     const {
         getUnprocessedApps,
@@ -65,7 +63,6 @@ export default function TransactionsPage() {
         setSelectedApp(null);
         setSelectedTrans(item);
     };
-
     async function handleCreateTransaction(
         newTransaction: SalonTransaction
     ){
@@ -79,15 +76,24 @@ export default function TransactionsPage() {
     async function handleUpdateTransaction(
         updatedTransaction: SalonTransaction
     ){
+
+        const entireTransactionInd = transactions.findIndex((item)=> item.transId == updatedTransaction.transId);
+        if(entireTransactionInd < 0){
+            return;
+        }
+        const transToUpdate = transactions[entireTransactionInd];
+        transToUpdate.taxRate = updatedTransaction.taxRate;
+        transToUpdate.totalCost = updatedTransaction.totalCost;
+        transToUpdate.tip = updatedTransaction.tip;
         await updateTransaction({
-            updatedTransaction: updatedTransaction,
-            transactionId: updatedTransaction.id,
+            updatedTransaction: transToUpdate,
+            transactionId: transToUpdate.id,
         });
         const updatedTransactions = transactions.map((trans) =>
-            trans.transId === updatedTransaction.id ? updatedTransaction : trans
+            trans.transId === updatedTransaction.transId ? transToUpdate : trans
         );
         setTransactions(updatedTransactions);
-        setSelectedTrans(updatedTransaction);
+        setSelectedTrans(transToUpdate);
         setSelectedApp(null);
     };
 
@@ -228,7 +234,8 @@ export default function TransactionsPage() {
                                             <TableHead>Date & Time</TableHead>
                                             <TableHead>Services</TableHead>
                                             <TableHead>Technicians</TableHead>
-                                            <TableHead>Total</TableHead>
+                                            <TableHead>Subtotal</TableHead>
+                                            <TableHead>Tip</TableHead>
                                             <TableHead>Action</TableHead>
                                         </TableRow>
                                     </TableHeader>
@@ -258,6 +265,13 @@ export default function TransactionsPage() {
                                                 <TableCell>
                                                     {"totalCost" in item
                                                         ? `$${item.totalCost.toFixed(
+                                                              2
+                                                          )}`
+                                                        : "$0.00"}
+                                                </TableCell>
+                                                <TableCell>
+                                                    {"tip" in item
+                                                        ? `$${item.tip.toFixed(
                                                               2
                                                           )}`
                                                         : "$0.00"}

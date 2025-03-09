@@ -88,7 +88,7 @@ export default function ServiceForm({
         },
     });
 
-    const onSubmit = async (data: SalonService | SalonGood) => {
+    async function onSubmit(data: SalonService | SalonGood){
         try {
             const db = getFirestore();
             const collectionName =

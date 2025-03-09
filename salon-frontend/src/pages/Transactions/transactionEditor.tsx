@@ -24,13 +24,15 @@ export default function TransactionEditor({
 }) {
     const [isEditing, setIsEditing] = useState(false);
     const [employeeNames, setEmployeeNames] = useState<string[]>([]);
-
     const { register, handleSubmit, control, watch, reset } =
-        useForm<SalonTransaction>({
-            defaultValues: transaction,
-        });
+        useForm<SalonTransaction>({defaultValues:{
+            transId:transaction.transId,
+            dateTransCreated: new Date(transaction.dateTransCreated),
+            totalCost: transaction.totalCost,
+            tip: transaction.tip,
+            taxRate: transaction.taxRate,
+        }});
     const { getEmployeeFromId } = useUsers();
-
     const watchTotalCost = watch("totalCost");
     const watchTip = watch("tip");
     const watchTaxRate = watch("taxRate");
@@ -48,9 +50,9 @@ export default function TransactionEditor({
     }, [transaction]);
 
     function calculateTotal(){
-        const subtotal = watchTotalCost;
-        const tip = watchTip;
-        const tax = subtotal * watchTaxRate;
+        const subtotal = watchTotalCost || transaction.totalCost;
+        const tip = watchTip || transaction.tip;;
+        const tax = subtotal * (watchTaxRate || transaction.taxRate);
         return (subtotal + tip + tax).toFixed(2);
     };
 
@@ -84,11 +86,9 @@ export default function TransactionEditor({
                         <Label htmlFor="dateTransCreated">Date Created</Label>
                         <Input
                             id="dateTransCreated"
-                            type="text"
+                            type="date"
+                            value={new Date(transaction.dateTransCreated).toISOString().split('T')[0]}
                             readOnly
-                            value={new Date(
-                                transaction.dateTransCreated
-                            ).toLocaleString()}
                         />
                     </div>
                     <div>
@@ -144,6 +144,7 @@ export default function TransactionEditor({
                                     type="number"
                                     step="0.01"
                                     {...field}
+                                    value={transaction.taxRate}
                                     onChange={(e) =>
                                         field.onChange(
                                             parseFloat(e.target.value)
@@ -172,7 +173,10 @@ export default function TransactionEditor({
                             <Button
                                 type="button"
                                 variant="outline"
-                                onClick={handleCancel}
+                                onClick={(e) =>{
+                                    e.preventDefault();
+                                    handleCancel();
+                                }}
                             >
                                 Cancel
                             </Button>

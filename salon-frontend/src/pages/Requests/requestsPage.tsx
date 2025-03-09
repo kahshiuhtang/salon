@@ -203,8 +203,8 @@ export default function RequestsPage() {
                             Moderator Dashboard
                         </h1>
                         <p className="text-gray-600">
-                            Welcome, Moderator. Your content will be displayed
-                            here.
+                        Welcome! Your appointments and requests
+                        will be displayed here.
                         </p>
                     </div>
                 )}
@@ -215,7 +215,7 @@ export default function RequestsPage() {
                         </h1>
                         {filteredRequests.length === 0 ? (
                             <p className="text-gray-600">
-                                Welcome, User. Your appointments and requests
+                                Welcome! Your appointments and requests
                                 will be displayed here.
                             </p>
                         ) : (

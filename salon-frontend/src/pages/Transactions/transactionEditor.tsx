@@ -13,6 +13,7 @@ import {
     CardTitle,
 } from "@/components/ui/card";
 import { SalonTransaction } from "@/lib/types/types";
+import { useUsers } from "@/lib/hooks/useUsers";
 
 export default function TransactionEditor({
     transaction,
@@ -22,6 +23,7 @@ export default function TransactionEditor({
     onEditSubmit: (editedTransaction: SalonTransaction) => void;
 }) {
     const [isEditing, setIsEditing] = useState(false);
+    const [employeeNames, setEmployeeNames] = useState<string []>([]);
 
     const { register, handleSubmit, control, watch, reset } =
         useForm<SalonTransaction>({
@@ -42,7 +44,16 @@ export default function TransactionEditor({
         const tax = subtotal * watchTaxRate;
         return (subtotal + tip + tax).toFixed(2);
     };
-
+    const {getEmployeeFromId} = useUsers();
+    async function getInvolvedEmployees(){
+        let employees: string[] = [];
+        for(const employeeId of transaction.involvedEmployees){
+            let employee = await getEmployeeFromId({"userId": employeeId});
+            employees.push(employee.firstName);
+        }
+        setEmployeeNames(employees)
+    }
+    getInvolvedEmployees();
     const onSubmit = (data: SalonTransaction) => {
         onEditSubmit({ ...data, total: parseFloat(calculateTotal()) });
         setIsEditing(false);
@@ -146,7 +157,7 @@ export default function TransactionEditor({
                     </div>
                     <div>
                         <Label>Involved Employees</Label>
-                        <div>{transaction.involvedEmployees.join(", ")}</div>
+                        <div>{employeeNames.join(", ")}</div>
                     </div>
                 </CardContent>
                 <CardFooter className="flex justify-between">

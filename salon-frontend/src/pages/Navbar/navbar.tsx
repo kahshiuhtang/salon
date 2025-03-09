@@ -41,13 +41,15 @@ export default function Navbar() {
                         <Home className="mr-1 h-4 w-4" />
                         Home
                     </Link>
-                    <Link
-                        to="/book"
-                        className="flex items-center hover:text-primary-foreground/80"
-                    >
-                        <Book className="mr-1 h-4 w-4" />
-                        Book
-                    </Link>
+                    {role === "USER" && (
+                        <Link
+                            to="/book"
+                            className="flex items-center hover:text-primary-foreground/80"
+                        >
+                            <Book className="mr-1 h-4 w-4" />
+                            Book
+                        </Link>
+                    )}
                     {role !== "USER" && (
                         <Link
                             to="/users"

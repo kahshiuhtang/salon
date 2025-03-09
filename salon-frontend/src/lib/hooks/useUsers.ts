@@ -142,7 +142,7 @@ export const useUsers = (): UseUserReturn => {
             throw new Error("arguments invalid");
         }
         const userId = props.userId;
-        const userDoc = doc(firebaseDb, "employees", userId);
+        const userDoc = doc(firebaseDb, "users", userId);
         const userSnapshot = await getDoc(userDoc);
 
         if (!userSnapshot.exists()) throw new Error("user does not exist");

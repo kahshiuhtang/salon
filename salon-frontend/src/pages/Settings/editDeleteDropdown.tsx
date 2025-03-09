@@ -19,9 +19,9 @@ import {
     DialogClose,
 } from "@/components/ui/dialog";
 
-import AvailabilityCard from "@/pages/Settings/availabilityCard";
 import { Availability } from "@/lib/types/types";
 import { useAvailability } from "@/lib/hooks/useAvailability";
+import AvailabilityCard from "@/pages/Settings/availabilityCard";
 
 interface EditDeleteDropdownProps {
     availability: Availability;
@@ -41,17 +41,17 @@ export default function EditDeleteDropdown({
 
     const { deleteAvailability } = useAvailability();
 
-    const handleEdit = () => {
+    function handleEdit(){
         setIsDropdownOpen(false);
         setIsEditDialogOpen(true);
     };
 
-    const handleDelete = () => {
+    function handleDelete(){
         setIsDropdownOpen(false);
         setIsDeleteDialogOpen(true);
     };
 
-    const confirmDelete = () => {
+    function confirmDelete(){
         setIsDeleteDialogOpen(false);
         deleteAvailability({ userId, availabilityId: availability.id });
         deleteAvails(availability.id);

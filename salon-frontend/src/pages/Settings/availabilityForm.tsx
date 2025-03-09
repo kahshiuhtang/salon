@@ -50,9 +50,15 @@ export default function AvailabilityForm({
     availability,
     updateAvails,
 }: AvailabilityFormProps) {
+    const { user } = useUser();
+    const { toast } = useToast();
+    const { addAvailability, updateAvailability } = useAvailability();
+    const navigate = useNavigate();
+    
     const today = new Date().toISOString().split("T")[0]; // Get current date in YYYY-MM-DD format
     const startTimeString = `${today} ${availability?.startTime}`;
     const endTimeString = `${today} ${availability?.endTime}`;
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -71,10 +77,7 @@ export default function AvailabilityForm({
                 : "",
         },
     });
-    const { user } = useUser();
-    const { toast } = useToast();
-    const { addAvailability, updateAvailability } = useAvailability();
-    const navigate = useNavigate();
+
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             var userId = "";

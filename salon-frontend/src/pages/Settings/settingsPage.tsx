@@ -4,12 +4,12 @@ import Navbar from "@/pages/Navbar/navbar";
 import UserInfoForm from "@/pages/CreateProfile/userInfoForm";
 import AvailablityCalendar from "@/pages/Settings/availabilityCalendar";
 import AvailabilityCard from "@/pages/Settings/availabilityCard";
+import AvailabilityListView from "@/pages/Settings/listView";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CalendarIcon, ListIcon, Settings } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
-import AvailabilityListView from "@/pages/Settings/listView";
 import { SalonUser } from "@/lib/types/types";
 import { useUser } from "@clerk/clerk-react";
 import { useUsers } from "@/lib/hooks/useUsers";
@@ -19,9 +19,11 @@ export default function SettingsPage() {
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [userInfo, setUserInfo] = useState<SalonUser>();
     const { user } = useUser();
-    const userId = user && user.id ? user.id : "";
     const { getUserFromId } = useUsers();
-    const fetchThisUser = async () => {
+
+    const userId = user && user.id ? user.id : "";
+
+    async function fetchThisUser(){
         try{
             if(userId == "") return;
             const thisUser = await getUserFromId({userId});
@@ -33,9 +35,11 @@ export default function SettingsPage() {
 
         }
     }
+
     useEffect(() => {
         fetchThisUser();
     }, [user]);
+
     return (
         <>
             <Navbar />

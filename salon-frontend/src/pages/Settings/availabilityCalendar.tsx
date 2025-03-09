@@ -24,24 +24,28 @@ export default function AvailablityCalendar() {
         EventInput[]
     >([]);
     const [currEvent, setCurrEvent] = useState<string>("");
-    const deleteConfirmationRef = useRef<DeleteConfirmationRef>(null);
-    const openDeleteConfirmation = () => {
-        deleteConfirmationRef.current?.openModal()
-      }
     const [open, setOpen] = useState(false);
-    function handleTimeframeSelect(selectInfo: DateSelectArg) {
-        const { startStr, endStr } = selectInfo;
-        console.log(new Date(startStr));
-        console.log(new Date(endStr));
-        setOpen(true);
-    }
+
+    const hasFetched = useRef(false);
+
     const navigate = useNavigate();
     const { user } = useUser();
     const { getAvailability, deleteAvailability } = useAvailability();
     const { verifyProfile } = useUserProfile();
-    const fetchUserAvailability = async () => {
+
+    const deleteConfirmationRef = useRef<DeleteConfirmationRef>(null);
+
+    function openDeleteConfirmation(){
+        deleteConfirmationRef.current?.openModal()
+    }
+    function handleTimeframeSelect(selectInfo: DateSelectArg) {
+        if(selectInfo){
+            console.log(selectInfo);
+        }
+        setOpen(true);
+    }
+    async function fetchUserAvailability(){
         try {
-            console.log("fetching data...");
             if (user == null || user == undefined || user["id"] == null) {
                 console.log("No user id");
                 return;
@@ -58,12 +62,11 @@ export default function AvailablityCalendar() {
             console.error("Error fetching appointments:", error);
         }
     };
-    const hasFetched = useRef(false);
-    const handleEventClick = (e: EventClickArg) => {
+    function handleEventClick(e: EventClickArg){
         setCurrEvent(e.event.id);
         openDeleteConfirmation();
     };
-    const handleDelete = async () => {
+    async function handleDelete(){
         if (user == null || user == undefined || user["id"] == null) {
             console.log("No user id");
             return;
@@ -74,12 +77,14 @@ export default function AvailablityCalendar() {
         setCurrEvent("");
         setCurrentAvailabilities(updatedEvents);
     }
+
     useEffect(() => {
         if (!hasFetched.current && user) {
             fetchUserAvailability();
             hasFetched.current = true;
         }
     }, [user]);
+    
     return (
         <>
             <FullCalendar

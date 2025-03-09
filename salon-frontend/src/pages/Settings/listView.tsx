@@ -13,8 +13,8 @@ import {
 import { Availability } from "@/lib/types/types";
 import { useAvailability } from "@/lib/hooks/useAvailability";
 import { useUser } from "@clerk/clerk-react";
-import EditDeleteDropdown from "@/pages/Settings/editDeleteDropdown";
 import { Toaster } from "@/components/ui/toaster";
+import EditDeleteDropdown from "@/pages/Settings/editDeleteDropdown";
 
 const mockData: Availability[] = [];
 
@@ -26,7 +26,7 @@ export default function AvailabilityListView() {
     const { user } = useUser();
     var userId = user?.id || "";
 
-    const getRepeatText = (availability: Availability) => {
+    function getRepeatText(availability: Availability){
         if (availability.repeatTypeWeekly && availability.repeatTypeDaily)
             return `Repeats ${availability.repeatTypeWeekly} and ${availability.repeatTypeDaily}`;
         if (availability.repeatTypeWeekly)
@@ -47,7 +47,7 @@ export default function AvailabilityListView() {
         setAvailabilities(validAvails);
         return true;
     }
-    const fetchAvailability = async function () {
+    async function fetchAvailability(){
         const availability = await getUnformattedAvailability({ userId });
         setAvailabilities(availability);
     };

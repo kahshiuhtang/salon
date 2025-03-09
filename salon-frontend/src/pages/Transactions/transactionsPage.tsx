@@ -28,22 +28,6 @@ export default function TransactionsPage() {
     );
     const [filter, setFilter] = useState("");
     const [activeTab, setActiveTab] = useState("transactions");
-    const {
-        getUnprocessedApps,
-        getTransactions,
-        createTransaction,
-        updateTransaction,
-    } = useTransaction();
-
-    const fetchUnprocessedApps = async function () {
-        const apps = await getUnprocessedApps();
-        setAppointments(apps);
-    };
-
-    const fetchTransactions = async function () {
-        const trans = await getTransactions();
-        setTransactions(trans);
-    };
 
     useEffect(() => {
         fetchUnprocessedApps();
@@ -55,18 +39,35 @@ export default function TransactionsPage() {
         setSelectedApp(null);
     }, [activeTab]);
 
-    const handleAppSelect = (item: Appointment) => {
+    const {
+        getUnprocessedApps,
+        getTransactions,
+        createTransaction,
+        updateTransaction,
+    } = useTransaction();
+
+    async function fetchUnprocessedApps() {
+        const apps = await getUnprocessedApps();
+        setAppointments(apps);
+    };
+
+    async function fetchTransactions() {
+        const trans = await getTransactions();
+        setTransactions(trans);
+    };
+
+    function handleAppSelect(item: Appointment){
         setSelectedApp(item);
         setSelectedTrans(null);
     };
-    const handlTransSelect = (item: SalonTransaction) => {
+    function handleTransactionSelect(item: SalonTransaction){
         setSelectedApp(null);
         setSelectedTrans(item);
     };
 
-    const handleCreateTransaction = async (
+    async function handleCreateTransaction(
         newTransaction: SalonTransaction
-    ) => {
+    ){
         const trans = await createTransaction({ transaction: newTransaction });
         setTransactions([...transactions, trans]);
         setAppointments(appointments.filter((apt) => apt.id !== trans.id));
@@ -74,9 +75,9 @@ export default function TransactionsPage() {
         setSelectedApp(null);
     };
 
-    const handleUpdateTransaction = async (
+    async function handleUpdateTransaction(
         updatedTransaction: SalonTransaction
-    ) => {
+    ){
         await updateTransaction({
             updatedTransaction: updatedTransaction,
             transactionId: updatedTransaction.id,
@@ -187,7 +188,7 @@ export default function TransactionsPage() {
                                                                     apt
                                                                 );
                                                             } else {
-                                                                handlTransSelect(
+                                                                handleTransactionSelect(
                                                                     apt
                                                                 );
                                                             }
@@ -273,7 +274,7 @@ export default function TransactionsPage() {
                                                                     item
                                                                 );
                                                             } else {
-                                                                handlTransSelect(
+                                                                handleTransactionSelect(
                                                                     item
                                                                 );
                                                             }

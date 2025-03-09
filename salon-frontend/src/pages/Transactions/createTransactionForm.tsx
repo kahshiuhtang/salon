@@ -24,22 +24,14 @@ export default function CreateTransactionForm({
 }) {
     const [defaultTaxRate] = useState(0.08); // 8% default tax rate
     const [total, setTotal] = useState(0);
-    const { getSelectServices } = useService();
-    const getCostMap = async function () {
-        const serviceIds: string[] = appointment.services.map((service) => {
-            return service.service;
-        });
-        const costMap = await getSelectServices({ serviceIds });
-        console.log(costMap);
-        const tot = appointment.services.reduce((curTotal, service) => {
-            const serviceCost = costMap.get(service.service)?.price || 0;
-            return curTotal + serviceCost;
-        }, 0);
-        setTotal(tot);
-    };
+
     useEffect(() => {
         getCostMap();
     }, []);
+    
+
+    const { getSelectServices } = useService();
+
     const { register, handleSubmit, control, watch, reset } =
         useForm<SalonTransaction>({
             defaultValues: {
@@ -51,7 +43,6 @@ export default function CreateTransactionForm({
                 involvedEmployees: appointment.involvedEmployees,
             },
         });
-
     useEffect(() => {
         reset((formValues) => ({
             ...formValues,
@@ -62,14 +53,26 @@ export default function CreateTransactionForm({
     const watchTip = watch("tip");
     const watchTaxRate = watch("taxRate");
 
-    const calculateTotal = () => {
+    async function getCostMap() {
+        const serviceIds: string[] = appointment.services.map((service) => {
+            return service.service;
+        });
+        const costMap = await getSelectServices({ serviceIds });
+        const tot = appointment.services.reduce((curTotal, service) => {
+            const serviceCost = costMap.get(service.service)?.price || 0;
+            return curTotal + serviceCost;
+        }, 0);
+        setTotal(tot);
+    };
+
+    function calculateTotal(){
         const subtotal = watchTotalCost;
         const tip = watchTip;
         const tax = subtotal * watchTaxRate;
         return (subtotal + tip + tax).toFixed(2);
     };
 
-    const onSubmit = (data: SalonTransaction) => {
+    function onSubmit(data: SalonTransaction){
         onCreateSubmit({ ...data, ...appointment });
     };
 

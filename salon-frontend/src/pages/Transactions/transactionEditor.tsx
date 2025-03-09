@@ -29,6 +29,7 @@ export default function TransactionEditor({
         useForm<SalonTransaction>({
             defaultValues: transaction,
         });
+    const { getEmployeeFromId } = useUsers();
 
     useEffect(() => {
         reset(transaction);
@@ -38,13 +39,12 @@ export default function TransactionEditor({
     const watchTip = watch("tip");
     const watchTaxRate = watch("taxRate");
 
-    const calculateTotal = () => {
+    function calculateTotal(){
         const subtotal = watchTotalCost;
         const tip = watchTip;
         const tax = subtotal * watchTaxRate;
         return (subtotal + tip + tax).toFixed(2);
     };
-    const {getEmployeeFromId} = useUsers();
     async function getInvolvedEmployees(){
         let employees: string[] = [];
         for(const employeeId of transaction.involvedEmployees){
@@ -53,11 +53,12 @@ export default function TransactionEditor({
         }
         setEmployeeNames(employees)
     }
-    getInvolvedEmployees();
-    const onSubmit = (data: SalonTransaction) => {
+    function onSubmit(data: SalonTransaction){
         onEditSubmit({ ...data, total: parseFloat(calculateTotal()) });
         setIsEditing(false);
     };
+
+    getInvolvedEmployees();
 
     return (
         <Card className="w-full max-w-md mx-auto">

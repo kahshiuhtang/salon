@@ -13,19 +13,24 @@ import {
 } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Navbar from "@/pages/Navbar/navbar";
 import { useTransaction } from "@/lib/hooks/useTransaction";
+import { Appointment, SalonTransaction } from "@/lib/types/types";
+import { useUsers } from "@/lib/hooks/useUsers";
+import Navbar from "@/pages/Navbar/navbar";
 import CreateTransactionForm from "@/pages/Transactions/createTransactionForm";
 import TransactionEditor from "@/pages/Transactions/transactionEditor";
-import { Appointment, SalonTransaction } from "@/lib/types/types";
+import { Transaction } from "firebase/firestore";
 
 export default function TransactionsPage() {
+    const { getEmployeeFromId } = useUsers();
+
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [transactions, setTransactions] = useState<SalonTransaction[]>([]);
     const [selectedApp, setSelectedApp] = useState<Appointment | null>(null);
     const [selectedTrans, setSelectedTrans] = useState<SalonTransaction | null>(
         null
     );
+    const [idToNameMapping, setIdToNameMapping] = useState<Map<string, string>>(new Map());
     const [filter, setFilter] = useState("");
     const [activeTab, setActiveTab] = useState("transactions");
 
@@ -49,10 +54,23 @@ export default function TransactionsPage() {
         const apps = await getUnprocessedApps();
         setAppointments(apps);
     };
-
+    async function getEmployeeIdToNameMap(transArr: SalonTransaction[]){
+        let tmp = new Map()
+        for(const transaction of transArr){
+            for(const employeeId of transaction.involvedEmployees){
+                if(tmp.has(employeeId)){
+                    continue;
+                }
+                const employee = await getEmployeeFromId({"userId": employeeId});
+                tmp.set(employeeId, employee.firstName);
+            }
+        }
+        setIdToNameMapping(tmp);
+    }
     async function fetchTransactions() {
         const trans = await getTransactions();
         setTransactions(trans);
+        await getEmployeeIdToNameMap(trans);
     };
 
     function handleAppSelect(item: Appointment){
@@ -178,9 +196,12 @@ export default function TransactionsPage() {
                                                         .join(", ")}
                                                 </TableCell>
                                                 <TableCell>
-                                                    {apt.involvedEmployees.join(
-                                                        ", "
-                                                    )}
+                                                    {apt.involvedEmployees.map(item =>{
+                                                        if(item && idToNameMapping.has(item)){
+                                                            return idToNameMapping.get(item);
+                                                        }
+                                                        return ""
+                                                    }).join(",")}
                                                 </TableCell>
                                                 <TableCell>
                                                     <Button
@@ -258,9 +279,13 @@ export default function TransactionsPage() {
                                                         .join(", ")}
                                                 </TableCell>
                                                 <TableCell>
-                                                    {item.involvedEmployees.join(
-                                                        ", "
-                                                    )}
+                                                    {item.involvedEmployees.map(employeeId =>{
+                                                        if(employeeId && idToNameMapping.has(employeeId)){
+                                                            return idToNameMapping.get(employeeId);
+                                                        }
+                                                        console.log(idToNameMapping)
+                                                        return ""
+                                                    }).join(",")}
                                                 </TableCell>
                                                 <TableCell>
                                                     {"totalCost" in item

@@ -81,7 +81,6 @@ export default function AppointmentCard({
             description: "You have successfully deleted your appointment.",
         });
     };
-    console.log(idToService)
     //TODO: add AM/PM to appointment time
     return (
         <Card className="mb-4">

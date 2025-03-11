@@ -26,9 +26,11 @@ export default function HomePage() {
     const [dailyCalendarApps, setDailyCalendarApps] = useState<DailyCalendarAppointment[]>([]);
     const { user } = useUser();
     const navigate = useNavigate();
-    if (!user || !user.id) {
-        navigate("/sign-in");
-    }
+    useEffect(() => {
+        if (!user || !user.id) {
+          navigate("/sign-in");
+        }
+      }, [user, navigate]);
     const userId = user?.id || "";
 
     const { getNameFromId } = useUsers();

@@ -16,18 +16,20 @@ interface RequestFieldProps {
     technician: string;
     index: number;
     allServices: SalonService[];
+    disableInputs?: boolean;
 }
 export default function RequestField({
     service,
     technician,
     index,
     allServices,
+    disableInputs = false,
 }: RequestFieldProps) {
     return (
         <div>
             <Label>Request {index}</Label>
             <div className="flex w-full">
-                <Select defaultValue={service}>
+                <Select defaultValue={service} disabled={disableInputs}>
                     <SelectTrigger className="w-full">
                         <SelectValue></SelectValue>
                     </SelectTrigger>
@@ -49,7 +51,7 @@ export default function RequestField({
                         )}
                     </SelectContent>
                 </Select>
-                <Select defaultValue={technician}>
+                <Select defaultValue={technician} disabled={disableInputs}>
                     <SelectTrigger className="w-[180px]">
                         <SelectValue>{technician}</SelectValue>
                     </SelectTrigger>

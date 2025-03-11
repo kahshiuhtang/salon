@@ -299,6 +299,19 @@ export default function RequestCard({
                                 />
                             </div>
                         </div>
+                        <h3 className="text-lg font-semibold">
+                            Expected Duration
+                        </h3>
+                        <div className="grid sm:grid-cols-2 gap-4">
+                            <div className="grid gap-2">
+                                <Label>Hours</Label>
+                                <Input value={hours} disabled />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label>Minutes</Label>
+                                <Input value={minutes} disabled />
+                            </div>
+                        </div>
                         <div className="grid gap-4">
                             <h3 className="text-lg font-semibold">
                                 Requested Services
@@ -314,22 +327,10 @@ export default function RequestCard({
                                             : "AAA"
                                     }
                                     index={index + 1}
+                                    disableInputs={true}
                                     allServices={allServices}
                                 />
                             ))}
-                        </div>
-                        <h3 className="text-lg font-semibold">
-                            Expected Duration
-                        </h3>
-                        <div className="grid sm:grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                                <Label>Hours</Label>
-                                <Input value={hours} disabled />
-                            </div>
-                            <div className="grid gap-2">
-                                <Label>Minutes</Label>
-                                <Input value={minutes} disabled />
-                            </div>
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="appointment-status">
@@ -354,7 +355,7 @@ export default function RequestCard({
                             <Dialog>
                                 <DialogTrigger asChild>
                                     <Button variant="outline">
-                                        Suggest Changes
+                                        Update/Suggest
                                     </Button>
                                 </DialogTrigger>
                                 <DialogContent className="sm:max-w-[425px]">

@@ -78,6 +78,7 @@ interface BookAppointmentFormProps {
     appointment?: Appointment;
     userRole?: SalonRole;
     forUser?: SalonUser;
+    isEdit?: boolean;
 }
 //TODO: Allow for a message to be sent when booking appointment
 export default function BookAppointmentForm({
@@ -85,6 +86,7 @@ export default function BookAppointmentForm({
     userRole,
     appointment,
     forUser,
+    isEdit
 }: BookAppointmentFormProps) {
     const [employees, setEmployees] = useState<SalonUser[]>([]);
     const [allServices, setAllServices] = useState<SalonService[]>([]);
@@ -440,151 +442,6 @@ export default function BookAppointmentForm({
                                     )}
                                 />
                             </div>
-                            {fields.map((field, index) => (
-                                <div key={field.id}>
-                                    <div className="flex w-full">
-                                        <FormField
-                                            control={form.control}
-                                            name={`services.${index}.service`}
-                                            render={({ field }) => (
-                                                <FormItem className="flex-1">
-                                                    <FormLabel>
-                                                        Service {index + 1}
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <Select
-                                                            onValueChange={
-                                                                field.onChange
-                                                            }
-                                                            value={field.value}
-                                                        >
-                                                            <SelectTrigger className="w-full">
-                                                                <SelectValue placeholder="Select a service" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {Array.from(
-                                                                    groupByType(
-                                                                        allServices
-                                                                    ).entries()
-                                                                ).map(
-                                                                    ([
-                                                                        type,
-                                                                        services,
-                                                                    ]) => (
-                                                                        <SelectGroup
-                                                                            key={
-                                                                                type
-                                                                            }
-                                                                        >
-                                                                            <SelectLabel>
-                                                                                {
-                                                                                    type
-                                                                                }
-                                                                            </SelectLabel>
-                                                                            {services.map(
-                                                                                (
-                                                                                    service
-                                                                                ) => (
-                                                                                    <SelectItem
-                                                                                        key={
-                                                                                            service.id
-                                                                                        }
-                                                                                        value={
-                                                                                            service.id
-                                                                                        }
-                                                                                    >
-                                                                                        {
-                                                                                            service.name
-                                                                                        }
-                                                                                    </SelectItem>
-                                                                                )
-                                                                            )}
-                                                                        </SelectGroup>
-                                                                    )
-                                                                )}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                        <FormField
-                                            control={form.control}
-                                            name={`services.${index}.tech`}
-                                            render={({ field }) => (
-                                                <FormItem className="ml-2 flex-1">
-                                                    <FormLabel>
-                                                        Employee {index + 1}
-                                                    </FormLabel>
-                                                    <FormControl>
-                                                        <Select
-                                                            onValueChange={
-                                                                field.onChange
-                                                            }
-                                                            value={field.value}
-                                                        >
-                                                            <SelectTrigger className="w-[180px]">
-                                                                <SelectValue placeholder="Select an employee" />
-                                                            </SelectTrigger>
-                                                            <SelectContent>
-                                                                {employees.map(
-                                                                    (
-                                                                        employee,
-                                                                        index
-                                                                    ) => {
-                                                                        return (
-                                                                            <SelectItem
-                                                                                key={
-                                                                                    index
-                                                                                }
-                                                                                value={
-                                                                                    employee.userId
-                                                                                }
-                                                                            >
-                                                                                {
-                                                                                    employee.firstName
-                                                                                }
-                                                                            </SelectItem>
-                                                                        );
-                                                                    }
-                                                                )}
-                                                            </SelectContent>
-                                                        </Select>
-                                                    </FormControl>
-                                                    <FormMessage />
-                                                </FormItem>
-                                            )}
-                                        />
-                                    </div>
-                                    {index !== 0 &&
-                                        index == fields.length - 1 && (
-                                            <div className="w-full flex justify-end mt-2">
-                                                <Button
-                                                    type="button"
-                                                    variant="destructive"
-                                                    onClick={() =>
-                                                        removeService(index)
-                                                    }
-                                                    className="mr-2"
-                                                >
-                                                    <MinusIcon className="h-4 w-4" />
-                                                </Button>
-                                                <Button
-                                                    type="button"
-                                                    variant="secondary"
-                                                    onClick={addService}
-                                                    className="mr-1"
-                                                    disabled={
-                                                        fields.length >= 4
-                                                    }
-                                                >
-                                                    <PlusIcon className="h-4 w-4" />
-                                                </Button>
-                                            </div>
-                                        )}
-                                </div>
-                            ))}
                             {appointment && userRole == "ADMIN" && (
                                 <div className="flex space-x-4">
                                     <FormField
@@ -772,9 +629,128 @@ export default function BookAppointmentForm({
                                         />
                                     </div>
                                 )}
+                                {fields.map((field, index) => (
+                                <div key={field.id}>
+                                    <div className="flex w-full">
+                                        <FormField
+                                            control={form.control}
+                                            name={`services.${index}.service`}
+                                            render={({ field }) => (
+                                                <FormItem className="flex-1">
+                                                    <FormLabel>
+                                                        Service {index + 1}
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Select
+                                                            onValueChange={
+                                                                field.onChange
+                                                            }
+                                                            value={field.value}
+                                                        >
+                                                            <SelectTrigger className="w-full">
+                                                                <SelectValue placeholder="Select a service" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {Array.from(
+                                                                    groupByType(
+                                                                        allServices
+                                                                    ).entries()
+                                                                ).map(
+                                                                    ([
+                                                                        type,
+                                                                        services,
+                                                                    ]) => (
+                                                                        <SelectGroup
+                                                                            key={
+                                                                                type
+                                                                            }
+                                                                        >
+                                                                            <SelectLabel>
+                                                                                {
+                                                                                    type
+                                                                                }
+                                                                            </SelectLabel>
+                                                                            {services.map(
+                                                                                (
+                                                                                    service
+                                                                                ) => (
+                                                                                    <SelectItem
+                                                                                        key={
+                                                                                            service.id
+                                                                                        }
+                                                                                        value={
+                                                                                            service.id
+                                                                                        }
+                                                                                    >
+                                                                                        {
+                                                                                            service.name
+                                                                                        }
+                                                                                    </SelectItem>
+                                                                                )
+                                                                            )}
+                                                                        </SelectGroup>
+                                                                    )
+                                                                )}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                        <FormField
+                                            control={form.control}
+                                            name={`services.${index}.tech`}
+                                            render={({ field }) => (
+                                                <FormItem className="ml-2 flex-1">
+                                                    <FormLabel>
+                                                        Employee {index + 1}
+                                                    </FormLabel>
+                                                    <FormControl>
+                                                        <Select
+                                                            onValueChange={
+                                                                field.onChange
+                                                            }
+                                                            value={field.value}
+                                                        >
+                                                            <SelectTrigger className="w-[180px]">
+                                                                <SelectValue placeholder="Select an employee" />
+                                                            </SelectTrigger>
+                                                            <SelectContent>
+                                                                {employees.map(
+                                                                    (
+                                                                        employee,
+                                                                        index
+                                                                    ) => {
+                                                                        return (
+                                                                            <SelectItem
+                                                                                key={
+                                                                                    index
+                                                                                }
+                                                                                value={
+                                                                                    employee.userId
+                                                                                }
+                                                                            >
+                                                                                {
+                                                                                    employee.firstName
+                                                                                }
+                                                                            </SelectItem>
+                                                                        );
+                                                                    }
+                                                                )}
+                                                            </SelectContent>
+                                                        </Select>
+                                                    </FormControl>
+                                                    <FormMessage />
+                                                </FormItem>
+                                            )}
+                                        />
+                                    </div>
+                                </div>
+                            ))}
                             <div className="w-full flex justify-between">
                                 <div>
-                                    <Button type="submit">Submit</Button>
+                                    <Button type="submit">{isEdit ? "Update" : "Submit"}</Button>
                                 </div>
                                 {fields.length < 2 && (
                                     <div className="flex">
@@ -789,6 +765,33 @@ export default function BookAppointmentForm({
                                         </Button>
                                     </div>
                                 )}
+                                {fields.length >= 2 && (
+                                    <div className="w-full flex justify-end mt-2">
+                                    <Button
+                                        type="button"
+                                        variant="destructive"
+                                        onClick={() =>
+                                            removeService(fields.length - 1)
+                                        }
+                                        className="mr-2"
+                                    >
+                                        <MinusIcon className="h-4 w-4" />
+                                    </Button>
+                                    <Button
+                                        type="button"
+                                        variant="secondary"
+                                        onClick={addService}
+                                        className="mr-1"
+                                        disabled={
+                                            fields.length >= 4
+                                        }
+                                    >
+                                        <PlusIcon className="h-4 w-4" />
+                                    </Button>
+                                </div>
+                                )
+
+                                }
                             </div>
                         </form>
                     </Form>

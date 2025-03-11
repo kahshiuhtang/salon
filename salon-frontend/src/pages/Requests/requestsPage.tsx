@@ -68,7 +68,6 @@ export default function RequestsPage() {
                     return { ...app, clientName: `${firstName} ${lastName}` };
                 })
             );
-            console.log(apps);
             setCurrRole(role);
             setRequests(appsWithNames);
             setFilteredRequests(appsWithNames);

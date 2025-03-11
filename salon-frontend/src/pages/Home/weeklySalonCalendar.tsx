@@ -135,7 +135,7 @@ export default function WeeklySalonCalendar() {
                     headerToolbar={{
                         left: "prev,next today",
                         center: "title",
-                        right: "timeGridDay, timeGridWeek",
+                        right: "timeGridWeek,timeGridDay",
                     }}
                     initialView="timeGridWeek"
                     selectable

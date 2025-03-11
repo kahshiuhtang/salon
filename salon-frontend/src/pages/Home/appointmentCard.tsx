@@ -39,7 +39,7 @@ export default function AppointmentCard({
     userType,
     deleteAppLocally,
     isPast = false,
-    idToService
+    idToService,
 }: AppointmentCardProps) {
     const [usernameCache, setUsernameCache] = useState<{
         [key: string]: SalonName;
@@ -51,7 +51,7 @@ export default function AppointmentCard({
     const { deleteAppointment } = useAppointment();
     const { toast } = useToast();
 
-    async function getUsername(id: string){
+    async function getUsername(id: string) {
         try {
             if (usernameCache[id]) {
                 return usernameCache[id];
@@ -65,16 +65,16 @@ export default function AppointmentCard({
         } catch (e) {
             console.log("getUsername(): " + e);
         }
-    };
+    }
     async function handleDelete() {
         await deleteAppointment({ appId: appointment.id });
-        if(deleteAppLocally) deleteAppLocally(appointment.id);
+        if (deleteAppLocally) deleteAppLocally(appointment.id);
         setisDeleteDialogOpen(false);
         toast({
             title: "Appointment deleted",
             description: "You have successfully deleted your appointment.",
         });
-    };
+    }
 
     useEffect(() => {
         for (var i = 0; i < dailyCalendarApp.services.length; i++) {
@@ -163,9 +163,23 @@ export default function AppointmentCard({
                             </Dialog>
                         )}
                         {userType !== "USER" && (
-                            <Button variant="outline" size="sm">
-                                View Details
-                            </Button> //TODO: Add funcitonality
+                            <div>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button variant="outline" size="sm">
+                                            View Details
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="sm:max-w-[425px]">
+                                        <BookAppointmentForm
+                                            insideCard={true}
+                                            userRole={userType}
+                                            appointment={appointment}
+                                            isEdit={true}
+                                        />
+                                    </DialogContent>
+                                </Dialog>
+                            </div>
                         )}
                     </div>
                 </div>

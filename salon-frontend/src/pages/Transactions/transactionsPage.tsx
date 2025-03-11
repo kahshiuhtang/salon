@@ -19,7 +19,6 @@ import { useUsers } from "@/lib/hooks/useUsers";
 import Navbar from "@/pages/Navbar/navbar";
 import CreateTransactionForm from "@/pages/Transactions/createTransactionForm";
 import TransactionEditor from "@/pages/Transactions/transactionEditor";
-import { Transaction } from "firebase/firestore";
 
 export default function TransactionsPage() {
     const { getEmployeeFromId } = useUsers();

@@ -2,8 +2,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Appointment, DailyCalendarAppointment, SalonRole } from "@/lib/types/types";
 import DailyCalendar from "@/pages/Home/dailyCalendar";
 import AppointmentCard from "@/pages/Home/appointmentCard";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import WeeklySalonCalendar from "@/pages/Home/weeklySalonCalendar";
+import { getDateOnlyFromDate } from "@/lib/utils";
+import { useService } from "@/lib/hooks/useService";
 
 interface EmployeeDashboardProps {
     dailyCalendarApps: DailyCalendarAppointment[];
@@ -19,39 +21,47 @@ export default function EmployeeDashboard({
     const [_, setSelectedDate] = useState(
         new Date().toISOString().split("T")[0]
     );
+    const [idToService, setIdToService] = useState<Map<string, string>>(new Map());
+    const { getServices } = useService();
     if(!setSelectedDate) console.log("useState error"); 
-    // const [dateRange, setDateRange] = useState<Date[]>([]);
-
-    // const generateDateRange = (date: Date) => {
-    //     const daysArray: Date[] = [];
-    //     for (let i = -3; i <= 3; i++) {
-    //         const newDate = new Date(date);
-    //         newDate.setDate(date.getDate() + i);
-    //         daysArray.push(newDate);
-    //     }
-    //     setDateRange(daysArray);
-    // };
-
-    // const moveWeek = (direction: "left" | "right") => {
-    //     const firstDate = new Date(dateRange[0]);
-    //     const newStartDate = new Date(firstDate);
-    //     newStartDate.setDate(firstDate.getDate() + (direction === "left" ? -7 : 7));
-    //     generateDateRange(newStartDate);
-    // };
-
-    // useEffect(() => {
-    //     generateDateRange(new Date());
-    // }, []);
-
-    const today = new Date().toISOString().split("T")[0];
+    const formattedDate = getDateOnlyFromDate(new Date());
     const todayAppointments = dailyCalendarApps
-        .filter(appointment => appointment.date == today) 
+        .filter(appointment => appointment.date == formattedDate) 
         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); 
 
     const idToApp = appointments.reduce<Record<string, Appointment>>((acc, obj: Appointment) => {
         acc[obj.id] = obj;
         return acc;
         }, {});
+    async function getServiceGoodsMappings(){
+        let idMapping = new Map<string, string>();
+        let services = await getServices();
+        const globalMapping = services.reduce((map, service) =>{
+            map.set(service.id, service.name);
+            return map;
+        }, new Map())
+        for(const app of dailyCalendarApps){
+            for(const service of app.services){
+                if(idMapping.has(service.name)){
+                    continue;
+                }
+                idMapping.set(service.name, globalMapping.get(service.name));
+            }
+        }
+        return idMapping;
+    }
+    async function fetchServiceMappings(){
+        try {
+          const idMapping = await getServiceGoodsMappings();
+          setIdToService(idMapping);
+        } catch (error) {
+          console.error("Error fetching service mappings:", error);
+        }
+      };
+    useEffect(() => {
+        fetchServiceMappings();
+    }, []);
+    useEffect(()=>{fetchServiceMappings()},[dailyCalendarApps])
     return (
         <Tabs defaultValue="today" className="w-full">
             <TabsList>
@@ -77,6 +87,7 @@ export default function EmployeeDashboard({
                             appointment={idToApp[appointment.id]}
                             userType={role}
                             isPast={new Date(appointment.date) < new Date()}
+                            idToService={idToService}
                         />
                     ))}
                     {
@@ -86,38 +97,6 @@ export default function EmployeeDashboard({
             </TabsContent>
 
             <TabsContent value="all-appointments">
-                {/* <div className="flex justify-center space-x-4 mb-4">
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => moveWeek("left")}
-                        aria-label="Previous week"
-                    >
-                        <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    {dateRange.map((date, index) => (
-                        <Button
-                            key={index}
-                            onClick={() => {
-                                setSelectedDate(date.toISOString().split("T")[0]);
-                                generateDateRange(date);
-                            }}
-                        >
-                            {date.toLocaleDateString("en-US", {
-                                month: "short",
-                                day: "numeric",
-                            })}
-                        </Button>
-                    ))}
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => moveWeek("right")}
-                        aria-label="Next week"
-                    >
-                        <ChevronRight className="h-4 w-4" />
-                    </Button>
-                </div> */}
                 <WeeklySalonCalendar />
             </TabsContent>
         </Tabs>

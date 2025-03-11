@@ -336,6 +336,7 @@ export default function UsersPage() {
                                                     <div className="flex space-x-2">
                                                         <Button
                                                             size="icon"
+                                                            title="Increase Role Privilege"
                                                             variant="outline"
                                                             onClick={() =>
                                                                 handleRoleChange(
@@ -351,6 +352,7 @@ export default function UsersPage() {
                                                         <Button
                                                             size="icon"
                                                             variant="outline"
+                                                            title="Decrease Role Privilege"
                                                             onClick={() =>
                                                                 handleRoleChange(
                                                                     currUser.userId,
@@ -376,6 +378,7 @@ export default function UsersPage() {
                                                                 <Button
                                                                     size="icon"
                                                                     variant="outline"
+                                                                    title="Edit User Information"
                                                                     onClick={() =>
                                                                         handleEdit(
                                                                             currUser
@@ -418,6 +421,7 @@ export default function UsersPage() {
                                                                 <Button
                                                                     size="icon"
                                                                     variant="outline"
+                                                                    title="Check Availabilities"
                                                                     onClick={async () => {
                                                                         setSelectedUserCalendar(
                                                                             currUser
@@ -501,6 +505,7 @@ export default function UsersPage() {
                                                                 <Button
                                                                     size="icon"
                                                                     variant="outline"
+                                                                    title="View Upcoming Appointments"
                                                                     onClick={async () => {
                                                                         setSelectedUserCalendar(
                                                                             currUser
@@ -597,6 +602,7 @@ export default function UsersPage() {
                                                                 <Button
                                                                     size="icon"
                                                                     variant="outline"
+                                                                    title="Book an Appointment"
                                                                     onClick={async () => {
                                                                         setSelectedUserCalendar(
                                                                             currUser
@@ -609,7 +615,7 @@ export default function UsersPage() {
                                                                     <Book className="h-4 w-4" />
                                                                 </Button>
                                                             </DialogTrigger>
-                                                            <DialogContent className="max-w-3xl max-w-[500px]">
+                                                            <DialogContent className="max-w-3xl">
                                                                 <DialogHeader>
                                                                     <DialogTitle>
                                                                         Book Appointment

@@ -211,12 +211,9 @@ export default function RequestCard({
     };
     const getUsername = async (id: string) => {
         if (usernameCache[id]) {
-            console.log("Username from cache:", usernameCache[id]);
             return usernameCache[id];
         }
-
         const fetchedUsername = await getNameFromId({ userId: id });
-
         setUsernameCache((prevCache) => ({
             ...prevCache,
             [id]: fetchedUsername,

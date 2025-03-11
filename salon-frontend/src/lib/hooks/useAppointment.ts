@@ -250,7 +250,6 @@ export const useAppointment = (): UseAppointmentReturn => {
     };
     const convertAppsForHomePage = (appointments: Appointment[]) => {
         const ans: DailyCalendarAppointment[] = [];
-        //TODO: maybe add the firstName, lastName to the appointment?
         for (var i = 0; i < appointments.length; i++) {
             var currApp = appointments[i];
             var services: ACPService[] = [];
@@ -266,7 +265,7 @@ export const useAppointment = (): UseAppointmentReturn => {
                 id: currApp.id,
                 date: getDateOnlyFromDate(currApp.date),
                 time: currApp.time,
-                client: currApp.id,
+                client: currApp.ownerId,
                 services: services,
             });
         }

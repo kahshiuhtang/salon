@@ -35,29 +35,33 @@ const DeleteConfirmation = forwardRef<
         closeModal,
     }));
 
-    function handleDelete(){
+    function handleDelete() {
         onDelete();
         closeModal();
-    };
+    }
 
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>Are you?</DialogTitle>
+                    <DialogTitle>Are you sure?</DialogTitle>
                     <DialogDescription>
                         This action cannot be undone. This will permanently
                         delete the availability and remove it from our servers.
                     </DialogDescription>
                 </DialogHeader>
                 <DialogFooter>
-                    <AvailabilityCard />
-                    <Button variant="outline" onClick={closeModal}>
-                        Cancel
-                    </Button>
-                    <Button variant="destructive" onClick={handleDelete}>
-                        Delete
-                    </Button>
+                    <div>
+                        <AvailabilityCard />
+                        <div className="mt-2">
+                            <Button className="ml-2" variant="destructive" onClick={handleDelete}>
+                                Delete
+                            </Button>
+                            <Button variant="outline" onClick={closeModal}>
+                                Cancel
+                            </Button>
+                        </div>
+                    </div>
                 </DialogFooter>
             </DialogContent>
         </Dialog>

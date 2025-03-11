@@ -30,6 +30,7 @@ interface AppointmentCardProps {
     isPast: boolean | undefined;
     userType: SalonRole;
     deleteAppLocally?: (appId: string) => boolean;
+    idToService?: Map<string, string>;
 }
 
 export default function AppointmentCard({
@@ -38,6 +39,7 @@ export default function AppointmentCard({
     userType,
     deleteAppLocally,
     isPast = false,
+    idToService
 }: AppointmentCardProps) {
     const [usernameCache, setUsernameCache] = useState<{
         [key: string]: SalonName;
@@ -48,15 +50,12 @@ export default function AppointmentCard({
     const { toast } = useToast();
     const [isDeleteDialogOpen, setisDeleteDialogOpen] =
         useState<boolean>(false);
-    const getUsername = async (id: string) => {
+    async function getUsername(id: string){
         try {
             if (usernameCache[id]) {
-                console.log("Username from cache:", usernameCache[id]);
                 return usernameCache[id];
             }
-
             const fetchedUsername = await getNameFromId({ userId: id });
-
             setUsernameCache((prevCache) => ({
                 ...prevCache,
                 [id]: fetchedUsername,
@@ -73,7 +72,7 @@ export default function AppointmentCard({
         }
         getUsername(dailyCalendarApp.client);
     }, []);
-    const handleDelete = async function () {
+    async function handleDelete() {
         await deleteAppointment({ appId: appointment.id });
         if(deleteAppLocally) deleteAppLocally(appointment.id);
         setisDeleteDialogOpen(false);
@@ -82,6 +81,7 @@ export default function AppointmentCard({
             description: "You have successfully deleted your appointment.",
         });
     };
+    console.log(idToService)
     //TODO: add AM/PM to appointment time
     return (
         <Card className="mb-4">
@@ -90,7 +90,7 @@ export default function AppointmentCard({
                     <div>
                         <p className="font-semibold">
                             {dailyCalendarApp.services
-                                .map((s) => s.name)
+                                .map((s) => idToService?.get(s.name) || "")
                                 .join(", ")}
                         </p>
                         <div className="flex items-center text-sm text-gray-500">
@@ -164,7 +164,7 @@ export default function AppointmentCard({
                         {userType !== "USER" && (
                             <Button variant="outline" size="sm">
                                 View Details
-                            </Button>
+                            </Button> //TODO: Add funcitonality
                         )}
                     </div>
                 </div>
@@ -181,7 +181,7 @@ export default function AppointmentCard({
                     <ul className="list-disc list-inside text-sm text-gray-600">
                         {dailyCalendarApp.services.map((service, index) => (
                             <li key={index}>
-                                {service.name} with{" "}
+                                {idToService?.get(service.name) || ""} with{" "}
                                 {usernameCache[service.technician]
                                     ? usernameCache[service.technician]
                                           .firstName

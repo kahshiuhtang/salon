@@ -55,7 +55,7 @@ export default function SettingsPage() {
                             className="text-sm sm:text-base flex items-center justify-center gap-2"
                         >
                             <CalendarIcon className="w-4 h-4 sm:w-5 sm:h-5" />
-                            <span className="hidden sm:inline">Calendar</span>
+                            <span className="hidden sm:inline">Availability</span>
                         </TabsTrigger>
                         <TabsTrigger
                             value="settings"
@@ -76,7 +76,7 @@ export default function SettingsPage() {
                         <div className="bg-card rounded-lg shadow-lg p-4 sm:p-6">
                             <div className="flex justify-between">
                                 <h2 className="text-xl sm:text-2xl font-bold mb-4">
-                                    Calendar View
+                                    Current Availability
                                 </h2>
                                 <Dialog
                                     open={isDialogOpen}

@@ -82,10 +82,12 @@ export default function UsersPage() {
     const navigate = useNavigate();
     const { user } = useUser();
     var userId = "";
-    if (user && user["id"]) userId = user.id;
-    if (userId == "") navigate("/sign-in");
+    if (user && user["id"])
+        userId = user.id;
+    if (userId == "") 
+        navigate("/sign-in");
 
-    const fetchUsers = async function () {
+    async function fetchUsers(){
         try {
             const fetchedUsers = await fetchAllUsers({ userId });
             setUsers(fetchedUsers.users);
@@ -98,7 +100,6 @@ export default function UsersPage() {
         fetchUsers();
     }, []);
     useEffect(() => {
-        console.log('Current Availabilities:', currentAvailabilities);
       }, [currentAvailabilities]);
     const onSubmit = async (data: SalonUserForm) => {
         try {

@@ -282,7 +282,6 @@ export default function TransactionsPage() {
                                                         if(employeeId && idToNameMapping.has(employeeId)){
                                                             return idToNameMapping.get(employeeId);
                                                         }
-                                                        console.log(idToNameMapping)
                                                         return ""
                                                     }).join(",")}
                                                 </TableCell>

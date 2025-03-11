@@ -44,12 +44,13 @@ export default function AppointmentCard({
     const [usernameCache, setUsernameCache] = useState<{
         [key: string]: SalonName;
     }>({});
+    const [isDeleteDialogOpen, setisDeleteDialogOpen] =
+        useState<boolean>(false);
 
     const { getNameFromId } = useUsers();
     const { deleteAppointment } = useAppointment();
     const { toast } = useToast();
-    const [isDeleteDialogOpen, setisDeleteDialogOpen] =
-        useState<boolean>(false);
+
     async function getUsername(id: string){
         try {
             if (usernameCache[id]) {
@@ -65,13 +66,6 @@ export default function AppointmentCard({
             console.log("getUsername(): " + e);
         }
     };
-    useEffect(() => {
-        for (var i = 0; i < dailyCalendarApp.services.length; i++) {
-            const currServices = dailyCalendarApp.services[i];
-            getUsername(currServices.technician);
-        }
-        getUsername(dailyCalendarApp.client);
-    }, []);
     async function handleDelete() {
         await deleteAppointment({ appId: appointment.id });
         if(deleteAppLocally) deleteAppLocally(appointment.id);
@@ -81,6 +75,14 @@ export default function AppointmentCard({
             description: "You have successfully deleted your appointment.",
         });
     };
+
+    useEffect(() => {
+        for (var i = 0; i < dailyCalendarApp.services.length; i++) {
+            const currServices = dailyCalendarApp.services[i];
+            getUsername(currServices.technician);
+        }
+        getUsername(dailyCalendarApp.client);
+    }, []);
     //TODO: add AM/PM to appointment time
     return (
         <Card className="mb-4">

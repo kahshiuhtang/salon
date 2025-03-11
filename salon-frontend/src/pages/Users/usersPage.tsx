@@ -616,11 +616,8 @@ export default function UsersPage() {
                                                                     <Book className="h-4 w-4" />
                                                                 </Button>
                                                             </DialogTrigger>
-                                                            <DialogContent className="max-w-3xl">
+                                                            <DialogContent className="max-w-md">
                                                                 <DialogHeader>
-                                                                    <DialogTitle>
-                                                                        Book Appointment
-                                                                    </DialogTitle>
                                                                 </DialogHeader>
                                                                 <div>
                                                                     <BookAppointmentForm insideCard={true} forUser={currUser}/>

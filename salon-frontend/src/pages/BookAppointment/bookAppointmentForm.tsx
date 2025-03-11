@@ -158,7 +158,7 @@ export default function BookAppointmentForm({
         try {
             if (appointment) {
                 const status: AppointmentState =
-                    userRole === "USER" ? "COUNTERED-USER" : "COUNTERED-SALON";
+                    userRole === "USER" ? "REQUESTED" : "CONFIRMED";
                 const techSet = new Set<string>(); // set of people concerned with this appointment
                 values.services.forEach((service) => {
                     techSet.add(service.tech);
@@ -327,14 +327,14 @@ export default function BookAppointmentForm({
     return (
         <div
             className={cn(
-                insideCard ? "" : "flex justify-center items-center mt-24"
+                insideCard ? "max-w-sm" : "flex justify-center items-center mt-24 "
             )}
         >
             {!appointment && <Toaster />}
             <Card
                 className={cn(
                     insideCard
-                        ? ""
+                        ? "max-w-lg"
                         : "w-3/4 sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3 2xl:w-1/4 3xl:w-1/5"
                 )}
             >

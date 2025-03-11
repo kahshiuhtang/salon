@@ -135,8 +135,7 @@ export default function RequestCard({
                 });
                 return;
             } else if (
-                currentAppState.state !== "REQUESTED" &&
-                currentAppState.state !== "COUNTERED-USER"
+                currentAppState.state !== "REQUESTED"
             ) {
                 toast({
                     title: "Cannot approve appointment from this state.",
@@ -226,7 +225,7 @@ export default function RequestCard({
             <Toaster />
             <Card
                 className={cn(
-                    appointment.state == "COUNTERED-SALON" ? "bg-red-100" : "",
+                    appointment.state == "COUNTERED-SALON" ? "bg-red-100" : appointment.state == "CONFIRMED" ? "bg-green-200" : "",
                     "w-full"
                 )}
             >

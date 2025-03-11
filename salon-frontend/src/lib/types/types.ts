@@ -12,7 +12,6 @@ export type RepeatTypeDay =
 export type AppointmentState =
     | "REQUESTED"
     | "COUNTERED-SALON"
-    | "COUNTERED-USER"
     | "CONFIRMED"
     | "MISSED"
     | "RESCHEDULED"

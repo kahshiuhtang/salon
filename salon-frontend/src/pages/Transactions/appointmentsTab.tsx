@@ -90,15 +90,6 @@ export default function AppointmentsTab({
                                         .join(",")}
                                 </TableCell>
                                 <TableCell>
-                                    <Button
-                                        onClick={() => {
-                                            handleAppSelect(apt);
-                                        }}
-                                    >
-                                        {!("totalCost" in apt)
-                                            ? "Close Appointment"
-                                            : "View Details"}
-                                    </Button>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button

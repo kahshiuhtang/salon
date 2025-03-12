@@ -99,9 +99,7 @@ export default function TransactionsTab({
                                             handleTransactionSelect(item);
                                         }}
                                     >
-                                        {!("totalCost" in item)
-                                            ? "Close Appointment"
-                                            : "View Details"}
+                                        View Details
                                     </Button>
                                 </TableCell>
                             </TableRow>

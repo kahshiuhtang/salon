@@ -19,6 +19,7 @@ import { useUsers } from "@/lib/hooks/useUsers";
 import Navbar from "@/pages/Navbar/navbar";
 import CreateTransactionForm from "@/pages/Transactions/createTransactionForm";
 import TransactionEditor from "@/pages/Transactions/transactionEditor";
+import { useAppointment } from "@/lib/hooks/useAppointment";
 
 export default function TransactionsPage() {
     const { getEmployeeFromId } = useUsers();
@@ -48,6 +49,7 @@ export default function TransactionsPage() {
         createTransaction,
         updateTransaction,
     } = useTransaction();
+    const { updateAppointmentStatus } = useAppointment();
 
     async function fetchUnprocessedApps() {
         const apps = await getUnprocessedApps();
@@ -81,9 +83,11 @@ export default function TransactionsPage() {
         setSelectedTrans(item);
     };
     async function handleCreateTransaction(
-        newTransaction: SalonTransaction
+        newTransaction: SalonTransaction,
+        appId: string
     ){
         const trans = await createTransaction({ transaction: newTransaction });
+        await updateAppointmentStatus({id: appId, newStatus: "FINISHED"});
         setTransactions([...transactions, trans]);
         setAppointments(appointments.filter((apt) => apt.id !== trans.id));
         setSelectedTrans(null);
@@ -335,7 +339,7 @@ export default function TransactionsPage() {
                 {selectedApp && activeTab !== "transactions" && (
                     <CreateTransactionForm
                         appointment={selectedApp}
-                        onCreateSubmit={handleCreateTransaction}
+                        onCreate={handleCreateTransaction}
                     />
                 )}
 

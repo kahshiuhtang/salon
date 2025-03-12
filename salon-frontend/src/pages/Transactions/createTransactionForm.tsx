@@ -17,10 +17,10 @@ import { useService } from "@/lib/hooks/useService";
 
 export default function CreateTransactionForm({
     appointment,
-    onCreateSubmit,
+    onCreate,
 }: {
     appointment: Appointment;
-    onCreateSubmit: (newTransaction: SalonTransaction) => void;
+    onCreate: (newTransaction: SalonTransaction, appId: string) => void;
 }) {
     const [defaultTaxRate] = useState(0.08); // 8% default tax rate
     const [total, setTotal] = useState(0);
@@ -73,7 +73,7 @@ export default function CreateTransactionForm({
     };
 
     function onSubmit(data: SalonTransaction){
-        onCreateSubmit({ ...data, ...appointment });
+        onCreate({ ...data, ...appointment }, appointment.id);
     };
 
     return (

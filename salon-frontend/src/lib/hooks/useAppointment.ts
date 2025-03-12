@@ -57,12 +57,12 @@ interface DeleteAppointmentProps {
     appId: string;
 }
 interface UseAppointmentReturn {
-    addAppointment: (appointmentProps: AddAppointmentProps) => Promise<void>;
+    addAppointment: (props: AddAppointmentProps) => Promise<void>;
     getAppointments: (
-        appointmentProps: GetAllAppointmentsProps
+        props: GetAllAppointmentsProps
     ) => Promise<Appointment[]>;
     getAppointmentsToday: (
-        appointmentProps: GetAllAppointmentsProps
+        props: GetAllAppointmentsProps
     ) => Promise<Appointment[]>;
     formatAppointments: (
         appointments: Appointment[]
@@ -71,7 +71,7 @@ interface UseAppointmentReturn {
         appointments: Appointment[]
     ) => DailyCalendarAppointment[];
     updateAppointmentStatus: (
-        statusProps: UpdateAppointmentStatusProps
+        props: UpdateAppointmentStatusProps
     ) => Promise<void>;
     updateAppointment: (appointment: Appointment) => Promise<void>;
     getPreviousAppointments: (
@@ -86,15 +86,15 @@ interface UseAppointmentReturn {
     deleteAppointment: (props: DeleteAppointmentProps) => Promise<void>;
 }
 export const useAppointment = (): UseAppointmentReturn => {
-    const addAppointment = async (appointmentProps: AddAppointmentProps) => {
+    const addAppointment = async (props: AddAppointmentProps) => {
         const appCollectionRef = collection(firebaseDb, "appointments");
         const techSet = new Set(); // set of people concerned with this appointment
-        appointmentProps.services.forEach((service) => {
+        props.services.forEach((service) => {
             techSet.add(service.tech);
         });
         const uniqueTechSet = Array.from(techSet);
         await addDoc(appCollectionRef, {
-            ...appointmentProps,
+            ...props,
             involvedEmployees: uniqueTechSet,
             hasTransaction: false,
         });
@@ -143,9 +143,9 @@ export const useAppointment = (): UseAppointmentReturn => {
         return [];
     };
     const getAppointments = async (
-        appProps: GetAllAppointmentsProps
+        props: GetAllAppointmentsProps
     ): Promise<Appointment[]> => {
-        const userId = appProps.userId;
+        const userId = props.userId;
         if (!userId) {
             return [];
         }
@@ -195,9 +195,9 @@ export const useAppointment = (): UseAppointmentReturn => {
         }
     };
     const getAppointmentsToday = async (
-        appProps: GetAllAppointmentsProps
+        props: GetAllAppointmentsProps
     ): Promise<Appointment[]> => {
-        const userId = appProps.userId;
+        const userId = props.userId;
         if (!userId) {
             return [];
         }
@@ -312,12 +312,12 @@ export const useAppointment = (): UseAppointmentReturn => {
     };
 
     const updateAppointmentStatus = async (
-        statusProps: UpdateAppointmentStatusProps
+        props: UpdateAppointmentStatusProps
     ) => {
         try {
-            const docRef = doc(firebaseDb, "appointments", statusProps.id);
+            const docRef = doc(firebaseDb, "appointments", props.id);
             await updateDoc(docRef, {
-                state: statusProps.newStatus,
+                state: props.newStatus,
             });
         } catch (e) {
             console.log("updateAppointmentStatus(): " + e);

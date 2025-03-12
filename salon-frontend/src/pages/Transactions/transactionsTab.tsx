@@ -84,12 +84,12 @@ export default function TransactionsTab({
                                         .join(",")}
                                 </TableCell>
                                 <TableCell>
-                                    {"totalCost" in item
+                                    {item.totalCost
                                         ? `$${item.totalCost.toFixed(2)}`
                                         : "$0.00"}
                                 </TableCell>
                                 <TableCell>
-                                    {"tip" in item
+                                    {item.tip
                                         ? `$${item.tip.toFixed(2)}`
                                         : "$0.00"}
                                 </TableCell>

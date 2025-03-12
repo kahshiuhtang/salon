@@ -132,26 +132,40 @@ export default function TransactionsPage() {
                         </TabsTrigger>
                     </TabsList>
                     <TabsContent value="appointments">
-                        <AppointmentsTab handleAppSelect={handleAppSelect} appointments={appointments} idToNameMapping={idToNameMapping}/>
+                        <div className="flex">
+                            <AppointmentsTab
+                                handleAppSelect={handleAppSelect}
+                                appointments={appointments}
+                                idToNameMapping={idToNameMapping}
+                            />
+                            {selectedApp && activeTab !== "transactions" && (
+                                <CreateTransactionForm
+                                    appointment={selectedApp}
+                                    onCreate={handleCreateTransaction}
+                                />
+                            )}
+                        </div>
                     </TabsContent>
                     <TabsContent value="transactions">
-                        <TransactionsTab handleTransactionSelect={handleTransactionSelect} transactions={transactions} idToNameMapping={idToNameMapping}/>
+                        <div className="flex">
+                            <div className="mr-3">
+                            <TransactionsTab
+                                handleTransactionSelect={
+                                    handleTransactionSelect
+                                }
+                                transactions={transactions}
+                                idToNameMapping={idToNameMapping}
+                            />
+                            </div>
+                            {selectedTrans && activeTab == "transactions" && (
+                                <TransactionEditor
+                                    transaction={selectedTrans}
+                                    onEditSubmit={handleUpdateTransaction}
+                                />
+                            )}
+                        </div>
                     </TabsContent>
                 </Tabs>
-
-                {selectedApp && activeTab !== "transactions" && (
-                    <CreateTransactionForm
-                        appointment={selectedApp}
-                        onCreate={handleCreateTransaction}
-                    />
-                )}
-
-                {selectedTrans && activeTab == "transactions" && (
-                    <TransactionEditor
-                        transaction={selectedTrans}
-                        onEditSubmit={handleUpdateTransaction}
-                    />
-                )}
             </div>
         </div>
     );

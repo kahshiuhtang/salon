@@ -66,10 +66,12 @@ export default function CreateTransactionForm({
     };
 
     function calculateTotal(){
-        const subtotal = watchTotalCost;
-        const tip = watchTip;
-        const tax = subtotal * watchTaxRate;
-        return (subtotal + tip + tax).toFixed(2);
+        const subtotal = Number(watchTotalCost) || 0;
+        const tip = Number(watchTip) || 0;
+        const taxRate = Number(watchTaxRate) || 0;
+        const tax = subtotal * taxRate;
+        const total = subtotal + tip + tax;
+        return isNaN(total) ? "0" : total.toFixed(2);
     };
 
     function onSubmit(data: SalonTransaction){

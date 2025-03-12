@@ -63,13 +63,26 @@ export default function ScheduleForm({ setIsDialogOpen }: ScheduleFormProps) {
     const [allServices, setAllServices] = useState<SalonService[]>([]);
     const { toast } = useToast();
     const { user } = useUser();
-    const navigate = useNavigate();
     const { getServices } = useService();
+    const { addAppointment } = useAppointment();
+    const navigate = useNavigate();
     if (!user || !user.id) {
         navigate("/sign-in");
     }
     const userId = user?.id || "";
-    const { addAppointment } = useAppointment();
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
+        defaultValues: {
+            time: new Date(),
+            date: new Date(),
+            services: [{ service: "", tech: "" }],
+        },
+    });
+    const { fields, append, remove } = useFieldArray({
+        control: form.control,
+        name: "services",
+    });
+
     async function onSubmit(values: z.infer<typeof formSchema>) {
         await addAppointment({
             ...values,
@@ -83,30 +96,18 @@ export default function ScheduleForm({ setIsDialogOpen }: ScheduleFormProps) {
         });
         setIsDialogOpen(false);
     }
-    const form = useForm<z.infer<typeof formSchema>>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            time: new Date(),
-            date: new Date(),
-            services: [{ service: "", tech: "" }],
-        },
-    });
-    const { fields, append, remove } = useFieldArray({
-        control: form.control,
-        name: "services",
-    });
-    const addService = () => {
+    function doAddService(){
         if (fields.length < 20) {
             append({ service: "", tech: "" });
         }
     };
 
-    const removeService = (index: number) => {
+    function doRemoveService(index: number){
         if (fields.length > 1) {
             remove(index);
         }
     };
-    const fetchServices = async () => {
+    async function fetchServices(){
         try {
             const allServs = await getServices();
             setAllServices(allServs);
@@ -315,7 +316,7 @@ export default function ScheduleForm({ setIsDialogOpen }: ScheduleFormProps) {
                                     <Button
                                         type="button"
                                         variant="destructive"
-                                        onClick={() => removeService(index)}
+                                        onClick={() => doRemoveService(index)}
                                         className="mr-2"
                                     >
                                         <MinusIcon className="h-4 w-4" />
@@ -323,7 +324,7 @@ export default function ScheduleForm({ setIsDialogOpen }: ScheduleFormProps) {
                                     <Button
                                         type="button"
                                         variant="secondary"
-                                        onClick={addService}
+                                        onClick={doAddService}
                                         className="mr-1"
                                         disabled={fields.length >= 4}
                                     >
@@ -342,7 +343,7 @@ export default function ScheduleForm({ setIsDialogOpen }: ScheduleFormProps) {
                                 <Button
                                     type="button"
                                     variant="secondary"
-                                    onClick={addService}
+                                    onClick={doAddService}
                                     className="mr-1"
                                     disabled={fields.length >= 4}
                                 >

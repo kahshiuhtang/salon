@@ -88,13 +88,17 @@ export default function BookAppointmentForm({
     forUser,
     isEdit
 }: BookAppointmentFormProps) {
-    const [employees, setEmployees] = useState<SalonUser[]>([]);
-    const [allServices, setAllServices] = useState<SalonService[]>([]);
     const { toast } = useToast();
     const { user } = useUser();
-    const navigate = useNavigate();
     const { getAllEmployees } = useUsers();
-    const { getServices } = useService();
+    const { getServices } = useService(); 
+    const { addAppointment, updateAppointment } = useAppointment();
+    const { notify } = useNotification();
+    const navigate = useNavigate();
+
+    const [employees, setEmployees] = useState<SalonUser[]>([]);
+    const [allServices, setAllServices] = useState<SalonService[]>([]);
+
     const [hours, minutes] =
         appointment && appointment.appLength
             ? appointment.appLength.split(/:(.*)/s)
@@ -124,8 +128,6 @@ export default function BookAppointmentForm({
         name: "services",
     });
 
-    const { addAppointment, updateAppointment } = useAppointment();
-    const { notify } = useNotification();
     function sendNotifsToAllParties(
         senderId: string,
         senderTitle: string,
@@ -154,7 +156,7 @@ export default function BookAppointmentForm({
             console.log("sendNotifsToAllParties(): " + e);
         }
     }
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    async function doSubmit(values: z.infer<typeof formSchema>) {
         try {
             if (appointment) {
                 const status: AppointmentState =
@@ -293,18 +295,18 @@ export default function BookAppointmentForm({
         }
     }
 
-    const addService = () => {
+    function addService(){
         if (fields.length < 20) {
             append({ service: "", tech: "" });
         }
     };
 
-    const removeService = (index: number) => {
+    function removeService(index: number){
         if (fields.length > 1) {
             remove(index);
         }
     };
-    const fetchEmployees = async () => {
+    async function fetchEmployees(){
         try {
             const tempEmployee = await getAllEmployees();
             setEmployees(tempEmployee);
@@ -312,7 +314,7 @@ export default function BookAppointmentForm({
             console.log("fetchEmployees(): " + e);
         }
     };
-    const fetchServices = async () => {
+    async function fetchServices(){
         try {
             const allServs = await getServices();
             setAllServices(allServs);
@@ -347,7 +349,7 @@ export default function BookAppointmentForm({
                 <CardContent>
                     <Form {...form}>
                         <form
-                            onSubmit={form.handleSubmit(onSubmit)}
+                            onSubmit={form.handleSubmit(doSubmit)}
                             className="space-y-2"
                         >
                             <div className="flex justify-start">

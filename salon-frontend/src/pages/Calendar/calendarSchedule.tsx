@@ -20,17 +20,19 @@ import ScheduleForm from "@/pages/Calendar/scheduleForm";
 import { FullCalendarAppointment } from "@/lib/types/types";
 
 export default function CalendarScheduler() {
-    const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [currentEvents, setCurrentEvents] = useState<
-        FullCalendarAppointment[]
-    >([]);
-    const navigate = useNavigate();
     const { user } = useUser();
     const { verifyProfile } = useUserProfile();
     const { getAppointments, formatAppointments } = useAppointment();
 
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [currentEvents, setCurrentEvents] = useState<
+        FullCalendarAppointment[]
+    >([]);
+    const hasFetched = useRef(false);
+    const navigate = useNavigate();
+
     // Fetch appointments, only when userId is available
-    const fetchAppointments = async () => {
+    async function fetchAppointments(){
         try {
             console.log("fetching data...");
             if (user == null || user == undefined || user["id"] == null) {
@@ -50,7 +52,6 @@ export default function CalendarScheduler() {
             console.error("Error fetching appointments:", error);
         }
     };
-    const hasFetched = useRef(false);
     useEffect(() => {
         if (!hasFetched.current && user) {
             fetchAppointments();
@@ -58,7 +59,7 @@ export default function CalendarScheduler() {
         }
     }, [user]);
 
-    function handleDateSelect(selectInfo: any) {
+    function onDateSelect(selectInfo: any) {
         const title = prompt("Please enter a new title for your event");
         const calendarApi = selectInfo.view.calendar;
         if (title) {
@@ -67,7 +68,7 @@ export default function CalendarScheduler() {
         calendarApi.unselect();
     }
 
-    function handleEventClick(clickInfo: any) {
+    function onEventClick(clickInfo: any) {
         if (
             confirm(
                 `Are you sure you want to delete the event '${clickInfo.event.title}'?`
@@ -93,9 +94,9 @@ export default function CalendarScheduler() {
                     dayMaxEvents
                     weekends
                     events={currentEvents}
-                    select={handleDateSelect}
+                    select={onDateSelect}
                     eventContent={renderEventContent}
-                    eventClick={handleEventClick}
+                    eventClick={onEventClick}
                     businessHours={{
                         startTime: "9:30",
                         endTime: "21:30",

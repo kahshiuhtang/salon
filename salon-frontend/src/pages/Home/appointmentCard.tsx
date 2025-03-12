@@ -66,7 +66,7 @@ export default function AppointmentCard({
             console.log("getUsername(): " + e);
         }
     }
-    async function handleDelete() {
+    async function doDelete() {
         await deleteAppointment({ appId: appointment.id });
         if (deleteAppLocally) deleteAppLocally(appointment.id);
         setisDeleteDialogOpen(false);
@@ -154,7 +154,7 @@ export default function AppointmentCard({
                                         <Button
                                             type="button"
                                             variant="destructive"
-                                            onClick={handleDelete}
+                                            onClick={doDelete}
                                         >
                                             Yes, Cancel Appointment
                                         </Button>

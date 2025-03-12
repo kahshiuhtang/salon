@@ -19,13 +19,18 @@ import CustomerDashboard from "@/pages/Home/dashboards/customerDashboard";
 import EmployeeDashboard from "@/pages/Home/dashboards/employeeDashboard";
 import { Toaster } from "@/components/ui/toaster";
 export default function HomePage() {
+    const { user } = useUser(); 
+    const { getNameFromId } = useUsers();
+    const { getAppointments, convertAppsForHomePage } = useAppointment();
+    const { getRole } = useRole();
+    const navigate = useNavigate();
+
     const [userType, setUserType] = useState<SalonRole>("USER");
     const [role, setRole] = useState<SalonRole>("USER");
     const [firstName, setFirstName] = useState("");
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [dailyCalendarApps, setDailyCalendarApps] = useState<DailyCalendarAppointment[]>([]);
-    const { user } = useUser();
-    const navigate = useNavigate();
+
     useEffect(() => {
         if (!user || !user.id) {
           navigate("/sign-in");
@@ -33,10 +38,7 @@ export default function HomePage() {
       }, [user, navigate]);
     const userId = user?.id || "";
 
-    const { getNameFromId } = useUsers();
-    const { getAppointments, convertAppsForHomePage } = useAppointment();
-    const { getRole } = useRole();
-    const fetchNameAndRole = async function () {
+    async function fetchNameAndRole(){
         try {
             const name = await getNameFromId({ userId });
             const userRole = await getRole({ userId });
@@ -47,7 +49,7 @@ export default function HomePage() {
             console.log("fetchName(): " + e);
         }
     };
-    const fetchRelevantAppointments = async function () {
+    async function fetchRelevantAppointments(){
         try {
             const apps = await getAppointments({ userId });
             const formattedApps = convertAppsForHomePage(apps);
@@ -60,7 +62,7 @@ export default function HomePage() {
     useEffect(() => {
         fetchNameAndRole();
     }, []);
-    const deleteAppLocally = function(appId: string) {
+    function deleteAppLocally(appId: string){
         const validApps = appointments.filter(appointment => appointment.id !== appId);
         const validDailyApps = dailyCalendarApps.filter(appointment => appointment.id !== appId);
         setAppointments(validApps);

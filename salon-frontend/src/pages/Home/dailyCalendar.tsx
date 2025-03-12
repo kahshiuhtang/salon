@@ -31,18 +31,19 @@ function handleTimeframeSelect(selectInfo: DateSelectArg) {
 export default function DailyCalendar({
     date,
 }: DailyCalendarProps) {
+    const { user } = useUser();
+    const { getAppointments, formatAppointments } = useAppointment();
+    const navigate = useNavigate();
+
     const [currentEvents, setCurrentEvents] = useState<FullCalendarAppointment[]>(
         []
     );
     const [_, setCurrEvent] = useState<string>("");
     const { verifyProfile } = useUserProfile();
-    const { user } = useUser();
-    const navigate = useNavigate();
-    const { getAppointments, formatAppointments } = useAppointment();
-    const handleEventClick = (e: EventClickArg) => {
+    function onEventClick(e: EventClickArg){
         setCurrEvent(e.event.id);
     };
-    const fetchAppointments = async () => {
+    async function fetchAppointments(){
         try {
             console.log("fetching data...");
             if (user == null || user == undefined || user["id"] == null) {
@@ -93,7 +94,7 @@ export default function DailyCalendar({
                 selectMirror
                 dayMaxEvents
                 weekends
-                eventClick={(info) => handleEventClick(info)}
+                eventClick={(info) => onEventClick(info)}
                 events={currentEvents}
                 eventContent={renderEventContent}
                 businessHours={{

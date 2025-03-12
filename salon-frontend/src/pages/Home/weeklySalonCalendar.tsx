@@ -35,6 +35,13 @@ function renderEventContent(eventInfo: any) {
 }
 
 export default function WeeklySalonCalendar() {
+    const { verifyProfile } = useUserProfile();
+    const { user } = useUser();
+    const { getRole } = useRole();
+    const { getAllSalonAppsThisWeek, formatAppointments } = useAppointment();
+
+    const navigate = useNavigate();
+
     const [currentEvents, setCurrentEvents] = useState<
         FullCalendarAppointment[]
     >([]);
@@ -44,13 +51,8 @@ export default function WeeklySalonCalendar() {
     );
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [role, setRole] = useState<SalonRole>("USER");
-    const { verifyProfile } = useUserProfile();
-    const { user } = useUser();
-    const { getRole } = useRole();
-    const navigate = useNavigate();
-    const { getAllSalonAppsThisWeek, formatAppointments } = useAppointment();
 
-    const handleEventClick = (e: EventClickArg) => {
+    function onEventClick(e: EventClickArg){
         for (var i = 0; i < rawAppointments.length; i++) {
             if (rawAppointments[i].id == e.event.id) {
                 setSelectedEvent(rawAppointments[i]);
@@ -60,12 +62,12 @@ export default function WeeklySalonCalendar() {
         }
     };
 
-    const handleCloseDialog = () => {
+    async function onCloseDialog(){
         setIsDialogOpen(false);
         setSelectedEvent(undefined);
     };
 
-    async function handleDateStartMoved(arg: DatesSetArg) {
+    async function onDateSetChanged(arg: DatesSetArg) {
         try {
             if (!user?.id) {
                 console.log("No user id");
@@ -81,11 +83,11 @@ export default function WeeklySalonCalendar() {
             setRawAppointments(appointments);
             setCurrentEvents(formattedApps);
         } catch (e) {
-            console.log("handleDateStartMoved(): " + e);
+            console.log("onDateSetChanged(): " + e);
         }
     }
 
-    const fetchAppointments = async () => {
+    async function fetchAppointments(){
         try {
             console.log("fetching data...");
             if (!user?.id) {
@@ -110,7 +112,7 @@ export default function WeeklySalonCalendar() {
             console.error("Error fetching appointments:", error);
         }
     };
-    const fetchUserRole = async () => {
+    async function fetchUserRole(){
         if (!user?.id) {
             console.log("No user id");
             return;
@@ -142,8 +144,8 @@ export default function WeeklySalonCalendar() {
                     selectMirror
                     dayMaxEvents
                     weekends
-                    eventClick={handleEventClick}
-                    datesSet={handleDateStartMoved}
+                    eventClick={onEventClick}
+                    datesSet={onDateSetChanged}
                     events={currentEvents}
                     eventContent={renderEventContent}
                     businessHours={{
@@ -165,7 +167,7 @@ export default function WeeklySalonCalendar() {
                         appointment={selectedEvent}
                     />
                     <DialogFooter>
-                        <Button onClick={handleCloseDialog}>Close</Button>
+                        <Button onClick={onCloseDialog}>Close</Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>

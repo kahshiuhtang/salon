@@ -23,7 +23,8 @@ export default function EmployeeDashboard({
     );
     const [idToService, setIdToService] = useState<Map<string, string>>(new Map());
     const { getServices } = useService();
-    if(!setSelectedDate) console.log("useState error"); 
+    if(!setSelectedDate)
+        console.log("useState error"); 
     const formattedDate = getDateOnlyFromDate(new Date());
     const todayAppointments = dailyCalendarApps
         .filter(appointment => appointment.date == formattedDate) 

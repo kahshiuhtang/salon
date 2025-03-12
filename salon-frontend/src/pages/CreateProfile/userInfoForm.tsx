@@ -39,6 +39,11 @@ const formSchema = z.object({
     comments: z.string(),
 });
 export default function UserInfoForm({ center, thisUser }: UserInfoFormProps) {
+    const { toast } = useToast();
+    const { user } = useUser();
+    const { createProfile, editProfile } = useUserProfile();
+    const navigate = useNavigate();
+
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
@@ -50,10 +55,7 @@ export default function UserInfoForm({ center, thisUser }: UserInfoFormProps) {
             comments: thisUser && thisUser.comments ? thisUser.comments : "",
         },
     });
-    const { toast } = useToast();
-    const navigate = useNavigate();
-    const { user } = useUser();
-    const { createProfile, editProfile } = useUserProfile();
+
     async function onSubmit(values: z.infer<typeof formSchema>) {
         try {
             var userId = "";

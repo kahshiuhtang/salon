@@ -54,10 +54,10 @@ export default function ServicesPage() {
         navigate("/sign-in");
     }
 
-    const processServicesAndGoods = async (
+    async function processServicesAndGoods(
         tempServices: SalonService[],
         tempGoods: SalonGood[]
-    ) => {
+    ){
         const items: ServicePageGroups[] = [];
         const itemMap = new Map<String, ServicePageGroups>();
         tempServices.forEach((service) => {
@@ -83,7 +83,7 @@ export default function ServicesPage() {
         return items;
     };
 
-    const fetchServicesAndGoods = async () => {
+    async function fetchServicesAndGoods(){
         const tempServices = await getServices();
         const tempGoods = await getGoods();
         setServices(tempServices);
@@ -95,17 +95,12 @@ export default function ServicesPage() {
         setItemsToDisplay(processedItems);
     };
 
-    const fetchRole = async () => {
+    async function fetchRole(){
         const tempRole = await getRole({ userId });
         setRole(tempRole);
     };
 
-    useEffect(() => {
-        fetchServicesAndGoods();
-        fetchRole();
-    }, []);
-
-    const handleUpdate = async (updatedItem: SalonGood | SalonService) => {
+    async function doUpdate(updatedItem: SalonGood | SalonService){
         if ("type" in updatedItem) {
             await modifyService({
                 userId: userId,
@@ -124,7 +119,7 @@ export default function ServicesPage() {
         setIsDialogOpen(false);
     };
 
-    const handleDelete = async (item: SalonGood | SalonService) => {
+    async function doDelete(item: SalonGood | SalonService){
         if ("type" in item) {
             await removeService({
                 userId: userId,
@@ -143,6 +138,11 @@ export default function ServicesPage() {
         setEditItem(null);
         setIsDialogOpen(false);
     };
+
+    useEffect(() => {
+        fetchServicesAndGoods();
+        fetchRole();
+    }, []);
 
     return (
         <>
@@ -213,7 +213,7 @@ export default function ServicesPage() {
                                                                     e
                                                                 ) => {
                                                                     e.preventDefault();
-                                                                    handleUpdate(
+                                                                    doUpdate(
                                                                         editItem as
                                                                             | SalonGood
                                                                             | SalonService
@@ -319,7 +319,7 @@ export default function ServicesPage() {
                                                                         type="button"
                                                                         variant="destructive"
                                                                         onClick={() =>
-                                                                            handleDelete(
+                                                                            doDelete(
                                                                                 item
                                                                             )
                                                                         }

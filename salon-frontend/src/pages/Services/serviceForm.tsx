@@ -88,7 +88,7 @@ export default function ServiceForm({
         },
     });
 
-    async function onSubmit(data: SalonService | SalonGood){
+    async function doSubmit(data: SalonService | SalonGood){
         try {
             const db = getFirestore();
             const collectionName =
@@ -147,7 +147,7 @@ export default function ServiceForm({
                             <Form {...servicesForm}>
                                 <form
                                     onSubmit={servicesForm.handleSubmit(
-                                        onSubmit
+                                        doSubmit
                                     )}
                                     className="space-y-8"
                                 >
@@ -263,7 +263,7 @@ export default function ServiceForm({
                         <TabsContent value="good">
                             <Form {...goodsForm}>
                                 <form
-                                    onSubmit={goodsForm.handleSubmit(onSubmit)}
+                                    onSubmit={goodsForm.handleSubmit(doSubmit)}
                                     className="space-y-8"
                                 >
                                     <FormField

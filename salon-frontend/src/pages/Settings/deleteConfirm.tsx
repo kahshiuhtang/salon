@@ -35,7 +35,7 @@ const DeleteConfirmation = forwardRef<
         closeModal,
     }));
 
-    function handleDelete() {
+    function doDelete() {
         onDelete();
         closeModal();
     }
@@ -54,7 +54,7 @@ const DeleteConfirmation = forwardRef<
                     <div>
                         <AvailabilityCard />
                         <div className="mt-2">
-                            <Button className="ml-2" variant="destructive" onClick={handleDelete}>
+                            <Button className="ml-2" variant="destructive" onClick={doDelete}>
                                 Delete
                             </Button>
                             <Button variant="outline" onClick={closeModal}>

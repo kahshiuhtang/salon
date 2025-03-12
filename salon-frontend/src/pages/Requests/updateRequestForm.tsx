@@ -61,7 +61,11 @@ export default function UpdateRequestForm({
 }: UpdateRequestFormProps) {
     const [allServices, setAllServices] = useState<SalonService[]>([]);
     const { user } = useUser();
+    const { addAppointment } = useAppointment();
+    const { getServices } = useService();
     const navigate = useNavigate();
+    const serviceRefs = useRef<(HTMLDivElement | null)[]>([]);
+
     if (!user || !user.id) {
         navigate("/sign-in");
     }
@@ -81,9 +85,7 @@ export default function UpdateRequestForm({
             services: services,
         },
     });
-    const { addAppointment } = useAppointment();
-    const { getServices } = useService();
-    async function onSubmit(values: z.infer<typeof formSchema>) {
+    async function doSubmit(values: z.infer<typeof formSchema>) {
         await addAppointment({
             ...values,
             time: values.time.toLocaleTimeString(),
@@ -91,8 +93,7 @@ export default function UpdateRequestForm({
             ownerId: userId,
         });
     }
-    const serviceRefs = useRef<(HTMLDivElement | null)[]>([]);
-    const showMore = () => {
+    function doShowMore(){
         for (let index = 0; index < serviceRefs.current.length; index++) {
             const div = serviceRefs.current[index];
             if (div && div.style.display === "none") {
@@ -101,7 +102,7 @@ export default function UpdateRequestForm({
             }
         }
     };
-    const showLess = () => {
+    function doShowLess(){
         for (let index = serviceRefs.current.length - 1; index >= 0; index--) {
             const div = serviceRefs.current[index];
             if (div && div.style.display === "flex") {
@@ -111,7 +112,7 @@ export default function UpdateRequestForm({
         }
     };
 
-    const fetchServices = async () => {
+    async function fetchServices(){
         try {
             const allServs = await getServices();
             setAllServices(allServs);
@@ -125,7 +126,7 @@ export default function UpdateRequestForm({
     //TODO: unify all the forms, kind of a pain to updae appointemtns struct
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2">
+            <form onSubmit={form.handleSubmit(doSubmit)} className="space-y-2">
                 <div className="flex justify-start">
                     <FormField
                         control={form.control}
@@ -310,12 +311,12 @@ export default function UpdateRequestForm({
                     <div className="flex">
                         <Button
                             variant="secondary"
-                            onClick={showMore}
+                            onClick={doShowMore}
                             className="mr-1"
                         >
                             Add
                         </Button>
-                        <Button variant="destructive" onClick={showLess}>
+                        <Button variant="destructive" onClick={doShowLess}>
                             Remove
                         </Button>
                     </div>

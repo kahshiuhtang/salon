@@ -93,7 +93,7 @@ export default function RequestCard({
     const { user } = useUser();
     const userId = user?.id || "";
     if (!setDate) console.log("...no set date");
-    const getName = async function () {
+    async function getName(){
         try {
             const { firstName, lastName } = await getNameFromId({
                 userId: appointment.ownerId,
@@ -109,7 +109,7 @@ export default function RequestCard({
             });
         }
     };
-    const fetchServices = async () => {
+    async function fetchServices(){
         try {
             const allServs = await getServices();
             setAllServices(allServs);
@@ -126,7 +126,7 @@ export default function RequestCard({
         }
     }, []);
 
-    const handleApprove = async function () {
+    async function handleApprove(){
         try {
             if (currentAppState.state === "CONFIRMED") {
                 toast({
@@ -176,7 +176,7 @@ export default function RequestCard({
         }
     };
 
-    const handleDelete = async function () {
+    async function handleDelete(){
         try {
             const docRef = doc(firebaseDb, "appointments", appointment.id);
             await deleteDoc(docRef);
@@ -208,7 +208,7 @@ export default function RequestCard({
             });
         }
     };
-    const getUsername = async (id: string) => {
+    async function getUsername(id: string){
         if (usernameCache[id]) {
             return usernameCache[id];
         }

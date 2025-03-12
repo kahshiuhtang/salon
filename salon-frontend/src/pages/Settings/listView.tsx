@@ -26,7 +26,7 @@ export default function AvailabilityListView() {
     const { user } = useUser();
     var userId = user?.id || "";
 
-    function getRepeatText(availability: Availability){
+    function formatRepeatText(availability: Availability){
         if (availability.repeatTypeWeekly && availability.repeatTypeDaily)
             return `Repeats ${availability.repeatTypeWeekly} and ${availability.repeatTypeDaily}`;
         if (availability.repeatTypeWeekly)
@@ -87,7 +87,7 @@ export default function AvailabilityListView() {
                             <TableCell>
                                 <div className="flex items-center">
                                     <RepeatIcon className="mr-2 h-4 w-4" />
-                                    {getRepeatText(availability)}
+                                    {formatRepeatText(availability)}
                                 </div>
                             </TableCell>
                             <TableCell className="text-right">

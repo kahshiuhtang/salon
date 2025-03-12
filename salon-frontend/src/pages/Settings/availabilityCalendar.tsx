@@ -35,7 +35,7 @@ export default function AvailablityCalendar() {
 
     const deleteConfirmationRef = useRef<DeleteConfirmationRef>(null);
 
-    function openDeleteConfirmation(){
+    function confirmOpenDeleteModal(){
         deleteConfirmationRef.current?.openModal()
     }
     function handleTimeframeSelect(selectInfo: DateSelectArg) {
@@ -62,11 +62,11 @@ export default function AvailablityCalendar() {
             console.error("Error fetching appointments:", error);
         }
     };
-    function handleEventClick(e: EventClickArg){
+    function doCalendarClick(e: EventClickArg){
         setCurrEvent(e.event.id);
-        openDeleteConfirmation();
+        confirmOpenDeleteModal();
     };
-    async function handleDelete(){
+    async function doDelete(){
         if (user == null || user == undefined || user["id"] == null) {
             console.log("No user id");
             return;
@@ -106,7 +106,7 @@ export default function AvailablityCalendar() {
                 selectMirror
                 dayMaxEvents
                 weekends
-                eventClick={(info) => handleEventClick(info)}
+                eventClick={(info) => doCalendarClick(info)}
                 events={currentAvailabilities}
                 eventContent={renderEventContent}
                 businessHours={{
@@ -118,7 +118,7 @@ export default function AvailablityCalendar() {
             />
             <DeleteConfirmation
                 ref={deleteConfirmationRef}
-                onDelete={handleDelete}
+                onDelete={doDelete}
             />
             <Dialog open={open}>
                 <DialogContent className="sm:max-w-md">

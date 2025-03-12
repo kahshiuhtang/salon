@@ -14,6 +14,13 @@ import TransactionsTab from "./transactionsTab";
 
 export default function TransactionsPage() {
     const { getEmployeeFromId } = useUsers();
+    const {
+        getUnprocessedApps,
+        getTransactions,
+        createTransaction,
+        updateTransaction,
+    } = useTransaction();
+    const { updateAppointment } = useAppointment();
 
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [transactions, setTransactions] = useState<SalonTransaction[]>([]);
@@ -35,13 +42,6 @@ export default function TransactionsPage() {
         setSelectedTrans(null);
         setSelectedApp(null);
     }, [activeTab]);
-    const {
-        getUnprocessedApps,
-        getTransactions,
-        createTransaction,
-        updateTransaction,
-    } = useTransaction();
-    const { updateAppointment } = useAppointment();
 
     async function fetchUnprocessedApps() {
         const apps = await getUnprocessedApps();

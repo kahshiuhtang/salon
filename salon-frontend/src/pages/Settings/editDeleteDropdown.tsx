@@ -41,12 +41,12 @@ export default function EditDeleteDropdown({
 
     const { deleteAvailability } = useAvailability();
 
-    function handleEdit(){
+    function doEdit(){
         setIsDropdownOpen(false);
         setIsEditDialogOpen(true);
     };
 
-    function handleDelete(){
+    function doDelete(){
         setIsDropdownOpen(false);
         setIsDeleteDialogOpen(true);
     };
@@ -70,11 +70,11 @@ export default function EditDeleteDropdown({
                     </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
-                    <DropdownMenuItem onSelect={handleEdit}>
+                    <DropdownMenuItem onSelect={doEdit}>
                         <Edit className="mr-2 h-4 w-4" />
                         <span>Edit</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onSelect={handleDelete}>
+                    <DropdownMenuItem onSelect={doDelete}>
                         <Trash2 className="mr-2 h-4 w-4" />
                         <span>Delete</span>
                     </DropdownMenuItem>

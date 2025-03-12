@@ -20,15 +20,15 @@ export default function CreateTransactionForm({
     onCreate,
 }: {
     appointment: Appointment;
-    onCreate: (newTransaction: SalonTransaction, appId: string) => void;
+    onCreate: (newTransaction: SalonTransaction,
+        app: Appointment) => void;
 }) {
-    const [defaultTaxRate] = useState(0.08); // 8% default tax rate
+    const [defaultTaxRate] = useState(0.0825); // 8% default tax rate
     const [total, setTotal] = useState(0);
 
     useEffect(() => {
         getCostMap();
     }, []);
-    
 
     const { getSelectServices } = useService();
 
@@ -73,7 +73,9 @@ export default function CreateTransactionForm({
     };
 
     function onSubmit(data: SalonTransaction){
-        onCreate({ ...data, ...appointment }, appointment.id);
+        appointment.hasTransaction = true;
+        appointment.state = "FINISHED";
+        onCreate({ ...data, ...appointment }, appointment);
     };
 
     return (

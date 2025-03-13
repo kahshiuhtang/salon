@@ -40,7 +40,7 @@ import { UserForm } from "@/pages/Users/userForm";
 import { useAvailability } from "@/lib/hooks/useAvailability";
 import { DateSelectArg, EventInput } from "@fullcalendar/core/index.js";
 import BookAppointmentForm from "@/pages/BookAppointment/bookAppointmentForm";
-
+import { getRandomString } from "@/lib/utils";
 const userSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
   lastName: z.string().min(1, "Last name is required"),
@@ -123,9 +123,10 @@ export default function UsersPage() {
         setEditingUser(null);
         setIsEditUserOpen(false);
       } else {
+        const randPassword = getRandomString(14);
         const res = await createClerkProfile({
           firstName: data.firstName,
-          password: "SUPER-SECURE",
+          password: randPassword,
           lastName: data.lastName,
           email: [data.email],
           phoneNumber: [data.phoneNumber],

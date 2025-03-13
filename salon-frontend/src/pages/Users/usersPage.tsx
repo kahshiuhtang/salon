@@ -339,9 +339,10 @@ export default function UsersPage() {
                             >
                               <DialogTrigger asChild>
                                 <Button
+                                  disabled={currUser.role == "ADMIN"}
                                   size="icon"
                                   variant="outline"
-                                  title="Decrease Role Privilege"
+                                  title="Increase Role Privilege"
                                   onClick={() => {
                                     onIncreasePrivClick(currUser.userId);
                                   }}
@@ -381,55 +382,58 @@ export default function UsersPage() {
                                 </div>
                               </DialogContent>
                             </Dialog>
-                            <Dialog
-                              open={isDecreaseUserPriv}
-                              onOpenChange={setIsDecreaseUserPriv}
-                            >
-                              <DialogTrigger asChild>
-                                <Button
-                                  size="icon"
-                                  variant="outline"
-                                  title="Decrease Role Privilege"
-                                  onClick={() => {
-                                    onDecreasePrivClick(currUser.userId);
-                                  }}
-                                  aria-label="Demote user"
-                                  className="bg-white hover:bg-gray-100"
-                                >
-                                  <ChevronDown className="h-4 w-4" />
-                                </Button>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-md">
-                                <DialogHeader></DialogHeader>
-                                <div className="h-[100px]">
-                                  <h2 className="mb-2">
-                                    Are you sure you want to decrease this
-                                    user's priviledge?
-                                  </h2>
+                            {
+                              <Dialog
+                                open={isDecreaseUserPriv}
+                                onOpenChange={setIsDecreaseUserPriv}
+                              >
+                                <DialogTrigger asChild>
                                   <Button
-                                    variant="secondary"
+                                    disabled={currUser.role == "USER"}
+                                    size="icon"
+                                    variant="outline"
                                     title="Decrease Role Privilege"
                                     onClick={() => {
-                                      handleRoleChange(currUserId, -1);
-                                      setIsDecreaseUserPriv(false);
+                                      onDecreasePrivClick(currUser.userId);
                                     }}
                                     aria-label="Demote user"
-                                    className="hover:bg-gray-100 mr-2"
+                                    className="bg-white hover:bg-gray-100"
                                   >
-                                    Demote
+                                    <ChevronDown className="h-4 w-4" />
                                   </Button>
-                                  <Button
-                                    variant="destructive"
-                                    onClick={() => {
-                                      setCurrUserId("");
-                                      setIsDecreaseUserPriv(false);
-                                    }}
-                                  >
-                                    Cancel
-                                  </Button>
-                                </div>
-                              </DialogContent>
-                            </Dialog>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-md">
+                                  <DialogHeader></DialogHeader>
+                                  <div className="h-[100px]">
+                                    <h2 className="mb-2">
+                                      Are you sure you want to decrease this
+                                      user's privilege?
+                                    </h2>
+                                    <Button
+                                      variant="secondary"
+                                      title="Decrease Role Privilege"
+                                      onClick={() => {
+                                        handleRoleChange(currUserId, -1);
+                                        setIsDecreaseUserPriv(false);
+                                      }}
+                                      aria-label="Demote user"
+                                      className="hover:bg-gray-100 mr-2"
+                                    >
+                                      Demote
+                                    </Button>
+                                    <Button
+                                      variant="destructive"
+                                      onClick={() => {
+                                        setCurrUserId("");
+                                        setIsDecreaseUserPriv(false);
+                                      }}
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                            }
                             <Dialog
                               open={isEditUserOpen}
                               onOpenChange={setIsEditUserOpen}

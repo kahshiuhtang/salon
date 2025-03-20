@@ -341,18 +341,15 @@ export default function ServicesPage() {
                     ))}
                 </div>
                 {role !== "USER" && (
-                    <ServiceForm
+                    <div className="mt-4">
+                        <ServiceForm
                         services={services}
                         goods={goods}
                         setGoods={setGoods}
                         setServices={setServices}
                     />
+                    </div>
                 )}
-                <div className="mt-12 text-center">
-                    <Button size="lg" variant="default">
-                        Book an Appointment
-                    </Button>
-                </div>
             </div>
         </>
     );

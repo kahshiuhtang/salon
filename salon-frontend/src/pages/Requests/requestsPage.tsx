@@ -54,29 +54,29 @@ export default function RequestsPage() {
     setRequests(validRequests);
     return true;
   }
-  async function fetchRoleAndRequests() {
-    try {
-      const role = await getRole({ userId });
-      const apps = await getActiveAppointments({ userId });
-      const appsWithNames = await Promise.all(
-        apps.map(async (app) => {
-          const { firstName, lastName } = await getNameFromId({
-            userId: app.ownerId,
-          });
-          return { ...app, clientName: `${firstName} ${lastName}` };
-        }),
-      );
-      setCurrRole(role);
-      setRequests(appsWithNames);
-      setFilteredRequests(appsWithNames);
-    } catch (e) {
-      console.error("Error fetching role and requests:", e);
-    }
-  }
 
   useEffect(() => {
+    async function fetchRoleAndRequests() {
+      try {
+        const role = await getRole({ userId });
+        const apps = await getActiveAppointments({ userId });
+        const appsWithNames = await Promise.all(
+          apps.map(async (app) => {
+            const { firstName, lastName } = await getNameFromId({
+              userId: app.ownerId,
+            });
+            return { ...app, clientName: `${firstName} ${lastName}` };
+          }),
+        );
+        setCurrRole(role);
+        setRequests(appsWithNames);
+        setFilteredRequests(appsWithNames);
+      } catch (e) {
+        console.error("Error fetching role and requests:", e);
+      }
+    }
     fetchRoleAndRequests();
-  }, []);
+  });
 
   useEffect(() => {
     const filtered = requests.filter((request) => {
@@ -102,7 +102,7 @@ export default function RequestsPage() {
     <div className="min-h-screen bg-gray-100">
       <Navbar />
       <main className="container mx-auto px-4 py-8">
-        {currRole === "ADMIN" && (
+        {(currRole === "ADMIN" || currRole == "MOD") && (
           <div>
             <h1 className="text-3xl font-bold mb-6">Appointment Requests</h1>
             <div className="mb-6 grid gap-4 md:grid-cols-2">
@@ -140,7 +140,6 @@ export default function RequestsPage() {
                     <SelectItem value="CANCELLED">Cancelled</SelectItem>
                     <SelectItem value="MISSED">Missed</SelectItem>
                     <SelectItem value="RESCHEDULED">Rescheduled</SelectItem>
-                    <SelectItem value="FINISHED">Finished</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -162,14 +161,6 @@ export default function RequestsPage() {
                 )}
               </div>
             )}
-          </div>
-        )}
-        {currRole === "MOD" && (
-          <div className="text-center">
-            <h1 className="text-3xl font-bold mb-4">Moderator Dashboard</h1>
-            <p className="text-gray-600">
-              Welcome! Your appointments and requests will be displayed here.
-            </p>
           </div>
         )}
         {currRole === "USER" && (

@@ -34,6 +34,7 @@ import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Button } from "@/components/ui/button";
 import { Toaster } from "@/components/ui/toaster";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 
 import {
     Appointment,
@@ -61,7 +62,8 @@ interface RequestCardProps {
     deleteRequest: (appId: string) => boolean;
 }
 
-const timeFormat = "hh:mm a";
+const timeFormat = "hh:mm A";
+dayjs.extend(customParseFormat);
 
 export default function RequestCard({
     appointment,
@@ -84,7 +86,7 @@ export default function RequestCard({
     const appDateObject = new Date(appointment.date);
     const dateString = appDateObject.toISOString().split("T")[0];
     const dateTimeString = `${dateString} ${appointment.time}`;
-    const appDate = new Date(dateTimeString);
+    const appDate = dayjs(dateTimeString, "YYYY-MM-DD h:mm:ss A").toDate();;
     const [date, setDate] = useState<Date>(appDate);
     const { updateAppointmentStatus } = useAppointment();
     const { notify } = useNotification();
@@ -219,7 +221,7 @@ export default function RequestCard({
         }));
         return fetchedUsername;
     };
-
+    console.log(date);
     return (
         <>
             <Toaster />
@@ -274,8 +276,8 @@ export default function RequestCard({
                                         <Calendar
                                             mode="single"
                                             selected={appDate}
-                                            disabled={(date) =>
-                                                date < new Date()
+                                            disabled={(dateArg) =>
+                                                dateArg < new Date()
                                             }
                                             initialFocus
                                         />
@@ -289,7 +291,7 @@ export default function RequestCard({
                                 <TimePicker
                                     id="appointment-time"
                                     value={dayjs(date)}
-                                    defaultValue={dayjs("12:00", timeFormat)}
+                                    defaultValue={dayjs("12:00 PM", timeFormat)}
                                     use12Hours
                                     format={timeFormat}
                                     minuteStep={5}

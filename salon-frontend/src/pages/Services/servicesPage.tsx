@@ -196,7 +196,7 @@ export default function ServicesPage() {
                                                             <DialogHeader>
                                                                 <DialogTitle>
                                                                     Edit{" "}
-                                                                    {item.name}
+                                                                    {editItem?.name}
                                                                 </DialogTitle>
                                                             </DialogHeader>
                                                             <form
@@ -267,8 +267,8 @@ export default function ServicesPage() {
                                                                         }
                                                                     />
                                                                 </div>
-                                                                {"time" in
-                                                                    item && (
+                                                                {editItem && "time" in
+                                                                    editItem && (
                                                                     <div>
                                                                         <Label htmlFor="time">
                                                                             Time

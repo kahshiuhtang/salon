@@ -18,6 +18,7 @@ import {
 import { getStartAndEndDate } from "@/lib/utils";
 import BookAppointmentForm from "@/pages/BookAppointment/bookAppointmentForm";
 import { useUserContext } from "@/contexts/userContext";
+import { DialogTitle } from "@radix-ui/react-dialog";
 
 function renderEventContent(eventInfo: any) {
     return (
@@ -138,12 +139,12 @@ export default function WeeklySalonCalendar() {
                     slotMaxTime="22:00"
                 />
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={(isOpen) =>{
+            <Dialog open={isDialogOpen} onOpenChange={async (isOpen) => {
                 if(!isOpen)
-                    setIsDialogOpen(true);
-                else
-                    onCloseDialog();
+                    await onCloseDialog();
+                
             }}>
+                <DialogTitle></DialogTitle>
                 <DialogContent>
                     <BookAppointmentForm
                         isEdit={true}

@@ -8,11 +8,7 @@ import { DatesSetArg, EventClickArg } from "@fullcalendar/core/index.js";
 import {
     Dialog,
     DialogContent,
-    DialogFooter,
-    DialogHeader,
-    DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { useAppointment } from "@/lib/hooks/useAppointment";
 import { useUserProfile } from "@/lib/hooks/useUserProfile";
 import {
@@ -142,19 +138,19 @@ export default function WeeklySalonCalendar() {
                     slotMaxTime="22:00"
                 />
             </div>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <Dialog open={isDialogOpen} onOpenChange={(isOpen) =>{
+                if(!isOpen)
+                    setIsDialogOpen(true);
+                else
+                    onCloseDialog();
+            }}>
                 <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Edit Appointment</DialogTitle>
-                    </DialogHeader>
                     <BookAppointmentForm
+                        isEdit={true}
                         insideCard={true}
                         userRole={role}
                         appointment={selectedEvent}
                     />
-                    <DialogFooter>
-                        <Button onClick={onCloseDialog}>Close</Button>
-                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </div>

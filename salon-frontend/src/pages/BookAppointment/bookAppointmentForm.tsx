@@ -339,8 +339,8 @@ export default function BookAppointmentForm({
         )}
       >
         <CardHeader className="pl-8 pt-8 pb-0 mb-2">
-          <CardTitle>Book an appointment</CardTitle>
-          <CardDescription>Send a request for an appointment</CardDescription>
+          <CardTitle>{isEdit == true ? "Edit Appointment" : "Book Appointment" }</CardTitle>
+          {isEdit != true && <CardDescription>Send a request for an appointment</CardDescription>}
         </CardHeader>
         <CardContent>
           <Form {...form}>

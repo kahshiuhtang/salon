@@ -20,7 +20,6 @@ export default function RootLayout() {
                 <div>
                     <SignedIn></SignedIn>
                     <SignedOut>
-                        
                     </SignedOut>
                 </div>
             </header>

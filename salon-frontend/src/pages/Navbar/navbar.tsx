@@ -1,4 +1,4 @@
-import { UserButton, useUser } from "@clerk/clerk-react";
+import { UserButton } from "@clerk/clerk-react";
 import {
     BadgeDollarSign,
     Book,
@@ -10,22 +10,9 @@ import {
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import NotificationDropdown from "@/pages/Navbar/Notifications/notificationPopover";
-import { SalonRole } from "@/lib/types/types";
-import { useEffect, useState } from "react";
-import { useRole } from "@/lib/hooks/useRole";
+import { useUserContext } from "@/contexts/userContext";
 export default function Navbar() {
-    const { user } = useUser();
-    const [role, setRole] = useState<SalonRole>("USER");
-    const { getRole } = useRole();
-    const fetchUserRole = async function () {
-        const userId = user?.id || "";
-        if (userId == "") return;
-        const userRole = await getRole({ userId });
-        setRole(userRole);
-    };
-    useEffect(() => {
-        fetchUserRole();
-    }, [user]);
+    const { role } = useUserContext();
     return (
         <nav className="bg-primary text-primary-foreground p-4">
             <div className="container mx-auto flex justify-between items-center">

@@ -15,22 +15,86 @@ import UsersPage from "@/pages/Users/usersPage";
 import LandingPage from "@/pages/Landing/landingPage";
 import ServicesPage from "@/pages/Services/servicesPage";
 import TranscationsPage from "@/pages/Transactions/transactionsPage";
+import UserProvider from "@/contexts/userContext";
 const router = createBrowserRouter([
     {
         element: <RootLayout />,
         children: [
             { path: "/", element: <LandingPage /> },
-            { path: "/home", element: <HomePage /> },
-            { path: "/users", element: <UsersPage /> },
-            { path: "/requests", element: <RequestsPage /> },
-            { path: "/book", element: <BookAppointmentPage /> },
-            { path: "/create-profile", element: <CreateProfilePage /> },
-            { path: "/calendar", element: <CalendarPage /> },
-            { path: "/settings", element: <SettingsPage /> },
+            {
+                path: "/home",
+                element: (
+                    <UserProvider>
+                        <HomePage />
+                    </UserProvider>
+                ),
+            },
+            {
+                path: "/users",
+                element: (
+                    <UserProvider>
+                        <UsersPage />
+                    </UserProvider>
+                ),
+            },
+            {
+                path: "/requests",
+                element: (
+                    <UserProvider>
+                        <RequestsPage />{" "}
+                    </UserProvider>
+                ),
+            },
+            {
+                path: "/book",
+                element: (
+                    <UserProvider>
+                        <BookAppointmentPage />
+                    </UserProvider>
+                ),
+            },
+            {
+                path: "/create-profile",
+                element: (
+                    <UserProvider>
+                        <CreateProfilePage />{" "}
+                    </UserProvider>
+                ),
+            },
+            {
+                path: "/calendar",
+                element: (
+                    <UserProvider>
+                        <CalendarPage />
+                    </UserProvider>
+                ),
+            },
+            {
+                path: "/settings",
+                element: (
+                    <UserProvider>
+                        <SettingsPage />
+                    </UserProvider>
+                ),
+            },
             { path: "/sign-in/*", element: <SignInPage /> },
             { path: "/register/*", element: <RegisterPage /> },
-            { path: "/transactions", element: <TranscationsPage /> },
-            { path: "/services", element: <ServicesPage /> },
+            {
+                path: "/transactions",
+                element: (
+                    <UserProvider>
+                        <TranscationsPage />{" "}
+                    </UserProvider>
+                ),
+            },
+            {
+                path: "/services",
+                element: (
+                    <UserProvider>
+                        <ServicesPage />
+                    </UserProvider>
+                ),
+            },
         ],
     },
 ]);

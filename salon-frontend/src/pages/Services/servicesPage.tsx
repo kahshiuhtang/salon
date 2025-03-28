@@ -11,15 +11,14 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useRole } from "@/lib/hooks/useRole";
 import { useService } from "@/lib/hooks/useService";
 import { SalonGood, SalonService } from "@/lib/types/types";
 import UnlockedNavbar from "@/pages/Navbar/unlockedNavbar";
-import { useUser } from "@clerk/clerk-react";
 import { Edit, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import ServiceForm from "@/pages/Services/serviceForm";
+import { useUserContext } from "@/contexts/userContext";
 
 interface ServicePageGroups {
     groupName: string;
@@ -32,7 +31,6 @@ export default function ServicesPage() {
     const [itemsToDisplay, setItemsToDisplay] = useState<ServicePageGroups[]>(
         []
     );
-    const [role, setRole] = useState("USER");
     const [editItem, setEditItem] = useState<SalonGood | SalonService | null>(
         null
     );
@@ -45,8 +43,7 @@ export default function ServicesPage() {
         removeService,
         removeGood,
     } = useService();
-    const { getRole } = useRole();
-    const { user } = useUser();
+    const {user, role} = useUserContext();
     const navigate = useNavigate();
 
     const userId = user?.id || "";
@@ -95,11 +92,6 @@ export default function ServicesPage() {
         setItemsToDisplay(processedItems);
     };
 
-    async function fetchRole(){
-        const tempRole = await getRole({ userId });
-        setRole(tempRole);
-    };
-
     async function doUpdate(updatedItem: SalonGood | SalonService){
         if ("type" in updatedItem) {
             await modifyService({
@@ -141,7 +133,6 @@ export default function ServicesPage() {
 
     useEffect(() => {
         fetchServicesAndGoods();
-        fetchRole();
     }, []);
 
     return (

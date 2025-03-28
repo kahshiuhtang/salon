@@ -2,10 +2,7 @@
 
 import { useAppointment } from "@/lib/hooks/useAppointment";
 import { AppointmentState, AppointmentWithClientName } from "@/lib/types/types";
-import { useRole } from "@/lib/hooks/useRole";
-import { SalonRole } from "@/lib/types/types";
 import Navbar from "@/pages/Navbar/navbar";
-import { useUser } from "@clerk/clerk-react";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import RequestCard from "@/pages/Requests/requestCard";
@@ -19,9 +16,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useUsers } from "@/lib/hooks/useUsers";
+import { useUserContext } from "@/contexts/userContext";
 
 export default function RequestsPage() {
-  const [currRole, setCurrRole] = useState<SalonRole>("USER");
   const [requests, setRequests] = useState<AppointmentWithClientName[]>([]);
   const [filteredRequests, setFilteredRequests] = useState<
     AppointmentWithClientName[]
@@ -30,9 +27,9 @@ export default function RequestsPage() {
   const [statusFilter, setStatusFilter] = useState<AppointmentState | "ALL">(
     "ALL",
   );
-  const { user } = useUser();
+  const {user, role} = useUserContext();
+  const currRole = role;
   const navigate = useNavigate();
-  const { getRole } = useRole();
   const { getActiveAppointments } = useAppointment();
   const { getNameFromId } = useUsers();
   useEffect(() => {
@@ -58,7 +55,6 @@ export default function RequestsPage() {
   useEffect(() => {
     async function fetchRoleAndRequests() {
       try {
-        const role = await getRole({ userId });
         const apps = await getActiveAppointments({ userId });
         const appsWithNames = await Promise.all(
           apps.map(async (app) => {
@@ -68,7 +64,6 @@ export default function RequestsPage() {
             return { ...app, clientName: `${firstName} ${lastName}` };
           }),
         );
-        setCurrRole(role);
         setRequests(appsWithNames);
         setFilteredRequests(appsWithNames);
       } catch (e) {

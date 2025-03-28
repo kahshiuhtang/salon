@@ -9,25 +9,19 @@ import {
 } from "@/components/ui/card";
 import { Paintbrush } from "lucide-react";
 import Navbar from "@/pages/Navbar/navbar";
-import { useUser } from "@clerk/clerk-react";
 import { Link, useNavigate } from "react-router-dom";
-import { useUsers } from "@/lib/hooks/useUsers";
-import { useRole } from "@/lib/hooks/useRole";
 import { SalonRole, DailyCalendarAppointment, Appointment } from "@/lib/types/types";
 import { useAppointment } from "@/lib/hooks/useAppointment";
 import CustomerDashboard from "@/pages/Home/dashboards/customerDashboard";
 import EmployeeDashboard from "@/pages/Home/dashboards/employeeDashboard";
 import { Toaster } from "@/components/ui/toaster";
+import { useUserContext } from "@/contexts/userContext";
 export default function HomePage() {
-    const { user } = useUser(); 
-    const { getNameFromId } = useUsers();
+    const { user, firstName, role } = useUserContext();
     const { getAppointments, convertAppsForHomePage } = useAppointment();
-    const { getRole } = useRole();
     const navigate = useNavigate();
 
     const [userType, setUserType] = useState<SalonRole>("USER");
-    const [role, setRole] = useState<SalonRole>("USER");
-    const [firstName, setFirstName] = useState("");
     const [appointments, setAppointments] = useState<Appointment[]>([]);
     const [dailyCalendarApps, setDailyCalendarApps] = useState<DailyCalendarAppointment[]>([]);
 
@@ -37,18 +31,6 @@ export default function HomePage() {
         }
       }, [user, navigate]);
     const userId = user?.id || "";
-
-    async function fetchNameAndRole(){
-        try {
-            const name = await getNameFromId({ userId });
-            const userRole = await getRole({ userId });
-            setFirstName(name.firstName);
-            setUserType(userRole);
-            setRole(userRole);
-        } catch (e) {
-            console.log("fetchName(): " + e);
-        }
-    };
     async function fetchRelevantAppointments(){
         try {
             const apps = await getAppointments({ userId });
@@ -59,9 +41,6 @@ export default function HomePage() {
             console.log("fetchRelevantAppointments(): " + e);
         }
     };
-    useEffect(() => {
-        fetchNameAndRole();
-    }, []);
     function deleteAppLocally(appId: string){
         const validApps = appointments.filter(appointment => appointment.id !== appId);
         const validDailyApps = dailyCalendarApps.filter(appointment => appointment.id !== appId);

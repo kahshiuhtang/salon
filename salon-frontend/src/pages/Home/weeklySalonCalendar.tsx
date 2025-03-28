@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUser } from "@clerk/clerk-react";
 import FullCalendar from "@fullcalendar/react";
 import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
@@ -19,11 +18,10 @@ import { useUserProfile } from "@/lib/hooks/useUserProfile";
 import {
     Appointment,
     FullCalendarAppointment,
-    SalonRole,
 } from "@/lib/types/types";
 import { getStartAndEndDate } from "@/lib/utils";
 import BookAppointmentForm from "@/pages/BookAppointment/bookAppointmentForm";
-import { useRole } from "@/lib/hooks/useRole";
+import { useUserContext } from "@/contexts/userContext";
 
 function renderEventContent(eventInfo: any) {
     return (
@@ -36,8 +34,7 @@ function renderEventContent(eventInfo: any) {
 
 export default function WeeklySalonCalendar() {
     const { verifyProfile } = useUserProfile();
-    const { user } = useUser();
-    const { getRole } = useRole();
+    const {role, user }= useUserContext();
     const { getAllSalonAppsThisWeek, formatAppointments } = useAppointment();
 
     const navigate = useNavigate();
@@ -50,7 +47,6 @@ export default function WeeklySalonCalendar() {
         undefined
     );
     const [isDialogOpen, setIsDialogOpen] = useState(false);
-    const [role, setRole] = useState<SalonRole>("USER");
 
     function onEventClick(e: EventClickArg){
         for (var i = 0; i < rawAppointments.length; i++) {
@@ -112,18 +108,8 @@ export default function WeeklySalonCalendar() {
             console.error("Error fetching appointments:", error);
         }
     };
-    async function fetchUserRole(){
-        if (!user?.id) {
-            console.log("No user id");
-            return;
-        }
-        const userId = user.id;
-        const userRole = await getRole({ userId });
-        setRole(userRole);
-    };
     useEffect(() => {
         fetchAppointments();
-        fetchUserRole();
     }, [user]);
 
     return (

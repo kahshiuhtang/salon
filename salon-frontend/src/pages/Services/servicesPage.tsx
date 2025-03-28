@@ -43,7 +43,7 @@ export default function ServicesPage() {
         removeService,
         removeGood,
     } = useService();
-    const {user, role} = useUserContext();
+    const { user, role } = useUserContext();
     const navigate = useNavigate();
 
     const userId = user?.id || "";
@@ -54,7 +54,7 @@ export default function ServicesPage() {
     async function processServicesAndGoods(
         tempServices: SalonService[],
         tempGoods: SalonGood[]
-    ){
+    ) {
         const items: ServicePageGroups[] = [];
         const itemMap = new Map<String, ServicePageGroups>();
         tempServices.forEach((service) => {
@@ -78,9 +78,9 @@ export default function ServicesPage() {
             console.log("hmm... no services or goods found");
         }
         return items;
-    };
+    }
 
-    async function fetchServicesAndGoods(){
+    async function fetchServicesAndGoods() {
         const tempServices = await getServices();
         const tempGoods = await getGoods();
         setServices(tempServices);
@@ -90,9 +90,9 @@ export default function ServicesPage() {
             tempGoods
         );
         setItemsToDisplay(processedItems);
-    };
+    }
 
-    async function doUpdate(updatedItem: SalonGood | SalonService){
+    async function doUpdate(updatedItem: SalonGood | SalonService) {
         if ("type" in updatedItem) {
             await modifyService({
                 userId: userId,
@@ -109,9 +109,9 @@ export default function ServicesPage() {
         fetchServicesAndGoods();
         setEditItem(null);
         setIsDialogOpen(false);
-    };
+    }
 
-    async function doDelete(item: SalonGood | SalonService){
+    async function doDelete(item: SalonGood | SalonService) {
         if ("type" in item) {
             await removeService({
                 userId: userId,
@@ -129,7 +129,7 @@ export default function ServicesPage() {
         fetchServicesAndGoods();
         setEditItem(null);
         setIsDialogOpen(false);
-    };
+    }
 
     useEffect(() => {
         fetchServicesAndGoods();
@@ -171,10 +171,22 @@ export default function ServicesPage() {
                                                 </span>
                                                 {role !== "USER" && (
                                                     <Dialog
-                                                        open={isDialogOpen}
-                                                        onOpenChange={
-                                                            setIsDialogOpen
+                                                        open={
+                                                            isDialogOpen &&
+                                                            editItem?.id ===
+                                                                item.id
                                                         }
+                                                        onOpenChange={(
+                                                            open
+                                                        ) => {
+                                                            setIsDialogOpen(
+                                                                open
+                                                            );
+                                                            if (!open)
+                                                                setEditItem(
+                                                                    null
+                                                                );
+                                                        }}
                                                     >
                                                         <DialogTrigger asChild>
                                                             <Button
@@ -183,9 +195,6 @@ export default function ServicesPage() {
                                                                 onClick={() => {
                                                                     setEditItem(
                                                                         item
-                                                                    );
-                                                                    setIsDialogOpen(
-                                                                        true
                                                                     );
                                                                 }}
                                                             >
@@ -196,7 +205,9 @@ export default function ServicesPage() {
                                                             <DialogHeader>
                                                                 <DialogTitle>
                                                                     Edit{" "}
-                                                                    {editItem?.name}
+                                                                    {
+                                                                        editItem?.name
+                                                                    }
                                                                 </DialogTitle>
                                                             </DialogHeader>
                                                             <form
@@ -267,40 +278,41 @@ export default function ServicesPage() {
                                                                         }
                                                                     />
                                                                 </div>
-                                                                {editItem && "time" in
-                                                                    editItem && (
-                                                                    <div>
-                                                                        <Label htmlFor="time">
-                                                                            Time
-                                                                            (minutes)
-                                                                        </Label>
-                                                                        <Input
-                                                                            id="time"
-                                                                            type="number"
-                                                                            value={
-                                                                                (
-                                                                                    editItem as SalonService
-                                                                                )
-                                                                                    ?.time ||
-                                                                                0
-                                                                            }
-                                                                            onChange={(
-                                                                                e
-                                                                            ) =>
-                                                                                setEditItem(
-                                                                                    {
-                                                                                        ...editItem,
-                                                                                        time: parseInt(
-                                                                                            e
-                                                                                                .target
-                                                                                                .value
-                                                                                        ),
-                                                                                    } as SalonService
-                                                                                )
-                                                                            }
-                                                                        />
-                                                                    </div>
-                                                                )}
+                                                                {editItem &&
+                                                                    "time" in
+                                                                        editItem && (
+                                                                        <div>
+                                                                            <Label htmlFor="time">
+                                                                                Time
+                                                                                (minutes)
+                                                                            </Label>
+                                                                            <Input
+                                                                                id="time"
+                                                                                type="number"
+                                                                                value={
+                                                                                    (
+                                                                                        editItem as SalonService
+                                                                                    )
+                                                                                        ?.time ||
+                                                                                    0
+                                                                                }
+                                                                                onChange={(
+                                                                                    e
+                                                                                ) =>
+                                                                                    setEditItem(
+                                                                                        {
+                                                                                            ...editItem,
+                                                                                            time: parseInt(
+                                                                                                e
+                                                                                                    .target
+                                                                                                    .value
+                                                                                            ),
+                                                                                        } as SalonService
+                                                                                    )
+                                                                                }
+                                                                            />
+                                                                        </div>
+                                                                    )}
                                                                 <div className="flex justify-between">
                                                                     <Button type="submit">
                                                                         Save
@@ -334,11 +346,11 @@ export default function ServicesPage() {
                 {role !== "USER" && (
                     <div className="mt-4">
                         <ServiceForm
-                        services={services}
-                        goods={goods}
-                        setGoods={setGoods}
-                        setServices={setServices}
-                    />
+                            services={services}
+                            goods={goods}
+                            setGoods={setGoods}
+                            setServices={setServices}
+                        />
                     </div>
                 )}
             </div>

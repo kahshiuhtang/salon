@@ -9,6 +9,7 @@ interface ProfileProps {
     comments: string;
     role: "ADMIN" | "USER" | "MOD";
     userId: string;
+    color: string;
 }
 interface VerifyProfileProps {
     userId: string;

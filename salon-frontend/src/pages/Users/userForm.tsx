@@ -28,6 +28,7 @@ const userSchema = z.object({
     comments: z.string().optional(),
     password: z.string().min(5).optional(),
     role: z.enum(["ADMIN", "USER", "MOD"]),
+    color: z.string(),
     userId: z.string().optional(),
 });
 
@@ -51,7 +52,6 @@ export function UserForm({
             role: "USER",
         },
     });
-
     return (
         <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -108,6 +108,46 @@ export function UserForm({
                             </FormItem>
                         )}
                     />
+                    <FormField
+                        control={form.control}
+                        name="role"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Role</FormLabel>
+                                <Select
+                                    onValueChange={field.onChange}
+                                    defaultValue={field.value}
+                                >
+                                    <FormControl>
+                                        <SelectTrigger>
+                                            <SelectValue placeholder="Select a role" />
+                                        </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                        <SelectItem value="USER">User</SelectItem>
+                                        <SelectItem value="MOD">
+                                            Moderator
+                                        </SelectItem>
+                                        <SelectItem value="ADMIN">Admin</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="color"
+                        render={({ field }) => (
+                            <FormItem>
+                                <FormLabel>Color</FormLabel>
+                                <FormControl>
+                                    <Input type={"color"} {...field}></Input>
+                                </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
                 </div>
                 <FormField
                     control={form.control}
@@ -118,33 +158,6 @@ export function UserForm({
                             <FormControl>
                                 <Textarea {...field} />
                             </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}
-                />
-                <FormField
-                    control={form.control}
-                    name="role"
-                    render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Role</FormLabel>
-                            <Select
-                                onValueChange={field.onChange}
-                                defaultValue={field.value}
-                            >
-                                <FormControl>
-                                    <SelectTrigger>
-                                        <SelectValue placeholder="Select a role" />
-                                    </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                    <SelectItem value="USER">User</SelectItem>
-                                    <SelectItem value="MOD">
-                                        Moderator
-                                    </SelectItem>
-                                    <SelectItem value="ADMIN">Admin</SelectItem>
-                                </SelectContent>
-                            </Select>
                             <FormMessage />
                         </FormItem>
                     )}

@@ -67,6 +67,7 @@ export interface SalonUser {
     comments: string;
     role: "ADMIN" | "USER" | "MOD";
     userId: string;
+    color: string;
 }
 export interface ACPService {
     name: string;

@@ -48,6 +48,7 @@ const userSchema = z.object({
     phoneNumber: z.string().min(10, "Phone number must be at least 10 digits"),
     comments: z.string().optional(),
     role: z.enum(["ADMIN", "USER", "MOD"]),
+    color: z.string(),
     userId: z.string().optional(),
 });
 
@@ -111,6 +112,7 @@ export default function UsersPage() {
                     ...editingUser,
                     userId: editingUser.userId ? editingUser.userId : "",
                     comments: data.comments || "",
+                    color: data.color
                 });
                 setUsers(
                     users.map((user) =>
@@ -134,10 +136,8 @@ export default function UsersPage() {
                     email: [data.email],
                     phoneNumber: [data.phoneNumber],
                 });
-                if (!res || res.message != "Success") {
-                    return;
-                }
-                if (res.userId == "") {
+                if (!res || res.message != "Success" || res.userId == "") {
+                    console.log("issue creating clerk profile...");
                     return;
                 }
                 await createProfile({

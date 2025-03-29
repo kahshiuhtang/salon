@@ -2,10 +2,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Appointment, DailyCalendarAppointment, SalonRole } from "@/lib/types/types";
 import DailyCalendar from "@/pages/Home/dailyCalendar";
 import AppointmentCard from "@/pages/Home/appointmentCard";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import WeeklySalonCalendar from "@/pages/Home/weeklySalonCalendar";
 import { getDateOnlyFromDate } from "@/lib/utils";
-import { useService } from "@/lib/hooks/useService";
 
 interface EmployeeDashboardProps {
     dailyCalendarApps: DailyCalendarAppointment[];
@@ -21,8 +20,6 @@ export default function EmployeeDashboard({
     const [_, setSelectedDate] = useState(
         new Date().toISOString().split("T")[0]
     );
-    const [idToService, setIdToService] = useState<Map<string, string>>(new Map());
-    const { getServices } = useService();
     if(!setSelectedDate)
         console.log("useState error"); 
     const formattedDate = getDateOnlyFromDate(new Date());
@@ -34,35 +31,6 @@ export default function EmployeeDashboard({
         acc[obj.id] = obj;
         return acc;
         }, {});
-    async function getServiceGoodsMappings(){
-        let idMapping = new Map<string, string>();
-        let services = await getServices();
-        const globalMapping = services.reduce((map, service) =>{
-            map.set(service.id, service.name);
-            return map;
-        }, new Map())
-        for(const app of dailyCalendarApps){
-            for(const service of app.services){
-                if(idMapping.has(service.name)){
-                    continue;
-                }
-                idMapping.set(service.name, globalMapping.get(service.name));
-            }
-        }
-        return idMapping;
-    }
-    async function fetchServiceMappings(){
-        try {
-          const idMapping = await getServiceGoodsMappings();
-          setIdToService(idMapping);
-        } catch (error) {
-          console.error("Error fetching service mappings:", error);
-        }
-      };
-    useEffect(() => {
-        fetchServiceMappings();
-    }, []);
-    useEffect(()=>{fetchServiceMappings()},[dailyCalendarApps])
     return (
         <Tabs defaultValue="today" className="w-full">
             <TabsList>
@@ -88,7 +56,6 @@ export default function EmployeeDashboard({
                             appointment={idToApp[appointment.id]}
                             userType={role}
                             isPast={new Date(appointment.date) < new Date()}
-                            idToService={idToService}
                         />
                     ))}
                     {

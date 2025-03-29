@@ -14,8 +14,9 @@ import HomePage from "@/pages/Home/homePage";
 import UsersPage from "@/pages/Users/usersPage";
 import LandingPage from "@/pages/Landing/landingPage";
 import ServicesPage from "@/pages/Services/servicesPage";
-import TranscationsPage from "@/pages/Transactions/transactionsPage";
 import UserProvider from "@/contexts/userContext";
+import ServiceGoodProvider from "./contexts/serviceGoodContext";
+import TransactionsPage from "@/pages/Transactions/transactionsPage";
 const router = createBrowserRouter([
     {
         element: <RootLayout />,
@@ -24,9 +25,11 @@ const router = createBrowserRouter([
             {
                 path: "/home",
                 element: (
-                    <UserProvider>
-                        <HomePage />
-                    </UserProvider>
+                    <ServiceGoodProvider>
+                        <UserProvider>
+                            <HomePage />
+                        </UserProvider>
+                    </ServiceGoodProvider>
                 ),
             },
             {
@@ -82,9 +85,11 @@ const router = createBrowserRouter([
             {
                 path: "/transactions",
                 element: (
-                    <UserProvider>
-                        <TranscationsPage />{" "}
-                    </UserProvider>
+                    <ServiceGoodProvider>
+                        <UserProvider>
+                            <TransactionsPage />
+                        </UserProvider>
+                    </ServiceGoodProvider>
                 ),
             },
             {

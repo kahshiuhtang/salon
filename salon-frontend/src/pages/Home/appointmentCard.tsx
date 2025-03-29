@@ -23,6 +23,7 @@ import {
 import BookAppointmentForm from "@/pages/BookAppointment/bookAppointmentForm";
 import { useAppointment } from "@/lib/hooks/useAppointment";
 import { useToast } from "@/hooks/use-toast";
+import { useServiceGoodContext } from "@/contexts/serviceGoodContext";
 
 interface AppointmentCardProps {
     dailyCalendarApp: DailyCalendarAppointment;
@@ -30,7 +31,6 @@ interface AppointmentCardProps {
     isPast: boolean | undefined;
     userType: SalonRole;
     deleteAppLocally?: (appId: string) => boolean;
-    idToService?: Map<string, string>;
 }
 
 export default function AppointmentCard({
@@ -38,14 +38,15 @@ export default function AppointmentCard({
     appointment,
     userType,
     deleteAppLocally,
-    isPast = false,
-    idToService,
+    isPast = false
 }: AppointmentCardProps) {
     const [usernameCache, setUsernameCache] = useState<{
         [key: string]: SalonName;
     }>({});
     const [isDeleteDialogOpen, setisDeleteDialogOpen] =
         useState<boolean>(false);
+
+    const {idToServiceGoodMapping} = useServiceGoodContext();
 
     const { getNameFromId } = useUsers();
     const { deleteAppointment } = useAppointment();
@@ -91,7 +92,7 @@ export default function AppointmentCard({
                     <div>
                         <p className="font-semibold">
                             {dailyCalendarApp.services
-                                .map((s) => idToService?.get(s.name) || "")
+                                .map((s) => idToServiceGoodMapping?.get(s.name) || "")
                                 .join(", ")}
                         </p>
                         <div className="flex items-center text-sm text-gray-500">
@@ -196,7 +197,7 @@ export default function AppointmentCard({
                     <ul className="list-disc list-inside text-sm text-gray-600">
                         {dailyCalendarApp.services.map((service, index) => (
                             <li key={index}>
-                                {idToService?.get(service.name) || ""} with{" "}
+                                {idToServiceGoodMapping?.get(service.name) || ""} with{" "}
                                 {usernameCache[service.technician]
                                     ? usernameCache[service.technician]
                                           .firstName

@@ -30,6 +30,7 @@ const userSchema = z.object({
     role: z.enum(["ADMIN", "USER", "MOD"]),
     color: z.string(),
     userId: z.string().optional(),
+    comment: z.string().optional(),
 });
 
 type SalonUserForm = z.infer<typeof userSchema>;

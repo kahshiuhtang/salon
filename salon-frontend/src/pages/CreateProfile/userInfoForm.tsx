@@ -37,6 +37,7 @@ const formSchema = z.object({
     phoneNumber: z.string().min(5).max(50),
     email: z.string().min(2).max(50),
     comments: z.string(),
+    color: z.string(),
 });
 export default function UserInfoForm({ center, thisUser }: UserInfoFormProps) {
     const { toast } = useToast();
@@ -53,6 +54,7 @@ export default function UserInfoForm({ center, thisUser }: UserInfoFormProps) {
                 thisUser && thisUser.phoneNumber ? thisUser.phoneNumber : "",
             email: thisUser && thisUser.email ? thisUser.email : "",
             comments: thisUser && thisUser.comments ? thisUser.comments : "",
+            color: thisUser && thisUser.color ? thisUser.color : "",
         },
     });
 

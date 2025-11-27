@@ -79,6 +79,8 @@ interface BookAppointmentFormProps {
   userRole?: SalonRole;
   forUser?: SalonUser;
   isEdit?: boolean;
+  startTime?: Date;
+  endTime?: Date;
 }
 //TODO: Allow for a message to be sent when booking appointment
 export default function BookAppointmentForm({
@@ -87,6 +89,8 @@ export default function BookAppointmentForm({
   appointment,
   forUser,
   isEdit,
+  startTime,
+  endTime,
 }: BookAppointmentFormProps) {
   const { toast } = useToast();
   const { user } = useUser();
@@ -99,29 +103,48 @@ export default function BookAppointmentForm({
   const [employees, setEmployees] = useState<SalonUser[]>([]);
   const [allServices, setAllServices] = useState<SalonService[]>([]);
 
-  const [hours, minutes] =
-    appointment && appointment.appLength
-      ? appointment.appLength.split(/:(.*)/s)
-      : ["", ""];
+  let initialTime = appointment
+    ? convertTimeToDateObject(appointment.time)
+    : new Date();
+  let initialDate = appointment ? appointment.date : new Date();
+  let initialHours = "";
+  let initialMinutes = "";
+
+  if (startTime && endTime) {
+    const diffMs = endTime.getTime() - startTime.getTime();
+    const diffMinutes = Math.round(diffMs / (1000 * 60));
+    const hours = Math.floor(diffMinutes / 60);
+    const minutes = diffMinutes % 60;
+    initialHours = hours.toString();
+    initialMinutes = minutes.toString().padStart(2, "0");
+
+    // Time includes hours, minutes, seconds, AM/PM
+    initialTime = new Date(startTime);
+    initialDate = new Date(
+      startTime.getFullYear(),
+      startTime.getMonth(),
+      startTime.getDate()
+    );
+  }
+
+  // Then use these as defaults in useForm
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      time: initialTime,
+      date: initialDate,
+      services: appointment
+        ? appointment.services
+        : [{ service: "", tech: "" }],
+      hoursLength: initialHours,
+      minutesLength: initialMinutes,
+    },
+  });
 
   if (!user || !user.id) {
     navigate("/sign-in");
   }
   const userId = user?.id || "";
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      time: appointment
-        ? convertTimeToDateObject(appointment.time)
-        : new Date(),
-      date: appointment ? appointment.date : new Date(),
-      services: appointment
-        ? appointment.services
-        : [{ service: "", tech: "" }],
-      hoursLength: hours,
-      minutesLength: minutes,
-    },
-  });
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -134,7 +157,7 @@ export default function BookAppointmentForm({
     senderMessage: string,
     recipients: string[],
     receipientTitle: string,
-    recipientMessage: string,
+    recipientMessage: string
   ) {
     try {
       const notif = {
@@ -201,7 +224,7 @@ export default function BookAppointmentForm({
             "Salon staff will be notified of this update. An update will arrive soon.",
             uniqueTechSet,
             "Appointment update attempted",
-            "User has attempted to update on their appointments with you involved. Please approve or counter this request.",
+            "User has attempted to update on their appointments with you involved. Please approve or counter this request."
           );
         } else {
           sendNotifsToAllParties(
@@ -210,7 +233,7 @@ export default function BookAppointmentForm({
             "A salon staff member has updated your appointment, please apporve or counter this request.",
             uniqueTechSet,
             "Appointment update attempted",
-            "User has been notified of your attempted changes",
+            "User has been notified of your attempted changes"
           );
         }
       } else {
@@ -251,7 +274,7 @@ export default function BookAppointmentForm({
                 hour: "2-digit",
                 minute: "2-digit",
                 hour12: false,
-              }),
+              })
           );
         } else {
           toast({
@@ -278,7 +301,7 @@ export default function BookAppointmentForm({
                 hour: "2-digit",
                 minute: "2-digit",
                 hour12: false,
-              }),
+              })
           );
         }
       }
@@ -327,7 +350,7 @@ export default function BookAppointmentForm({
   return (
     <div
       className={cn(
-        insideCard ? "max-w-sm" : "flex justify-center items-center mt-24 ",
+        insideCard ? "max-w-sm" : "flex justify-center items-center mt-24 "
       )}
     >
       {!appointment && <Toaster />}
@@ -335,12 +358,16 @@ export default function BookAppointmentForm({
         className={cn(
           insideCard
             ? "max-w-lg"
-            : "w-3/4 sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3 2xl:w-1/4 3xl:w-1/5",
+            : "w-3/4 sm:w-2/3 md:w-1/2 lg:w-2/5 xl:w-1/3 2xl:w-1/4 3xl:w-1/5"
         )}
       >
         <CardHeader className="pl-8 pt-8 pb-0 mb-2">
-          <CardTitle>{isEdit == true ? "Edit Appointment" : "Book Appointment" }</CardTitle>
-          {isEdit != true && <CardDescription>Send a request for an appointment</CardDescription>}
+          <CardTitle>
+            {isEdit == true ? "Edit Appointment" : "Book Appointment"}
+          </CardTitle>
+          {isEdit != true && (
+            <CardDescription>Send a request for an appointment</CardDescription>
+          )}
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -359,7 +386,7 @@ export default function BookAppointmentForm({
                               variant={"outline"}
                               className={cn(
                                 "w-[200px] pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground",
+                                !field.value && "text-muted-foreground"
                               )}
                             >
                               {field.value ? (
@@ -502,7 +529,7 @@ export default function BookAppointmentForm({
                                   <SelectItem key={i} value={i.toString()}>
                                     {i.toString().padStart(2, "0")}
                                   </SelectItem>
-                                ),
+                                )
                               )}
                             </SelectContent>
                           </Select>
@@ -564,7 +591,7 @@ export default function BookAppointmentForm({
                               </SelectTrigger>
                               <SelectContent>
                                 {Array.from(
-                                  groupByType(allServices).entries(),
+                                  groupByType(allServices).entries()
                                 ).map(([type, services]) => (
                                   <SelectGroup key={type}>
                                     <SelectLabel>{type}</SelectLabel>

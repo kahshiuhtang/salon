@@ -174,9 +174,7 @@ export default function UsersPage() {
         setIsEditUserOpen(true);
     }
     function handleTimeframeSelect(selectInfo: DateSelectArg) {
-        const { startStr, endStr } = selectInfo;
-        console.log(new Date(startStr));
-        console.log(new Date(endStr));
+        selectInfo
         //setOpen(true);
     }
     const handleRoleChange = async (userId: string, increment: number) => {

@@ -221,7 +221,6 @@ export default function RequestCard({
         }));
         return fetchedUsername;
     };
-    console.log(date);
     return (
         <>
             <Toaster />
